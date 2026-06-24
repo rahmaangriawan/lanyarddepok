@@ -46,5 +46,5 @@ jobs:
 
       - name: Deploy via SSH Streaming (Upload and Unzip)
         run: |
-          sshpass -p "${{ secrets.FTP_PASSWORD }}" ssh -p 22 -o StrictHostKeyChecking=no ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }} "cat > /home/mantap-jakarta/htdocs/jakartalanyard.com/deploy.zip" < deploy.zip
-          sshpass -p "${{ secrets.FTP_PASSWORD }}" ssh -p 22 -o StrictHostKeyChecking=no ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }} "cd /home/mantap-jakarta/htdocs/jakartalanyard.com && unzip -o deploy.zip && rm deploy.zip"
+          sshpass -p "${{ secrets.FTP_PASSWORD }}" ssh -p 22 -o StrictHostKeyChecking=no ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }} "if [ -d htdocs/jakartalanyard.com ]; then cd htdocs/jakartalanyard.com; fi && cat > deploy.zip" < deploy.zip
+          sshpass -p "${{ secrets.FTP_PASSWORD }}" ssh -p 22 -o StrictHostKeyChecking=no ${{ secrets.FTP_USERNAME }}@${{ secrets.FTP_SERVER }} "if [ -d htdocs/jakartalanyard.com ]; then cd htdocs/jakartalanyard.com; fi && unzip -o deploy.zip && rm deploy.zip"
