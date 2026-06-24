@@ -38,7 +38,7 @@ export async function GET(
         if (client_email && private_key) {
           const range = settings.google_spreadsheet_range || "Sheet1!A1:Z10000";
           const spreadsheetProducts = await fetchSpreadsheetProducts(client_email, private_key, spreadsheetId, range);
-          baseProduct = spreadsheetProducts.find((p) => p.sku === sku) || null;
+          baseProduct = spreadsheetProducts.find((p) => p.sku.toLowerCase() === sku.toLowerCase()) || null;
         }
       } catch (err) {
         console.error("Sheets fetch error for single product:", err);
