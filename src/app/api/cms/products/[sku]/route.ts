@@ -18,23 +18,14 @@ export async function GET(
       return NextResponse.json({ error: "SKU is required" }, { status: 400 });
     }
 
-    // 1. Fetch local product details
-    const localProduct = await prisma.product.findUnique({
-      where: { sku },
-      include: { category: true },
-    });
-
-    if (!localProduct) {
-      return NextResponse.json({ error: "Produk tidak ditemukan di database lokal" }, { status: 404 });
-    }
-
-    // 2. Fetch sheet products to merge base specs
+    // 1. Fetch settings
     const settingsList = await prisma.setting.findMany();
     const settings: Record<string, string> = {};
     settingsList.forEach((s) => {
       settings[s.key] = s.value;
     });
 
+    // 2. Fetch sheet products
     const serviceAccountJson = settings.google_service_account_json;
     const spreadsheetId = settings.google_spreadsheet_id;
 
@@ -54,9 +45,22 @@ export async function GET(
       }
     }
 
+    // 3. Fetch or auto-create local product entry
+    let localProduct = await prisma.product.findUnique({
+      where: { sku },
+      include: { category: true },
+    });
+
+    if (!localProduct && baseProduct) {
+      localProduct = await prisma.product.create({
+        data: { sku, published: false },
+        include: { category: true },
+      });
+    }
+
+    // 4. Return merged product (or spreadsheet-only if no local entry yet)
     const mergedProduct = {
-      // Base spreadsheet details (if connected)
-      sku: localProduct.sku,
+      sku: baseProduct?.sku || sku,
       name: baseProduct?.name || "Produk Lanyard",
       specs: baseProduct?.specs || "",
       accessories: baseProduct?.accessories || "",
@@ -66,17 +70,16 @@ export async function GET(
       shortDesc: baseProduct?.shortDesc || "",
       longDesc: baseProduct?.longDesc || "",
       spreadsheetFields: baseProduct || null,
-      // Local CMS details
-      id: localProduct.id,
-      featuredImage: localProduct.featuredImage,
-      categoryId: localProduct.categoryId,
-      category: localProduct.category,
-      description: localProduct.description || baseProduct?.longDesc || "",
-      published: localProduct.published,
-      metaTitle: localProduct.metaTitle || "",
-      metaDescription: localProduct.metaDescription || "",
-      createdAt: localProduct.createdAt,
-      updatedAt: localProduct.updatedAt,
+      id: localProduct?.id || null,
+      featuredImage: localProduct?.featuredImage || null,
+      categoryId: localProduct?.categoryId || null,
+      category: localProduct?.category || null,
+      description: localProduct?.description || baseProduct?.longDesc || "",
+      published: localProduct?.published || false,
+      metaTitle: localProduct?.metaTitle || "",
+      metaDescription: localProduct?.metaDescription || "",
+      createdAt: localProduct?.createdAt || null,
+      updatedAt: localProduct?.updatedAt || null,
     };
 
     return NextResponse.json({ success: true, product: mergedProduct });
