@@ -34,6 +34,7 @@ jobs:
 
       - name: Zip Standalone Assets
         run: |
+          cp restart.sh .next/standalone/restart.sh
           cp -r public .next/standalone/public
           mkdir -p .next/standalone/.next
           cp -r .next/static .next/standalone/.next/static
@@ -47,4 +48,4 @@ jobs:
       - name: Deploy via SSH Streaming (Upload and Unzip)
         run: |
           sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "if [ -d htdocs/jakartalanyard.com ]; then cd htdocs/jakartalanyard.com; fi && cat > deploy.zip" < deploy.zip
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "if [ -d htdocs/jakartalanyard.com ]; then cd htdocs/jakartalanyard.com; fi && unzip -o deploy.zip && rm deploy.zip"
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "if [ -d htdocs/jakartalanyard.com ]; then cd htdocs/jakartalanyard.com; fi && unzip -o deploy.zip && rm deploy.zip && chmod +x restart.sh && ./restart.sh"
