@@ -88,8 +88,14 @@ jobs:
             # ---- Restart ----
             if command -v pm2 &>/dev/null; then
               echo "=== Restarting via PM2 ==="
-              # Try name-based restart first, fall back to restart all, then start fresh
-              pm2 restart all 2>&1 || {
+
+              # Kill anything holding port 3005 (prevents EADDRINUSE)
+              echo "Releasing port 3005..."
+              fuser -k 3005/tcp 2>/dev/null && echo "Port 3005 freed." || echo "Port 3005 was already free."
+              sleep 2
+
+              # Restart with --update-env so new env vars are picked up
+              pm2 restart all --update-env 2>&1 || {
                 echo "pm2 restart all failed, starting fresh..."
                 pm2 start server.js --name jakartalanyard
               }
