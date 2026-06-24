@@ -244,7 +244,7 @@ export default function ProductsPage() {
             <thead>
               <tr className="bg-gray-50/40 text-gray-400 border-b border-gray-100 font-bold uppercase tracking-wider text-[9px]">
                 <th className="py-3.5 px-5 w-24">SKU</th>
-                <th className="py-3.5 px-5 w-44">Gambar & Nama</th>
+                <th className="py-3.5 px-5 w-56">Gambar & Nama</th>
                 <th className="py-3.5 px-5">Spesifikasi Dasar (Spreadsheet)</th>
                 <th className="py-3.5 px-5 w-32">Kategori (Lokal)</th>
                 <th className="py-3.5 px-5 w-28 text-center">Status</th>
@@ -264,11 +264,11 @@ export default function ProductsPage() {
                     <td className="py-3.5 px-5 font-mono text-gray-700 font-bold">{p.sku}</td>
                     <td className="py-3.5 px-5">
                       <div className="flex items-center space-x-3">
-                        <div className="h-10 w-10 bg-gray-50 border border-gray-150 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+                        <div className="h-14 w-14 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
                           {p.featuredImage ? (
                             <img src={p.featuredImage} alt={p.name} className="h-full w-full object-cover" />
                           ) : (
-                            <Icon icon="lucide:image" className="h-5 w-5 text-gray-300" />
+                            <Icon icon="lucide:image" className="h-6 w-6 text-gray-300" />
                           )}
                         </div>
                         <div className="min-w-0">
