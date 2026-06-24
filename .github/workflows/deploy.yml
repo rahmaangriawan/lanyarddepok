@@ -94,8 +94,12 @@ jobs:
                 pm2 start server.js --name jakartalanyard
               }
               pm2 save 2>/dev/null || true
-              echo "=== PM2 process list AFTER restart ==="
+              # Wait 5s then check if server is still alive and show logs
+              sleep 5
+              echo "=== PM2 status after 5s ==="
               pm2 list 2>/dev/null || true
+              echo "=== PM2 logs (last 40 lines) ==="
+              pm2 logs jakartalanyard.com --lines 40 --nostream 2>&1 || pm2 logs --lines 40 --nostream 2>&1 || true
               echo "✅ PM2 restart done."
             else
               echo "=== PM2 not found — pkill fallback ==="
