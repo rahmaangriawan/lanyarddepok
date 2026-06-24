@@ -13,7 +13,14 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { sku } = await params;
+    let { sku } = await params;
+    // Fallback: extract SKU from URL path if params is empty
+    if (!sku) {
+      const url = new URL(request.url);
+      const segments = url.pathname.split("/").filter(Boolean);
+      const skuIndex = segments.findIndex((s) => s === "products") + 1;
+      sku = segments[skuIndex] || "";
+    }
     if (!sku) {
       return NextResponse.json({ error: "SKU is required" }, { status: 400 });
     }

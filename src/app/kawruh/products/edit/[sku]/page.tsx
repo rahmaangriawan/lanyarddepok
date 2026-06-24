@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef, use } from "react";
 import { Icon } from "@iconify/react";
 import { useToast } from "@/components/Toast";
 import { getSavedThemeId, getThemeById } from "@/lib/dashboard-theme";
@@ -72,8 +72,8 @@ function SidebarSection({
   );
 }
 
-export default function ProductEditPage({ params }: { params: { sku: string } }) {
-  const { sku: encodedSku } = params;
+export default function ProductEditPage({ params }: { params: Promise<{ sku: string }> }) {
+  const { sku: encodedSku } = use(params);
   const sku = decodeURIComponent(encodedSku);
 
   const { toast } = useToast();
