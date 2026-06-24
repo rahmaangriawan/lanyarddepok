@@ -81,6 +81,33 @@ export async function GET() {
       localProducts.forEach((lp) => localSkuMap.set(lp.sku, lp));
     }
 
+    const publishUpdates = spreadsheetProducts
+      .map((sp) => {
+        const localData = localSkuMap.get(sp.sku);
+        const sheetPublished = isSpreadsheetProductPublished(sp.status);
+
+        if (!localData || localData.published === sheetPublished) return null;
+
+        return prisma.product.update({
+          where: { sku: sp.sku },
+          data: { published: sheetPublished },
+        });
+      })
+      .filter((update): update is NonNullable<typeof update> => Boolean(update));
+
+    if (publishUpdates.length > 0) {
+      await Promise.all(publishUpdates);
+
+      localProducts = await prisma.product.findMany({
+        include: {
+          category: true,
+        },
+      });
+
+      localSkuMap.clear();
+      localProducts.forEach((lp) => localSkuMap.set(lp.sku, lp));
+    }
+
     // 4. Merge Spreadsheet data with local DB enrichment data
     const mergedProducts = spreadsheetProducts.map((sp) => {
       const localData = localSkuMap.get(sp.sku);

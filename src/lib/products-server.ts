@@ -79,6 +79,32 @@ export async function getProducts(): Promise<UnifiedProduct[]> {
       refetchedLocal.forEach((lp) => localSkuMap.set(lp.sku, lp));
     }
 
+    const publishUpdates = spreadsheetProducts
+      .map((sp) => {
+        const localData = localSkuMap.get(sp.sku);
+        const sheetPublished = isSpreadsheetProductPublished(sp.status);
+
+        if (!localData || localData.published === sheetPublished) return null;
+
+        return prisma.product.update({
+          where: { sku: sp.sku },
+          data: { published: sheetPublished },
+        });
+      })
+      .filter((update): update is NonNullable<typeof update> => Boolean(update));
+
+    if (publishUpdates.length > 0) {
+      await Promise.all(publishUpdates);
+
+      const refetchedLocal = await prisma.product.findMany({
+        include: {
+          category: true,
+        },
+      });
+      localSkuMap.clear();
+      refetchedLocal.forEach((lp) => localSkuMap.set(lp.sku, lp));
+    }
+
     // Filter only published products
     const publishedProducts: UnifiedProduct[] = [];
     const currentSiteKeys = getCurrentSiteKeys(settings);
