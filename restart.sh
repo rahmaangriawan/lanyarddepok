@@ -12,11 +12,6 @@ fi
 echo "=== Restarting Node.js App ==="
 echo "Current directory: $(pwd)"
 
-# Kill any existing process running server.js
-echo "Stopping existing server.js processes..."
-pkill -f "node server.js" || true
-sleep 2
-
 # Verify and export environment variables from .env if present
 if [ -f .env ]; then
   echo "Loading environment variables from .env..."
@@ -28,16 +23,31 @@ fi
 export PORT=${PORT:-3005}
 export NODE_ENV=production
 
-# Start the server in the background
-echo "Starting Node.js server on port $PORT..."
-nohup node server.js > node.log 2>&1 &
-
-# Wait a second to check if it started successfully
-sleep 1
-if pgrep -f "node server.js" > /dev/null; then
-  echo "Application successfully started in the background!"
-  echo "Logs are being written to node.log"
+# Check if application is managed by PM2
+if command -v pm2 &> /dev/null; then
+  echo "PM2 detected! Restarting application using PM2..."
+  # Try restarting by name (commonly the directory name or server), otherwise restart all
+  pm2 restart jakartalanyard.com || pm2 restart server || pm2 restart all
+  echo "Application restarted via PM2 successfully!"
 else
-  echo "WARNING: Application failed to start. Check node.log for details."
-  cat node.log | tail -n 20
+  # Kill any existing process running server.js
+  echo "Stopping existing server.js processes..."
+  pkill -f "node server.js" || true
+  pkill -f "next-server" || true
+  pkill -f "next start" || true
+  sleep 2
+
+  # Start the server in the background
+  echo "Starting Node.js server on port $PORT..."
+  nohup node server.js > node.log 2>&1 &
+
+  # Wait a second to check if it started successfully
+  sleep 1
+  if pgrep -f "node server.js" > /dev/null; then
+    echo "Application successfully started in the background!"
+    echo "Logs are being written to node.log"
+  else
+    echo "WARNING: Application failed to start. Check node.log for details."
+    cat node.log | tail -n 20
+  fi
 fi
