@@ -1,0 +1,56 @@
+name: Build and Deploy Standalone Next.js to CloudPanel
+
+on:
+  push:
+    branches:
+      - main # Ganti dengan branch utama Anda jika berbeda (misal: master)
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy via FTP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Build Next.js Site
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Tambahkan environment variables lain di sini jika dibutuhkan saat build
+
+      - name: Prepare Standalone Assets
+        run: |
+          cp -r public .next/standalone/public
+          mkdir -p .next/standalone/.next
+          cp -r .next/static .next/standalone/.next/static
+
+      - name: FTP Standalone Code to CloudPanel
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # Default folder di CloudPanel adalah direktori root site (biasanya FTP user sudah dilock langsung ke folder website/htdocs Anda).
+          # Jika FTP user dilock ke folder domain root, gunakan: ./
+          # Jika FTP user diarahkan ke root user, gunakan target folder yang sesuai, misal: htdocs/
+          server-dir: ./
+          local-dir: .next/standalone/
+          exclude: |
+            **/*.map
+            .git*
+            .git*/**
+            node_modules/.cache/**

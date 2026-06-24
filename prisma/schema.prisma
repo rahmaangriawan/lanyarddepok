@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+}
+
+model Order {
+  id           Int      @id @default(autoincrement())
+  userId       Int?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lanyardWidth String
+  printingType String
+  attachment   String
+  quantity     Int
+  totalPrice   Int
+  notes        String?  @db.Text
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Inquiry {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  type        String   @default("BLOG")
+  posts       Post[]
+  products    Product[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Post {
+  id            Int      @id @default(autoincrement())
+  title         String
+  slug          String   @unique
+  content       String   @db.Text
+  published     Boolean  @default(false)
+  featuredImage String?
+  categoryId    Int?
+  category      Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  metaTitle       String?
+  metaDescription String?  @db.Text
+  comments        Comment[]
+}
+
+model Page {
+  id        Int      @id @default(autoincrement())
+  title     String
+  slug      String   @unique
+  content   String   @db.Text
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  metaTitle       String?
+  metaDescription String?  @db.Text
+}
+
+model Media {
+  id        Int      @id @default(autoincrement())
+  filename  String
+  filepath  String
+  mimetype  String
+  size      Int
+  url       String
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id              Int      @id @default(autoincrement())
+  sku             String   @unique
+  featuredImage   String?
+  categoryId      Int?
+  category        Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  description     String?  @db.Text
+  published       Boolean  @default(false)
+  metaTitle       String?
+  metaDescription String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Portfolio {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String   @db.Text
+  imageUrl    String
+  logoUrl     String?
+  logoText    String?
+  link        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  content   String   @db.Text
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model CityPage {
+  id              Int        @id @default(autoincrement())
+  title           String
+  slug            String     @unique
+  content         String     @db.Text
+  published       Boolean    @default(false)
+  featuredImage   String?
+  parentId        Int?
+  parent          CityPage?  @relation("ParentChild", fields: [parentId], references: [id], onDelete: SetNull)
+  children        CityPage[] @relation("ParentChild")
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  metaTitle       String?
+  metaDescription String?    @db.Text
+}
+
