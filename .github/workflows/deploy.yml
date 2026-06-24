@@ -38,19 +38,13 @@ jobs:
           mkdir -p .next/standalone/.next
           cp -r .next/static .next/standalone/.next/static
 
-      - name: FTP Standalone Code to CloudPanel
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: SFTP Standalone Code to CloudPanel
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server: ${{ secrets.FTP_SERVER }}
+          host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          # Default folder di CloudPanel adalah direktori root site (biasanya FTP user sudah dilock langsung ke folder website/htdocs Anda).
-          # Jika FTP user dilock ke folder domain root, gunakan: ./
-          # Jika FTP user diarahkan ke root user, gunakan target folder yang sesuai, misal: htdocs/
-          server-dir: ./
-          local-dir: .next/standalone/
-          exclude: |
-            **/*.map
-            .git*
-            .git*/**
-            node_modules/.cache/**
+          port: 22
+          source: ".next/standalone/**"
+          target: "/home/mantap-jakarta/htdocs/jakartalanyard.com"
+          strip_components: 2
