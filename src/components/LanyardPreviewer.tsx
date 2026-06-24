@@ -93,7 +93,7 @@ export default function LanyardPreviewer() {
             {/* Desktop Lanyard Image (Absolute Positioned for overlapping layout) */}
             <div className="absolute bottom-[-160px] left-[-80px] w-[540px] pointer-events-none -z-5 hidden lg:block">
               <img
-                src="/uploads/aset-lanyard-2-1782111030729.webp"
+                src="/uploads/aset-lanyard-3-1782112472764.webp"
                 className="w-full h-auto transition-transform duration-500 hover:rotate-1"
                 alt="Lanyard Custom Premium"
               />
@@ -102,7 +102,7 @@ export default function LanyardPreviewer() {
             {/* Mobile Lanyard Image (In-flow layout for mobile rendering) */}
             <div className="w-full max-w-sm mx-auto mt-10 lg:hidden pointer-events-none">
               <img
-                src="/uploads/aset-lanyard-2-1782111030729.webp"
+                src="/uploads/aset-lanyard-3-1782112472764.webp"
                 className="w-full h-auto"
                 alt="Lanyard Custom Premium"
               />
