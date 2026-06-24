@@ -47,5 +47,53 @@ jobs:
 
       - name: Deploy via SSH Streaming (Upload and Unzip)
         run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "if [ -d htdocs/jakartalanyard.com ]; then cd htdocs/jakartalanyard.com; fi && cat > deploy.zip" < deploy.zip
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "if [ -d htdocs/jakartalanyard.com ]; then cd htdocs/jakartalanyard.com; fi && unzip -o deploy.zip && rm deploy.zip && chmod +x restart.sh && ./restart.sh"
+          # Step 1: Stream the zip file to the server
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "cd htdocs/jakartalanyard.com && cat > deploy.zip" < deploy.zip
+
+          # Step 2: Unzip, then restart Node.js inline with full PATH and PM2 detection
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash -s << 'ENDSSH'
+            set -e
+
+            # ---- Load NVM & shell env ----
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            for f in "$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.profile"; do [ -f "$f" ] && . "$f"; done
+
+            # ---- Augment PATH with common Node/PM2 install locations ----
+            export PATH="$HOME/.nvm/versions/node/$(ls $HOME/.nvm/versions/node 2>/dev/null | sort -V | tail -n1)/bin:/usr/local/bin:/usr/bin:$PATH"
+            echo "PATH=$PATH"
+            echo "pm2 path: $(which pm2 || echo 'not found')"
+            echo "node path: $(which node || echo 'not found')"
+
+            # ---- Unzip the new build ----
+            cd ~/htdocs/jakartalanyard.com
+            unzip -o deploy.zip
+            rm -f deploy.zip
+
+            # ---- Load .env ----
+            if [ -f .env ]; then
+              export $(grep -v '^#' .env | sed 's/\r$//' | xargs)
+            fi
+            export PORT=${PORT:-3005}
+            export NODE_ENV=production
+
+            # ---- Restart: PM2 takes priority ----
+            if command -v pm2 &>/dev/null; then
+              echo "PM2 found at $(which pm2) — restarting..."
+              pm2 restart jakartalanyard.com 2>/dev/null \
+                || pm2 restart server 2>/dev/null \
+                || pm2 restart all 2>/dev/null \
+                || pm2 start server.js --name jakartalanyard.com
+              pm2 save
+              echo "✅ Restart via PM2 done."
+            else
+              echo "PM2 not found — using pkill fallback..."
+              pkill -f "node server.js" || true
+              pkill -f "next-server" || true
+              sleep 2
+              nohup node server.js > node.log 2>&1 &
+              sleep 1
+              pgrep -f "node server.js" && echo "✅ Server started." || { echo "❌ Start failed:"; tail -20 node.log; }
+            fi
+          ENDSSH
