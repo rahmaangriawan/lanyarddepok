@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { fetchSpreadsheetProducts } from "@/lib/google-sheets";
+import { fetchSpreadsheetProducts, SpreadsheetProduct } from "@/lib/google-sheets";
+import { isSpreadsheetProductPublished } from "@/lib/product-visibility";
 
 export async function GET(
   request: Request,
@@ -32,24 +33,17 @@ export async function GET(
       settings[s.key] = s.value;
     });
 
-    // 2. Fetch or auto-create local product entry (published by default)
+    // 2. Fetch local product entry. New entries are created after reading sheet status below.
     let localProduct = await prisma.product.findUnique({
       where: { sku },
       include: { category: true },
     });
 
-    if (!localProduct) {
-      localProduct = await prisma.product.create({
-        data: { sku, published: true },
-        include: { category: true },
-      });
-    }
-
     // 3. Fetch sheet products for base specs
     const serviceAccountJson = settings.google_service_account_json;
     const spreadsheetId = settings.google_spreadsheet_id;
 
-    let baseProduct = null;
+    let baseProduct: SpreadsheetProduct | null = null;
 
     if (serviceAccountJson && spreadsheetId) {
       try {
@@ -65,6 +59,13 @@ export async function GET(
       }
     }
 
+    if (!localProduct) {
+      localProduct = await prisma.product.create({
+        data: { sku, published: isSpreadsheetProductPublished(baseProduct?.status || "") },
+        include: { category: true },
+      });
+    }
+
     // 4. Return merged product
     const mergedProduct = {
       sku: baseProduct?.sku || sku,
@@ -76,6 +77,9 @@ export async function GET(
       slug: baseProduct?.slug || "",
       shortDesc: baseProduct?.shortDesc || "",
       longDesc: baseProduct?.longDesc || "",
+      sheetStatus: baseProduct?.status || "",
+      sites: baseProduct?.sites || "",
+      order: baseProduct?.order || "",
       spreadsheetFields: baseProduct || null,
       id: localProduct?.id || null,
       featuredImage: localProduct?.featuredImage || null,
@@ -90,7 +94,7 @@ export async function GET(
     };
 
     return NextResponse.json({ success: true, product: mergedProduct });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Fetch Single Product Error:", error);
     return NextResponse.json({ error: "Terjadi kesalahan internal server" }, { status: 500 });
   }
@@ -157,7 +161,7 @@ export async function PUT(
     }
 
     return NextResponse.json({ success: true, product: updatedProduct });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Update Product Error:", error);
     return NextResponse.json({ error: "Terjadi kesalahan internal server" }, { status: 500 });
   }

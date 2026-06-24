@@ -14,6 +14,9 @@ export interface UnifiedProduct {
   metaDescription: string;
   createdAt: string;
   updatedAt: string | null;
+  sheetStatus?: string;
+  sites?: string;
+  order?: number | null;
   categoryId?: number | null;
   category?: { id: number; name: string } | null;
 }

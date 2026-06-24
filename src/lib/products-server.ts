@@ -1,5 +1,11 @@
 import { prisma } from "@/lib/db";
-import { fetchSpreadsheetProducts } from "@/lib/google-sheets";
+import { fetchSpreadsheetProducts, SpreadsheetProduct } from "@/lib/google-sheets";
+import {
+  getCurrentSiteKeys,
+  getSpreadsheetProductOrder,
+  isSpreadsheetProductPublished,
+  isSpreadsheetProductVisibleOnSite,
+} from "@/lib/product-visibility";
 import { DEFAULT_PRODUCTS, UnifiedProduct } from "./products-service";
 
 export async function getProducts(): Promise<UnifiedProduct[]> {
@@ -21,7 +27,7 @@ export async function getProducts(): Promise<UnifiedProduct[]> {
     let credentials;
     try {
       credentials = JSON.parse(serviceAccountJson);
-    } catch (e) {
+    } catch {
       return DEFAULT_PRODUCTS;
     }
 
@@ -30,7 +36,7 @@ export async function getProducts(): Promise<UnifiedProduct[]> {
       return DEFAULT_PRODUCTS;
     }
 
-    let spreadsheetProducts = [];
+    let spreadsheetProducts: SpreadsheetProduct[] = [];
     try {
       const range = settings.google_spreadsheet_range || "Sheet1!A1:Z10000";
       spreadsheetProducts = await fetchSpreadsheetProducts(client_email, private_key, spreadsheetId, range);
@@ -50,15 +56,15 @@ export async function getProducts(): Promise<UnifiedProduct[]> {
       },
     });
 
-    const localSkuMap = new Map<string, any>(localProducts.map((lp: any) => [lp.sku, lp]));
+    const localSkuMap = new Map(localProducts.map((lp) => [lp.sku, lp]));
 
-    // Auto-insert any new sheet products as drafts if they don't exist locally
+    // Auto-insert any new sheet products if they don't exist locally
     const newSkus = spreadsheetProducts.filter((sp) => !localSkuMap.has(sp.sku));
     if (newSkus.length > 0) {
       await prisma.product.createMany({
         data: newSkus.map((ns) => ({
           sku: ns.sku,
-          published: true,
+          published: isSpreadsheetProductPublished(ns.status),
         })),
         skipDuplicates: true,
       });
@@ -70,15 +76,19 @@ export async function getProducts(): Promise<UnifiedProduct[]> {
         },
       });
       localSkuMap.clear();
-      refetchedLocal.forEach((lp: any) => localSkuMap.set(lp.sku, lp));
+      refetchedLocal.forEach((lp) => localSkuMap.set(lp.sku, lp));
     }
 
     // Filter only published products
     const publishedProducts: UnifiedProduct[] = [];
+    const currentSiteKeys = getCurrentSiteKeys(settings);
 
     spreadsheetProducts.forEach((sp) => {
       const localData = localSkuMap.get(sp.sku);
-      if (localData && localData.published) {
+      const sheetPublished = isSpreadsheetProductPublished(sp.status);
+      const visibleOnSite = isSpreadsheetProductVisibleOnSite(sp.sites, currentSiteKeys);
+
+      if (localData && localData.published && sheetPublished && visibleOnSite) {
         publishedProducts.push({
           id: localData.id,
           sku: sp.sku,
@@ -95,6 +105,9 @@ export async function getProducts(): Promise<UnifiedProduct[]> {
           metaDescription: localData.metaDescription || sp.shortDesc || sp.name || "",
           createdAt: localData.createdAt ? localData.createdAt.toISOString() : new Date().toISOString(),
           updatedAt: localData.updatedAt ? localData.updatedAt.toISOString() : null,
+          sheetStatus: sp.status,
+          sites: sp.sites,
+          order: getSpreadsheetProductOrder(sp),
           categoryId: localData.categoryId,
           category: localData.category,
         });
@@ -108,6 +121,10 @@ export async function getProducts(): Promise<UnifiedProduct[]> {
 
     // Sort by newest created first
     publishedProducts.sort((a, b) => {
+      const orderA = a.order ?? Number.POSITIVE_INFINITY;
+      const orderB = b.order ?? Number.POSITIVE_INFINITY;
+      if (orderA !== orderB) return orderA - orderB;
+
       const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return dateB - dateA;

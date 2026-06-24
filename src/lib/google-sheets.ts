@@ -68,6 +68,9 @@ export interface SpreadsheetProduct {
   slug: string;
   shortDesc: string;
   longDesc: string;
+  status: string;
+  sites: string;
+  order: string;
   [key: string]: string; // Fallback index signature for other columns
 }
 
@@ -114,6 +117,9 @@ export async function fetchSpreadsheetProducts(
   const slugIdx = headers.findIndex((h) => h.includes("slug"));
   const shortDescIdx = headers.findIndex((h) => h.includes("singkat") || h.includes("short"));
   const longDescIdx = headers.findIndex((h) => h.includes("lengkap") || h.includes("long") || h.includes("html"));
+  const statusIdx = headers.findIndex((h) => h === "status" || h.includes("publish") || h.includes("draft") || h.includes("draf"));
+  const sitesIdx = headers.findIndex((h) => h === "sites" || h === "site" || h.includes("situs") || h.includes("domain"));
+  const orderIdx = headers.findIndex((h) => h === "urutan" || h === "order" || h.includes("sort"));
 
   if (skuIdx === -1) {
     throw new Error("Kolom 'SKU' atau 'Kode' tidak ditemukan di baris pertama Spreadsheet.");
@@ -139,6 +145,9 @@ export async function fetchSpreadsheetProducts(
     const slug = slugIdx !== -1 && row[slugIdx] ? row[slugIdx].trim() : "";
     const shortDesc = shortDescIdx !== -1 && row[shortDescIdx] ? row[shortDescIdx].trim() : "";
     const longDesc = longDescIdx !== -1 && row[longDescIdx] ? row[longDescIdx].trim() : "";
+    const status = statusIdx !== -1 && row[statusIdx] ? row[statusIdx].trim() : "";
+    const sites = sitesIdx !== -1 && row[sitesIdx] ? row[sitesIdx].trim() : "";
+    const order = orderIdx !== -1 && row[orderIdx] ? row[orderIdx].trim() : "";
 
     const productObj: SpreadsheetProduct = {
       sku,
@@ -150,6 +159,9 @@ export async function fetchSpreadsheetProducts(
       slug,
       shortDesc,
       longDesc,
+      status,
+      sites,
+      order,
     };
 
     // Store other unmapped columns
@@ -164,6 +176,9 @@ export async function fetchSpreadsheetProducts(
         idx !== slugIdx &&
         idx !== shortDescIdx &&
         idx !== longDescIdx &&
+        idx !== statusIdx &&
+        idx !== sitesIdx &&
+        idx !== orderIdx &&
         row[idx]
       ) {
         productObj[header] = row[idx].trim();

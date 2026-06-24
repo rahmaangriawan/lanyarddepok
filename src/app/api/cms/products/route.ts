@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { fetchSpreadsheetProducts } from "@/lib/google-sheets";
+import { fetchSpreadsheetProducts, SpreadsheetProduct } from "@/lib/google-sheets";
+import { getSpreadsheetProductOrder, isSpreadsheetProductPublished } from "@/lib/product-visibility";
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Unknown error";
+}
 
 export async function GET() {
   try {
@@ -26,7 +31,7 @@ export async function GET() {
     let credentials;
     try {
       credentials = JSON.parse(serviceAccountJson);
-    } catch (e) {
+    } catch {
       return NextResponse.json({ success: false, error: "Format JSON Google Service Account tidak valid." });
     }
 
@@ -36,13 +41,13 @@ export async function GET() {
     }
 
     // 1. Fetch products from Google Sheets
-    let spreadsheetProducts: any[] = [];
+    let spreadsheetProducts: SpreadsheetProduct[] = [];
     try {
       const range = settings.google_spreadsheet_range || "Sheet1!A1:Z10000";
       spreadsheetProducts = await fetchSpreadsheetProducts(client_email, private_key, spreadsheetId, range);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Google Sheets Fetch Error:", err);
-      return NextResponse.json({ success: false, error: `Gagal membaca Google Spreadsheet: ${err.message}` });
+      return NextResponse.json({ success: false, error: `Gagal membaca Google Spreadsheet: ${getErrorMessage(err)}` });
     }
 
     // 2. Fetch local products
@@ -53,14 +58,14 @@ export async function GET() {
     });
 
     // 3. Detect and auto-insert new SKUs from sheet
-    const localSkuMap = new Map<string, any>(localProducts.map((lp: any) => [lp.sku, lp]));
+    const localSkuMap = new Map(localProducts.map((lp) => [lp.sku, lp]));
     const newSkus = spreadsheetProducts.filter((sp) => !localSkuMap.has(sp.sku));
 
     if (newSkus.length > 0) {
       await prisma.product.createMany({
         data: newSkus.map((ns) => ({
           sku: ns.sku,
-          published: true,
+          published: isSpreadsheetProductPublished(ns.status),
         })),
         skipDuplicates: true,
       });
@@ -73,7 +78,7 @@ export async function GET() {
       });
 
       localSkuMap.clear();
-      localProducts.forEach((lp: any) => localSkuMap.set(lp.sku, lp));
+      localProducts.forEach((lp) => localSkuMap.set(lp.sku, lp));
     }
 
     // 4. Merge Spreadsheet data with local DB enrichment data
@@ -90,6 +95,9 @@ export async function GET() {
         slug: sp.slug,
         shortDesc: sp.shortDesc,
         longDesc: sp.longDesc,
+        sheetStatus: sp.status,
+        sites: sp.sites,
+        order: getSpreadsheetProductOrder(sp),
         spreadsheetFields: sp, // Keep original columns in case we need extra fields
         // Local CMS enriched data
         id: localData?.id || null,
@@ -104,14 +112,18 @@ export async function GET() {
       };
     });
 
-    mergedProducts.sort((a: any, b: any) => {
+    mergedProducts.sort((a, b) => {
+      const orderA = a.order ?? Number.POSITIVE_INFINITY;
+      const orderB = b.order ?? Number.POSITIVE_INFINITY;
+      if (orderA !== orderB) return orderA - orderB;
+
       const dateA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
       const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
       return dateB - dateA;
     });
 
     return NextResponse.json({ success: true, products: mergedProducts });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Consolidated Products Fetch Error:", error);
     return NextResponse.json({ error: "Terjadi kesalahan internal server" }, { status: 500 });
   }
