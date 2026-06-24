@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import CategoryProdukListing from "./CategoryProdukListing";
 import { UnifiedProduct } from "@/lib/products-service";
+import { getProducts } from "@/lib/products-server";
 
 export const revalidate = 0; // dynamic rendering
 
@@ -44,32 +45,11 @@ export default async function ProductCategoryArchivePage({ params }: PageProps) 
     notFound();
   }
 
-  // 2. Fetch products under this category
-  const rawProducts = await prisma.product.findMany({
-    where: {
-      categoryId: category.id,
-      published: true,
-    },
-    include: { category: true },
-    orderBy: { name: "asc" },
-  });
-
-  // Map database products to UnifiedProduct interface
-  const products: UnifiedProduct[] = rawProducts.map((p) => ({
-    id: p.id,
-    sku: p.sku,
-    name: p.name,
-    slug: p.slug,
-    description: p.description || "",
-    specs: p.specs || "",
-    accessories: p.accessories || "",
-    basePrice: p.basePrice || "Rp 0",
-    minOrder: p.minOrder || "100",
-    featuredImage: p.featuredImage,
-    categoryId: p.categoryId,
-    category: p.category ? { id: p.category.id, name: p.category.name, slug: p.category.slug, description: p.category.description, type: p.category.type } : null,
-    published: p.published,
-  }));
+  // 2. Fetch all unified products using getProducts and filter by categoryId
+  const allProducts = await getProducts();
+  const products: UnifiedProduct[] = allProducts
+    .filter((p) => p.categoryId === category.id && p.published)
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
   const pageUrl = `${siteUrl}/produk/kategori/${category.slug}`;
