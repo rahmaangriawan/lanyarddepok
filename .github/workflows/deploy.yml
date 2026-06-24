@@ -53,47 +53,62 @@ jobs:
 
           # Step 2: Unzip, then restart Node.js inline with full PATH and PM2 detection
           sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash -s << 'ENDSSH'
-            set -e
-
             # ---- Load NVM & shell env ----
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             for f in "$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.profile"; do [ -f "$f" ] && . "$f"; done
 
-            # ---- Augment PATH with common Node/PM2 install locations ----
-            export PATH="$HOME/.nvm/versions/node/$(ls $HOME/.nvm/versions/node 2>/dev/null | sort -V | tail -n1)/bin:/usr/local/bin:/usr/bin:$PATH"
-            echo "PATH=$PATH"
-            echo "pm2 path: $(which pm2 || echo 'not found')"
-            echo "node path: $(which node || echo 'not found')"
+            # ---- Augment PATH ----
+            NVM_NODE_VER=$(ls "$HOME/.nvm/versions/node" 2>/dev/null | sort -V | tail -n1)
+            if [ -n "$NVM_NODE_VER" ]; then
+              export PATH="$HOME/.nvm/versions/node/$NVM_NODE_VER/bin:$PATH"
+            fi
+            export PATH="/usr/local/bin:/usr/bin:$PATH"
+
+            echo "=== ENVIRONMENT ==="
+            echo "pm2: $(which pm2 2>/dev/null || echo NOT_FOUND)"
+            echo "node: $(which node 2>/dev/null || echo NOT_FOUND)"
 
             # ---- Unzip the new build ----
-            cd ~/htdocs/jakartalanyard.com
-            unzip -o deploy.zip
+            cd "$HOME/htdocs/jakartalanyard.com"
+            echo "=== Extracting new build ==="
+            unzip -oq deploy.zip
             rm -f deploy.zip
+            echo "=== Extract complete ==="
 
             # ---- Load .env ----
-            if [ -f .env ]; then
-              export $(grep -v '^#' .env | sed 's/\r$//' | xargs)
-            fi
-            export PORT=${PORT:-3005}
+            [ -f .env ] && export $(grep -v '^#' .env | sed 's/\r$//' | xargs)
+            export PORT="${PORT:-3005}"
             export NODE_ENV=production
 
-            # ---- Restart: PM2 takes priority ----
+            # ---- Show current PM2 processes BEFORE restart ----
+            echo "=== PM2 process list BEFORE restart ==="
+            pm2 list 2>/dev/null || echo "pm2 list failed"
+
+            # ---- Restart ----
             if command -v pm2 &>/dev/null; then
-              echo "PM2 found at $(which pm2) — restarting..."
-              pm2 restart jakartalanyard.com 2>/dev/null \
-                || pm2 restart server 2>/dev/null \
-                || pm2 restart all 2>/dev/null \
-                || pm2 start server.js --name jakartalanyard.com
-              pm2 save
-              echo "✅ Restart via PM2 done."
+              echo "=== Restarting via PM2 ==="
+              # Try name-based restart first, fall back to restart all, then start fresh
+              pm2 restart all 2>&1 || {
+                echo "pm2 restart all failed, starting fresh..."
+                pm2 start server.js --name jakartalanyard
+              }
+              pm2 save 2>/dev/null || true
+              echo "=== PM2 process list AFTER restart ==="
+              pm2 list 2>/dev/null || true
+              echo "✅ PM2 restart done."
             else
-              echo "PM2 not found — using pkill fallback..."
-              pkill -f "node server.js" || true
-              pkill -f "next-server" || true
+              echo "=== PM2 not found — pkill fallback ==="
+              pkill -f "node server.js" 2>/dev/null || true
+              pkill -f "next-server" 2>/dev/null || true
               sleep 2
               nohup node server.js > node.log 2>&1 &
-              sleep 1
-              pgrep -f "node server.js" && echo "✅ Server started." || { echo "❌ Start failed:"; tail -20 node.log; }
+              sleep 2
+              if pgrep -f "node server.js" > /dev/null; then
+                echo "✅ Server started via nohup."
+              else
+                echo "❌ Failed to start server. Last logs:"
+                tail -30 node.log
+              fi
             fi
           ENDSSH
