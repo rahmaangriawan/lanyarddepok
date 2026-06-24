@@ -1,19 +1,20 @@
 import { prisma } from "@/lib/db";
 import { getProducts } from "@/lib/products-server";
+import { UnifiedProduct } from "@/lib/products-service";
 
 export async function GET() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
 
   // Fetch all published/active products using the unified service
-  let products = [];
+  let products: UnifiedProduct[] = [];
   try {
     products = await getProducts();
   } catch (err) {
     console.error("Error fetching products for sitemap:", err);
   }
-
+ 
   // Fetch all categories of type PRODUCT
-  let categories = [];
+  let categories: { slug: string; updatedAt: Date }[] = [];
   try {
     categories = await prisma.category.findMany({
       where: { type: "PRODUCT" },
