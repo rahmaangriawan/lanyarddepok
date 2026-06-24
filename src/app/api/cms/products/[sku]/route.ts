@@ -25,7 +25,20 @@ export async function GET(
       settings[s.key] = s.value;
     });
 
-    // 2. Fetch sheet products
+    // 2. Fetch or auto-create local product entry (published by default)
+    let localProduct = await prisma.product.findUnique({
+      where: { sku },
+      include: { category: true },
+    });
+
+    if (!localProduct) {
+      localProduct = await prisma.product.create({
+        data: { sku, published: true },
+        include: { category: true },
+      });
+    }
+
+    // 3. Fetch sheet products for base specs
     const serviceAccountJson = settings.google_service_account_json;
     const spreadsheetId = settings.google_spreadsheet_id;
 
@@ -45,20 +58,7 @@ export async function GET(
       }
     }
 
-    // 3. Fetch or auto-create local product entry
-    let localProduct = await prisma.product.findUnique({
-      where: { sku },
-      include: { category: true },
-    });
-
-    if (!localProduct && baseProduct) {
-      localProduct = await prisma.product.create({
-        data: { sku, published: false },
-        include: { category: true },
-      });
-    }
-
-    // 4. Return merged product (or spreadsheet-only if no local entry yet)
+    // 4. Return merged product
     const mergedProduct = {
       sku: baseProduct?.sku || sku,
       name: baseProduct?.name || "Produk Lanyard",
@@ -76,8 +76,8 @@ export async function GET(
       category: localProduct?.category || null,
       description: localProduct?.description || baseProduct?.longDesc || "",
       published: localProduct?.published || false,
-      metaTitle: localProduct?.metaTitle || "",
-      metaDescription: localProduct?.metaDescription || "",
+      metaTitle: localProduct?.metaTitle || baseProduct?.name || "",
+      metaDescription: localProduct?.metaDescription || baseProduct?.shortDesc || "",
       createdAt: localProduct?.createdAt || null,
       updatedAt: localProduct?.updatedAt || null,
     };

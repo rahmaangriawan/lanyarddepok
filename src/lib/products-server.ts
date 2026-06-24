@@ -58,7 +58,7 @@ export async function getProducts(): Promise<UnifiedProduct[]> {
       await prisma.product.createMany({
         data: newSkus.map((ns) => ({
           sku: ns.sku,
-          published: false,
+          published: true,
         })),
         skipDuplicates: true,
       });
@@ -92,7 +92,7 @@ export async function getProducts(): Promise<UnifiedProduct[]> {
           description: localData.description || sp.longDesc || sp.shortDesc || "",
           published: true,
           metaTitle: localData.metaTitle || sp.name || "Lanyard Custom",
-          metaDescription: localData.metaDescription || sp.shortDesc || "",
+          metaDescription: localData.metaDescription || sp.shortDesc || sp.name || "",
           createdAt: localData.createdAt ? localData.createdAt.toISOString() : new Date().toISOString(),
           updatedAt: localData.updatedAt ? localData.updatedAt.toISOString() : null,
           categoryId: localData.categoryId,

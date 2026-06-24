@@ -60,7 +60,7 @@ export async function GET() {
       await prisma.product.createMany({
         data: newSkus.map((ns) => ({
           sku: ns.sku,
-          published: false,
+          published: true,
         })),
         skipDuplicates: true,
       });
@@ -98,8 +98,8 @@ export async function GET() {
         category: localData?.category || null,
         description: localData?.description || sp.longDesc || "",
         published: localData?.published || false,
-        metaTitle: localData?.metaTitle || "",
-        metaDescription: localData?.metaDescription || "",
+        metaTitle: localData?.metaTitle || sp.name || "",
+        metaDescription: localData?.metaDescription || sp.shortDesc || sp.name || "",
         updatedAt: localData?.updatedAt || null,
       };
     });
