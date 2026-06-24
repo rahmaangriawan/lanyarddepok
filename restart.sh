@@ -1,4 +1,14 @@
 #!/bin/bash
+# Load NVM and shell environments to ensure Node and PM2 are in PATH (crucial for non-interactive SSH)
+if [ -d "$HOME/.nvm" ]; then
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+fi
+
+for profile in "$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.profile"; do
+  [ -f "$profile" ] && . "$profile"
+done
+
 # Navigate to the application directory
 # Supports both jailed and absolute home directory layouts
 if [ -d "$HOME/htdocs/jakartalanyard.com" ]; then
