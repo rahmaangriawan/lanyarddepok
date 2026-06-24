@@ -139,7 +139,7 @@ export default function SettingsPage() {
       }
     };
     fetchSettings();
-  }, [toast]);
+  }, []);
 
   const handleChange = (key: keyof SettingsState, value: string) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
