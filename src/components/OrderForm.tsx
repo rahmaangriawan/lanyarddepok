@@ -128,7 +128,7 @@ export default function OrderForm() {
                   <Icon icon="lucide:map-pin" className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Alamat Produksi</h4>
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Alamat Produksi</h3>
                   <p className="text-xs font-semibold text-gray-500 leading-relaxed mt-1">
                     Jl. Salemba Raya No. 34-36, Senen,
                     <br />
@@ -143,7 +143,7 @@ export default function OrderForm() {
                   <Icon icon="lucide:phone" className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider">WhatsApp HotLine</h4>
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">WhatsApp HotLine</h3>
                   <a
                     href="https://wa.me/6282210200700"
                     target="_blank"
@@ -161,7 +161,7 @@ export default function OrderForm() {
                   <Icon icon="lucide:mail" className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Email Support</h4>
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Email Support</h3>
                   <a
                     href="mailto:info@lanyardjakarta.co.id"
                     className="text-xs font-semibold text-gray-500 hover:text-brand-red block mt-1"

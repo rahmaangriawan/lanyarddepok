@@ -12,7 +12,7 @@ export const dashboardThemes: DashboardTheme[] = [
   {
     id: "red",
     name: "Merah",
-    accent: "#fe696a",
+    accent: "#e13b3d",
     accentDark: "#e0484a",
     light50: "#fff5f5",
     light100: "#ffe3e3",

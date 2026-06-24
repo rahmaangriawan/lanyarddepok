@@ -71,7 +71,7 @@ export default function PortfolioPage() {
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
 
   // Theme accent support
-  const [themeAccent, setThemeAccent] = useState("#fe696a");
+  const [themeAccent, setThemeAccent] = useState("#e13b3d");
   const [themeLight50, setThemeLight50] = useState("#fef2f2");
 
   useEffect(() => {
@@ -439,7 +439,7 @@ export default function PortfolioPage() {
                   <button
                     type="button"
                     onClick={() => setCurrentPage(currentPage - 1)}
-                    className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:text-[#fe696a] hover:bg-gray-50 transition-all cursor-pointer bg-white"
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:text-[#e13b3d] hover:bg-gray-50 transition-all cursor-pointer bg-white"
                     aria-label="Previous Page"
                   >
                     <Icon icon="lucide:chevron-left" className="h-4 w-4" />
@@ -463,7 +463,7 @@ export default function PortfolioPage() {
                       className={`inline-flex items-center justify-center w-8 h-8 rounded-lg font-bold text-xs transition-all cursor-pointer ${
                         isCurrent
                           ? "text-white shadow-xs"
-                          : "bg-white border-gray-200 text-gray-600 hover:text-[#fe696a] hover:bg-gray-50"
+                          : "bg-white border-gray-200 text-gray-600 hover:text-[#e13b3d] hover:bg-gray-50"
                       }`}
                       style={isCurrent ? { backgroundColor: themeAccent, borderColor: themeAccent } : undefined}
                       aria-current={isCurrent ? "page" : undefined}
@@ -477,7 +477,7 @@ export default function PortfolioPage() {
                   <button
                     type="button"
                     onClick={() => setCurrentPage(currentPage + 1)}
-                    className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:text-[#fe696a] hover:bg-gray-50 transition-all cursor-pointer bg-white"
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 text-gray-600 hover:text-[#e13b3d] hover:bg-gray-50 transition-all cursor-pointer bg-white"
                     aria-label="Next Page"
                   >
                     <Icon icon="lucide:chevron-right" className="h-4 w-4" />

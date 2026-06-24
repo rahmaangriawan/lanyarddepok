@@ -55,15 +55,22 @@ export default async function CategoryPostPage({ params }: PageProps) {
     notFound();
   }
 
-  // 2. Fetch posts under this category
-  const posts = await prisma.post.findMany({
-    where: {
-      categoryId: category.id,
-      published: true,
-    },
-    include: { category: true },
-    orderBy: { createdAt: "desc" },
-  });
+  // 2. Fetch posts under this category & admin details
+  const [posts, adminUser] = await Promise.all([
+    prisma.post.findMany({
+      where: {
+        categoryId: category.id,
+        published: true,
+      },
+      include: { category: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.user.findFirst({
+      where: { role: "ADMIN" },
+      select: { name: true },
+    })
+  ]);
+  const authorName = adminUser?.name || "Admin Lanyard Jakarta";
 
   const categoryPageSchema = {
     "@context": "https://schema.org",
@@ -122,7 +129,7 @@ export default async function CategoryPostPage({ params }: PageProps) {
             Kategori: {category.name}
           </span>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-[#373f50] leading-tight tracking-tight">
-            Artikel <span className="text-[#fe696a]">{category.name}</span>
+            Artikel <span className="text-[#e13b3d]">{category.name}</span>
           </h1>
           <p className="text-base sm:text-lg text-gray-500 font-normal leading-relaxed max-w-2xl mx-auto">
             {category.description || `Kumpulan artikel edukatif, panduan dan tips seputar ${category.name.toLowerCase()} dari Lanyard Jakarta.`}
@@ -186,14 +193,18 @@ export default async function CategoryPostPage({ params }: PageProps) {
                   {/* Body Content */}
                   <div className="p-6 flex-grow flex flex-col justify-between space-y-4">
                     <div className="flex flex-col">
-                      {/* Date Meta */}
-                      <span className="text-[10px] text-gray-400 font-bold block mb-2">
-                        {formattedDate}
-                      </span>
+                      {/* Date & Author Meta */}
+                      <div className="flex items-center space-x-2 text-[10px] text-gray-400 font-bold mb-2">
+                        <Link href="/blog/author/admin" className="hover:text-[#e13b3d] transition-colors">
+                          {authorName}
+                        </Link>
+                        <span>•</span>
+                        <span>{formattedDate}</span>
+                      </div>
 
                       {/* Post Title */}
                       <Link href={`/blog/${post.slug}`} className="block mb-3.5">
-                        <h2 className="text-[#373f50] text-lg font-semibold leading-snug group-hover:text-[#fe696a] transition-colors line-clamp-2">
+                        <h2 className="text-[#373f50] text-lg font-semibold leading-snug group-hover:text-[#e13b3d] transition-colors line-clamp-2">
                           {post.title}
                         </h2>
                       </Link>
@@ -208,7 +219,7 @@ export default async function CategoryPostPage({ params }: PageProps) {
                     <div className="pt-2">
                       <Link
                         href={`/blog/${post.slug}`}
-                        className="text-[11px] font-extrabold text-[#fe696a] hover:text-[#e04e4f] inline-flex items-center space-x-1.5 transition-colors group/btn select-none"
+                        className="text-[11px] font-extrabold text-[#e13b3d] hover:text-[#c82a2c] inline-flex items-center space-x-1.5 transition-colors group/btn select-none"
                       >
                         <span>Baca Selengkapnya</span>
                         <svg

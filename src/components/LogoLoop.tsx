@@ -275,7 +275,7 @@ export const LogoLoop = memo(
     }, [effectiveHoverSpeed]);
 
     const renderLogoItem = useCallback(
-      (item: LogoItem, key: React.Key) => {
+      (item: LogoItem, key: React.Key, tabIndex?: number) => {
         if (renderItem) {
           return (
             <li className="logoloop__item" key={key} role="listitem">
@@ -310,6 +310,7 @@ export const LogoLoop = memo(
             aria-label={itemAriaLabel || 'logo link'}
             target="_blank"
             rel="noreferrer noopener"
+            tabIndex={tabIndex}
           >
             {content}
           </a>
@@ -327,17 +328,22 @@ export const LogoLoop = memo(
 
     const logoLists = useMemo(
       () =>
-        Array.from({ length: copyCount }, (_, copyIndex) => (
-          <ul
-            className="logoloop__list"
-            key={`copy-${copyIndex}`}
-            role="list"
-            aria-hidden={copyIndex > 0}
-            ref={copyIndex === 0 ? seqRef : undefined}
-          >
-            {logos.map((item, itemIndex) => renderLogoItem(item, `${copyIndex}-${itemIndex}`))}
-          </ul>
-        )),
+        Array.from({ length: copyCount }, (_, copyIndex) => {
+          const isDuplicate = copyIndex > 0;
+          return (
+            <ul
+              className="logoloop__list"
+              key={`copy-${copyIndex}`}
+              role="list"
+              aria-hidden={isDuplicate}
+              ref={copyIndex === 0 ? seqRef : undefined}
+            >
+              {logos.map((item, itemIndex) =>
+                renderLogoItem(item, `${copyIndex}-${itemIndex}`, isDuplicate ? -1 : undefined)
+              )}
+            </ul>
+          );
+        }),
       [copyCount, logos, renderLogoItem]
     );
 

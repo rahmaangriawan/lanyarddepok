@@ -73,7 +73,7 @@ export default async function CategoriesPage() {
             Kategori Artikel
           </span>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-[#373f50] leading-tight tracking-tight">
-            Telusuri Berdasarkan <span className="text-[#fe696a]">Kategori</span>
+            Telusuri Berdasarkan <span className="text-[#e13b3d]">Kategori</span>
           </h1>
           <p className="text-base sm:text-lg text-gray-500 font-normal leading-relaxed max-w-2xl mx-auto">
             Temukan panduan, tips, trik, dan informasi produk lanyard custom berkualitas berdasarkan topik pilihan Anda.

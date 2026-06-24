@@ -17,8 +17,7 @@ export default function KawruhLayout({ children }: { children: React.ReactNode }
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    const checkAuth = async () => {
+  const checkAuth = async () => {
       try {
         const res = await fetch("/api/auth/session");
         const data = await res.json();
@@ -34,7 +33,14 @@ export default function KawruhLayout({ children }: { children: React.ReactNode }
         setLoading(false);
       }
     };
+
+  useEffect(() => {
     checkAuth();
+    
+    window.addEventListener("profile-updated", checkAuth);
+    return () => {
+      window.removeEventListener("profile-updated", checkAuth);
+    };
   }, [router]);
 
   // Theme system
@@ -107,6 +113,7 @@ export default function KawruhLayout({ children }: { children: React.ReactNode }
   const bottomItems = [
     { name: "Media Library", href: "/kawruh/media", icon: "lucide:image" },
     { name: "CMS Settings", href: "/kawruh/settings", icon: "lucide:settings" },
+    { name: "Profil Saya", href: "/kawruh/profile", icon: "lucide:user" },
   ];
 
   const isProductGroupActive = productGroup.children.some((c) => pathname === c.href);
@@ -263,18 +270,18 @@ export default function KawruhLayout({ children }: { children: React.ReactNode }
           {/* Profile / Footer Section */}
           <div className="p-4 border-t border-gray-100 shrink-0">
             {/* User Profile */}
-            <div className="flex items-center space-x-3 px-2 py-3">
-              <div className="bg-brand-light-50 p-2.5 rounded-full text-brand-red flex items-center justify-center shrink-0">
+            <Link href="/kawruh/profile" className="flex items-center space-x-3 px-2 py-2 hover:bg-gray-50 rounded-xl transition-colors cursor-pointer group">
+              <div className="bg-brand-light-50 group-hover:bg-brand-light-100 p-2.5 rounded-full text-brand-red flex items-center justify-center shrink-0 transition-colors">
                 <Icon icon="lucide:user" className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-sm font-bold text-gray-900 truncate leading-none">{user.name}</div>
+                <div className="text-sm font-bold text-gray-900 truncate leading-none group-hover:text-brand-red transition-colors">{user.name}</div>
                 <div className="text-[11px] font-semibold text-gray-400 truncate mt-1.5 leading-none">
                   {user.email}
                 </div>
               </div>
-              <Icon icon="lucide:chevron-down" className="h-4 w-4 text-gray-300 shrink-0" />
-            </div>
+              <Icon icon="lucide:chevron-right" className="h-4 w-4 text-gray-300 group-hover:text-brand-red/50 shrink-0 transition-all" />
+            </Link>
 
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-2 mt-2">

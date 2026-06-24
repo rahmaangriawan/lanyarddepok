@@ -58,7 +58,7 @@ export default function Footer() {
                 href="https://wa.me/6282210200700?text=Halo%20Lanyard%20Jakarta%2C%20saya%20ingin%20berkonsultasi%20mengenai%20pemesanan%20lanyard..."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-auto inline-flex items-center justify-center bg-[#FF4C4D] hover:bg-[#e03d3d] text-white text-[9px] sm:text-xs md:text-sm font-bold px-3 py-2 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl shadow-xs transition-colors"
+                className="w-auto inline-flex items-center justify-center bg-[#e13b3d] hover:bg-[#c82a2c] text-white text-[9px] sm:text-xs md:text-sm font-bold px-3 py-2 sm:px-6 sm:py-3.5 rounded-lg sm:rounded-xl shadow-xs transition-colors"
               >
                 <Icon icon="logos:whatsapp-icon" className="w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 mr-1 sm:mr-2 shrink-0" />
                 WhatsApp Kami
@@ -197,7 +197,7 @@ export default function Footer() {
         <hr className="border-gray-100" />
 
         {/* Bottom copyright line (centered) */}
-        <div className="text-center text-xs text-gray-400 font-semibold pt-6 select-none">
+        <div className="text-center text-xs text-gray-600 font-semibold pt-6 select-none">
           © {new Date().getFullYear()} <span className="font-extrabold text-gray-500">Lanyard Jakarta</span>. All Rights Reserved.
         </div>
       </div>

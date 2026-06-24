@@ -80,14 +80,14 @@ export default function LanyardProducts() {
         
         {/* Header */}
         <div className="text-center mb-12 select-none">
-          <span className="inline-flex items-center text-[#fe696a] text-xs font-bold tracking-widest uppercase gap-2 mb-2">
-            <span className="w-4 h-[1px] bg-[#fe696a]" />
+          <span className="inline-flex items-center text-[#e13b3d] text-xs font-bold tracking-widest uppercase gap-2 mb-2">
+            <span className="w-4 h-[1px] bg-[#e13b3d]" />
             PRODUK KAMI
-            <span className="w-4 h-[1px] bg-[#fe696a]" />
+            <span className="w-4 h-[1px] bg-[#e13b3d]" />
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#373f50] leading-tight tracking-tight mt-2">
             Lanyard Berkualitas, <br />
-            <span className="text-[#fe696a]">Siap Dukung Identitasmu</span>
+            <span className="text-[#e13b3d]">Siap Dukung Identitasmu</span>
           </h2>
         </div>
 
@@ -99,7 +99,7 @@ export default function LanyardProducts() {
             
             {/* Content Top */}
             <div className="relative z-10 select-none">
-              <h3 className="text-4xl font-extrabold text-[#fe696a] mb-3">
+              <h3 className="text-4xl font-extrabold text-[#e13b3d] mb-3">
                 Lanyard
               </h3>
               <p className="text-[#4b566b] text-sm sm:text-base font-normal leading-relaxed max-w-[280px]">
@@ -108,10 +108,10 @@ export default function LanyardProducts() {
               
               <Link
                 href="/produk"
-                className="inline-flex items-center gap-2 text-[#fe696a] font-bold text-sm mt-6 hover:opacity-80 transition-opacity group"
+                className="inline-flex items-center gap-2 text-[#e13b3d] font-bold text-sm mt-6 hover:opacity-80 transition-opacity group"
               >
                 <span>Lihat Semua</span>
-                <div className="w-8 h-8 rounded-full border border-[#fe696a]/30 flex items-center justify-center text-[#fe696a] bg-white shadow-xs group-hover:bg-[#fe696a] group-hover:text-white transition-all duration-300">
+                <div className="w-8 h-8 rounded-full border border-[#e13b3d]/30 flex items-center justify-center text-[#e13b3d] bg-white shadow-xs group-hover:bg-[#e13b3d] group-hover:text-white transition-all duration-300">
                   <Icon icon="lucide:arrow-up-right" className="h-4 w-4" />
                 </div>
               </Link>
@@ -126,7 +126,7 @@ export default function LanyardProducts() {
               >
                 <path
                   d="M0,160 C120,220 280,80 400,120 L400,300 L0,300 Z"
-                  fill="#fe696a"
+                  fill="#e13b3d"
                 />
               </svg>
             </div>
@@ -137,6 +137,8 @@ export default function LanyardProducts() {
                 src="/uploads/aset-lanyard-4-1782114161098.webp"
                 className="w-full h-auto"
                 alt="Highlight Lanyard Custom"
+                width={430}
+                height={242}
               />
             </div>
           </div>
@@ -171,29 +173,31 @@ export default function LanyardProducts() {
                     <button
                       type="button"
                       onClick={(e) => handleToggleLoved(item.sku, e)}
-                      className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white border border-gray-100 shadow-xs flex items-center justify-center text-[#fe696a] hover:bg-[#ffe3e3]/30 active:scale-125 transition-all duration-200 cursor-pointer z-20"
+                      className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white border border-gray-100 shadow-xs flex items-center justify-center text-[#e13b3d] hover:bg-[#ffe3e3]/30 active:scale-125 transition-all duration-200 cursor-pointer z-20"
                       aria-label={isLoved ? "Hapus dari favorit" : "Tambah ke favorit"}
                     >
                       <Icon 
                         icon={isLoved ? "mdi:heart" : "lucide:heart"} 
-                        className={`h-4 w-4 transition-colors ${isLoved ? "text-[#fe696a]" : "text-gray-400 group-hover:text-[#fe696a]"}`} 
+                        className={`h-4 w-4 transition-colors ${isLoved ? "text-[#e13b3d]" : "text-gray-400 group-hover:text-[#e13b3d]"}`} 
                       />
                     </button>
 
                     {/* Product Image Area */}
-                    <div className="w-full aspect-[4/3] rounded-2xl bg-gray-50 border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden select-none group-hover:bg-[#fe696a]/5 group-hover:border-[#fe696a]/20 transition-all duration-300 mb-4 z-10">
+                    <div className="w-full aspect-[4/3] rounded-2xl bg-gray-50 border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden select-none group-hover:bg-[#e13b3d]/5 group-hover:border-[#e13b3d]/20 transition-all duration-300 mb-4 z-10">
                       {item.featuredImage ? (
                         <img
                           src={item.featuredImage}
                           alt={item.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          width={400}
+                          height={300}
                         />
                       ) : (
                         <>
-                          <span className="text-3xl font-black text-gray-300 group-hover:text-[#fe696a] transition-all duration-300 tracking-wider">
+                          <span className="text-3xl font-black text-gray-300 group-hover:text-[#e13b3d] transition-all duration-300 tracking-wider">
                             {item.sku.substring(0, 2)}
                           </span>
-                          <span className="text-[9px] uppercase font-bold text-gray-400 mt-1 tracking-widest group-hover:text-[#fe696a]/70 transition-all duration-300">
+                          <span className="text-[9px] uppercase font-bold text-gray-400 mt-1 tracking-widest group-hover:text-[#e13b3d]/70 transition-all duration-300">
                             Lanyard
                           </span>
                         </>
@@ -202,10 +206,10 @@ export default function LanyardProducts() {
 
                     {/* Product Text Details */}
                     <div className="mt-2 select-none">
-                      <h4 className="font-bold text-[#373f50] text-base leading-snug group-hover:text-[#fe696a] transition-colors duration-300 mb-1 line-clamp-1">
+                      <h4 className="font-bold text-[#373f50] text-base leading-snug group-hover:text-[#e13b3d] transition-colors duration-300 mb-1 line-clamp-1">
                         {item.name}
                       </h4>
-                      <span className="text-[#fe696a] font-extrabold text-sm">
+                      <span className="text-[#e13b3d] font-extrabold text-sm">
                         Mulai {item.basePrice}
                       </span>
                     </div>

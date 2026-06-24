@@ -13,6 +13,7 @@ const rubik = Rubik({
   variable: "--font-rubik",
   subsets: ["latin"],
   weight: ["300", "400", "500", "700", "800"],
+  display: "swap",
 });
 
 export async function generateMetadata(): Promise<Metadata> {

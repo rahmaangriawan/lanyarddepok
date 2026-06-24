@@ -49,15 +49,15 @@ export default function LanyardPreviewer() {
   return (
     <section id="why-choose-us" className="relative overflow-hidden bg-white py-20 lg:py-28">
       {/* Background Soft Blobs */}
-      <div className="absolute bottom-[-100px] left-[-100px] w-[350px] h-[350px] rounded-full bg-[#fe696a]/5 blur-3xl pointer-events-none -z-10" />
-      <div className="absolute top-[50px] right-[-50px] w-[400px] h-[400px] rounded-full bg-[#fe696a]/5 blur-3xl pointer-events-none -z-10" />
+      <div className="absolute bottom-[-100px] left-[-100px] w-[350px] h-[350px] rounded-full bg-[#e13b3d]/5 blur-3xl pointer-events-none -z-10" />
+      <div className="absolute top-[50px] right-[-50px] w-[400px] h-[400px] rounded-full bg-[#e13b3d]/5 blur-3xl pointer-events-none -z-10" />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         
         {/* Decorative Grid of Dots (Bottom Left) */}
         <div className="absolute bottom-[20px] left-[20px] lg:left-[-40px] grid grid-cols-6 gap-2 opacity-40 pointer-events-none -z-10">
           {Array.from({ length: 36 }).map((_, i) => (
-            <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#fe696a]" />
+            <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#e13b3d]" />
           ))}
         </div>
 
@@ -66,14 +66,14 @@ export default function LanyardPreviewer() {
           {/* Left Column: Text & Lanyard Image */}
           <div className="lg:col-span-6 relative pb-16 lg:pb-0 text-center lg:text-left">
             {/* Badge */}
-            <span className="inline-flex items-center bg-[#ffe3e3]/50 text-[#fe696a] px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase mb-6">
+            <span className="inline-flex items-center bg-[#ffe3e3]/50 text-[#e13b3d] px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase mb-6">
               Kenapa Memilih Kami?
             </span>
             
             {/* Heading */}
             <h2 className="text-4xl sm:text-5xl font-extrabold text-[#373f50] leading-[1.15] tracking-tight mb-6">
               Lanyard Bukan <br />
-              <span className="text-[#fe696a]">Tali Biasa Saja</span>
+              <span className="text-[#e13b3d]">Tali Biasa Saja</span>
             </h2>
             
             {/* Description */}
@@ -84,7 +84,7 @@ export default function LanyardPreviewer() {
             {/* Button */}
             <Link
               href="#calculator"
-              className="inline-flex items-center justify-center bg-[#fe696a] hover:bg-[#e04e4f] text-white text-base font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-[#fe696a]/20 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#fe696a]/30 cursor-pointer"
+              className="inline-flex items-center justify-center bg-[#e13b3d] hover:bg-[#c82a2c] text-white text-base font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-[#e13b3d]/20 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#e13b3d]/30 cursor-pointer"
             >
               <span>Lihat Selengkapnya</span>
               <Icon icon="lucide:arrow-right" className="ml-2 h-5 w-5" />
@@ -124,7 +124,7 @@ export default function LanyardPreviewer() {
               >
                 <path
                   d="M 280,10 Q -20,300 280,590"
-                  stroke="#fe696a"
+                  stroke="#e13b3d"
                   strokeWidth="1.5"
                   strokeDasharray="6,6"
                   className="opacity-40"
@@ -145,22 +145,22 @@ export default function LanyardPreviewer() {
                   {/* Concentric Circle Badge */}
                   <div className="relative flex items-center justify-center w-20 h-20 shrink-0">
                     {/* Outer Dashed Ring */}
-                    <div className="absolute inset-0 rounded-full border border-dashed border-[#fe696a]/30 transition-transform duration-500 group-hover:rotate-45" />
+                    <div className="absolute inset-0 rounded-full border border-dashed border-[#e13b3d]/30 transition-transform duration-500 group-hover:rotate-45" />
                     
                     {/* Inner Solid Circle Badge */}
-                    <div className="w-14 h-14 rounded-full bg-[#fe696a] border-4 border-white shadow-[0_0_15px_rgba(254,105,106,0.35)] flex items-center justify-center z-10 transition-transform duration-300 group-hover:scale-105">
+                    <div className="w-14 h-14 rounded-full bg-[#e13b3d] border-4 border-white shadow-[0_0_15px_rgba(254,105,106,0.35)] flex items-center justify-center z-10 transition-transform duration-300 group-hover:scale-105">
                       <Icon icon={item.icon} className="h-6 w-6 text-white" />
                     </div>
                   </div>
 
                   {/* Text Container */}
                   <div className="ml-4 flex flex-col justify-center select-none">
-                    <h3 className="font-bold text-[#373f50] text-lg leading-snug mb-1 transition-colors duration-300 group-hover:text-[#fe696a]">
+                    <h3 className="font-bold text-[#373f50] text-lg leading-snug mb-1 transition-colors duration-300 group-hover:text-[#e13b3d]">
                       {item.title}
                     </h3>
                     <div className="flex items-start text-sm text-gray-500 font-medium leading-relaxed">
                       {/* Red bullet indicator */}
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#fe696a] mt-2 mr-2 shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#e13b3d] mt-2 mr-2 shrink-0" />
                       <p className="max-w-[280px]">{item.desc}</p>
                     </div>
                   </div>
@@ -173,7 +173,7 @@ export default function LanyardPreviewer() {
               {items.map((item) => (
                 <div key={item.id} className="flex items-start gap-4">
                   {/* Circle Badge (No concentric circles on mobile for simplicity) */}
-                  <div className="w-12 h-12 rounded-full bg-[#fe696a] border-2 border-white shadow-md flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-[#e13b3d] border-2 border-white shadow-md flex items-center justify-center shrink-0">
                     <Icon icon={item.icon} className="h-5 w-5 text-white" />
                   </div>
 
@@ -183,7 +183,7 @@ export default function LanyardPreviewer() {
                       {item.title}
                     </h3>
                     <div className="flex items-start text-sm text-gray-500 font-medium leading-relaxed">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#fe696a] mt-1.5 mr-2 shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#e13b3d] mt-1.5 mr-2 shrink-0" />
                       <p>{item.desc}</p>
                     </div>
                   </div>

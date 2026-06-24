@@ -186,7 +186,7 @@ export default function CommentForm({ postId }: CommentFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex items-center justify-center bg-[#fe696a] hover:bg-[#e04e4f] text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-xl shadow-xs transition-all select-none cursor-pointer disabled:opacity-50"
+          className="inline-flex items-center justify-center bg-[#e13b3d] hover:bg-[#c82a2c] text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-xl shadow-xs transition-all select-none cursor-pointer disabled:opacity-50"
         >
           {loading ? (
             <>

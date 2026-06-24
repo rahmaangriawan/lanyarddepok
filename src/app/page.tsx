@@ -14,14 +14,14 @@ import OrderForm from "@/components/OrderForm";
 import LogoLoop from "@/components/LogoLoop";
 
 const PARTNER_LOGOS = [
-  { src: "/images/logos/bank-indonesia.svg", alt: "Bank Indonesia", href: "https://www.bi.go.id" },
-  { src: "/images/logos/telkomsel.svg", alt: "Telkomsel", href: "https://www.telkomsel.com" },
-  { src: "/images/logos/kemenkes.svg", alt: "Kemenkes RI", href: "https://www.kemkes.go.id" },
-  { src: "/images/logos/bca.svg", alt: "BCA", href: "https://www.bca.co.id" },
-  { src: "/images/logos/universitas-indonesia.png", alt: "Universitas Indonesia", href: "https://www.ui.ac.id" },
-  { src: "/images/logos/bumn.svg", alt: "BUMN", href: "https://www.bumn.go.id" },
-  { src: "/images/logos/biznet.svg", alt: "Biznet", href: "https://www.biznetnetworks.com" },
-  { src: "/images/logos/komdigi.svg", alt: "Komdigi", href: "https://www.kominfo.go.id" }
+  { src: "/images/logos/bank-indonesia.svg", alt: "Bank Indonesia", href: "https://www.bi.go.id", width: 112, height: 32 },
+  { src: "/images/logos/telkomsel.svg", alt: "Telkomsel", href: "https://www.telkomsel.com", width: 96, height: 32 },
+  { src: "/images/logos/kemenkes.svg", alt: "Kemenkes RI", href: "https://www.kemkes.go.id", width: 96, height: 32 },
+  { src: "/images/logos/bca.svg", alt: "BCA", href: "https://www.bca.co.id", width: 96, height: 32 },
+  { src: "/images/logos/universitas-indonesia.png", alt: "Universitas Indonesia", href: "https://www.ui.ac.id", width: 104, height: 32 },
+  { src: "/images/logos/bumn.svg", alt: "BUMN", href: "https://www.bumn.go.id", width: 80, height: 32 },
+  { src: "/images/logos/biznet.svg", alt: "Biznet", href: "https://www.biznetnetworks.com", width: 96, height: 32 },
+  { src: "/images/logos/komdigi.svg", alt: "Komdigi", href: "https://www.kominfo.go.id", width: 96, height: 32 }
 ];
 
 const HOMEPAGE_SCHEMA = {
@@ -244,7 +244,7 @@ export default function Home() {
               
               {/* Title */}
               <h1 className="text-4xl sm:text-5xl font-extrabold text-[#373f50] leading-[1.15] tracking-tight">
-                Cetak <span className="text-[#fe696a]">Lanyard Jakarta</span> Premium & Custom Tanpa Batas
+                Cetak <span className="text-[#e13b3d]">Lanyard Jakarta</span> Premium & Custom Tanpa Batas
               </h1>
 
               {/* Description */}
@@ -255,19 +255,19 @@ export default function Home() {
               {/* 3 Key Advantages */}
               <div className="space-y-3 pt-2">
                 <div className="flex items-center justify-center lg:justify-start space-x-3">
-                  <div className="bg-[#ffe3e3] p-1.5 rounded-full text-[#fe696a] shrink-0">
+                  <div className="bg-[#ffe3e3] p-1.5 rounded-full text-[#e13b3d] shrink-0">
                     <Icon icon="lucide:check" className="h-4 w-4" />
                   </div>
                   <span className="text-sm sm:text-base font-bold text-[#373f50]">Kualitas Cetak Premium & Tahan Lama</span>
                 </div>
                 <div className="flex items-center justify-center lg:justify-start space-x-3">
-                  <div className="bg-[#ffe3e3] p-1.5 rounded-full text-[#fe696a] shrink-0">
+                  <div className="bg-[#ffe3e3] p-1.5 rounded-full text-[#e13b3d] shrink-0">
                     <Icon icon="lucide:check" className="h-4 w-4" />
                   </div>
                   <span className="text-sm sm:text-base font-bold text-[#373f50]">Proses Cepat & Tepat Waktu</span>
                 </div>
                 <div className="flex items-center justify-center lg:justify-start space-x-3">
-                  <div className="bg-[#ffe3e3] p-1.5 rounded-full text-[#fe696a] shrink-0">
+                  <div className="bg-[#ffe3e3] p-1.5 rounded-full text-[#e13b3d] shrink-0">
                     <Icon icon="lucide:check" className="h-4 w-4" />
                   </div>
                   <span className="text-sm sm:text-base font-bold text-[#373f50]">Minimal Order Fleksibel & Terjangkau</span>
@@ -279,7 +279,7 @@ export default function Home() {
                 <Link
                   href="https://wa.me/6282210200700"
                   target="_blank"
-                  className="inline-flex items-center justify-center bg-[#fe696a] hover:bg-[#e04e4f] text-white text-sm sm:text-base font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-[#fe696a]/20 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-xl cursor-pointer"
+                  className="inline-flex items-center justify-center bg-[#e13b3d] hover:bg-[#c82a2c] text-white text-sm sm:text-base font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-[#e13b3d]/20 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-xl cursor-pointer"
                 >
                   <Icon icon="lucide:phone" className="mr-2 h-5 w-5" />
                   <span>Pesan via WhatsApp</span>
@@ -303,6 +303,10 @@ export default function Home() {
               alt="Lanyard Jakarta Premium"
               className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none"
               draggable="false"
+              loading="eager"
+              fetchPriority="high"
+              width={964}
+              height={1254}
             />
           </div>
         </section>

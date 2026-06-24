@@ -216,17 +216,17 @@ export default function ProdukListing() {
                   <button
                     type="button"
                     onClick={(e) => handleToggleLoved(item.sku, e)}
-                    className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white border border-gray-100 shadow-xs flex items-center justify-center text-[#fe696a] hover:bg-[#ffe3e3]/30 active:scale-125 transition-all duration-200 cursor-pointer z-20"
+                    className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white border border-gray-100 shadow-xs flex items-center justify-center text-[#e13b3d] hover:bg-[#ffe3e3]/30 active:scale-125 transition-all duration-200 cursor-pointer z-20"
                     aria-label={isLoved ? "Hapus dari favorit" : "Tambah ke favorit"}
                   >
                     <Icon 
                       icon={isLoved ? "mdi:heart" : "lucide:heart"} 
-                      className={`h-4 w-4 transition-colors ${isLoved ? "text-[#fe696a]" : "text-gray-400 group-hover:text-[#fe696a]"}`} 
+                      className={`h-4 w-4 transition-colors ${isLoved ? "text-[#e13b3d]" : "text-gray-400 group-hover:text-[#e13b3d]"}`} 
                     />
                   </button>
 
                   {/* Product Image Area */}
-                  <div className="w-full aspect-[4/3] rounded-2xl bg-gray-50 border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden select-none group-hover:bg-[#fe696a]/5 group-hover:border-[#fe696a]/20 transition-all duration-300 mb-4 z-10">
+                  <div className="w-full aspect-[4/3] rounded-2xl bg-gray-50 border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden select-none group-hover:bg-[#e13b3d]/5 group-hover:border-[#e13b3d]/20 transition-all duration-300 mb-4 z-10">
                     {item.featuredImage ? (
                       <img
                         src={item.featuredImage}
@@ -235,10 +235,10 @@ export default function ProdukListing() {
                       />
                     ) : (
                       <>
-                        <span className="text-2xl font-black text-gray-300 group-hover:text-[#fe696a] transition-all duration-300 tracking-wider">
+                        <span className="text-2xl font-black text-gray-300 group-hover:text-[#e13b3d] transition-all duration-300 tracking-wider">
                           {item.sku.substring(0, 2)}
                         </span>
-                        <span className="text-[8px] uppercase font-bold text-gray-400 mt-0.5 tracking-widest group-hover:text-[#fe696a]/70 transition-all duration-300">
+                        <span className="text-[8px] uppercase font-bold text-gray-400 mt-0.5 tracking-widest group-hover:text-[#e13b3d]/70 transition-all duration-300">
                           Lanyard
                         </span>
                       </>
@@ -253,10 +253,10 @@ export default function ProdukListing() {
                       </span>
                       <span className="text-[10px] font-mono text-gray-400">{item.sku}</span>
                     </div>
-                    <h4 className="font-bold text-[#373f50] text-base leading-snug group-hover:text-[#fe696a] transition-colors duration-300 mb-1 line-clamp-2 min-h-[2.5rem]">
+                    <h4 className="font-bold text-[#373f50] text-base leading-snug group-hover:text-[#e13b3d] transition-colors duration-300 mb-1 line-clamp-2 min-h-[2.5rem]">
                       {item.name}
                     </h4>
-                    <span className="text-[#fe696a] font-extrabold text-sm">
+                    <span className="text-[#e13b3d] font-extrabold text-sm">
                       Mulai {item.basePrice}
                     </span>
                   </div>

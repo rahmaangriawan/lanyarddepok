@@ -221,7 +221,7 @@ export default function TentangPage() {
               href="https://wa.me/6282210200700"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center bg-brand-red hover:bg-[#e04e4f] text-white text-sm font-bold px-7 py-3.5 rounded-xl shadow-md shadow-brand-red/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+              className="inline-flex items-center justify-center bg-brand-red hover:bg-[#c82a2c] text-white text-sm font-bold px-7 py-3.5 rounded-xl shadow-md shadow-brand-red/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
             >
               <Icon icon="lucide:phone" className="mr-2 h-4.5 w-4.5" />
               Konsultasikan Kebutuhan Anda

@@ -19,7 +19,13 @@ function generateGoogleJWT(clientEmail: string, privateKey: string, scopes: stri
   const base64Claim = Buffer.from(JSON.stringify(claim)).toString("base64url");
   const signatureInput = `${base64Header}.${base64Claim}`;
 
-  const formattedPrivateKey = privateKey.replace(/\\n/g, "\n");
+  // Clean private key formatting robustly (fixes decoder unsupported errors)
+  let formattedPrivateKey = privateKey.replace(/\\n/g, "\n");
+  formattedPrivateKey = formattedPrivateKey.replace(/\r/g, "");
+  formattedPrivateKey = formattedPrivateKey.trim();
+  if (formattedPrivateKey.startsWith('"') && formattedPrivateKey.endsWith('"')) {
+    formattedPrivateKey = formattedPrivateKey.slice(1, -1);
+  }
 
   const sign = crypto.createSign("RSA-SHA256");
   sign.update(signatureInput);

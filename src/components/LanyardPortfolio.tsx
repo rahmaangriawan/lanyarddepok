@@ -91,7 +91,7 @@ export default function LanyardPortfolio() {
       {/* Decorative Dotted Grid (Top Right) */}
       <div className="absolute top-[40px] right-[20px] grid grid-cols-6 gap-2 opacity-30 pointer-events-none -z-10">
         {Array.from({ length: 18 }).map((_, i) => (
-          <div key={i} className="w-1 h-1 rounded-full bg-[#fe696a]" />
+          <div key={i} className="w-1 h-1 rounded-full bg-[#e13b3d]" />
         ))}
       </div>
 
@@ -99,15 +99,15 @@ export default function LanyardPortfolio() {
         
         {/* Header */}
         <div className="text-center mb-6 select-none">
-          <span className="inline-flex items-center text-[#fe696a] text-xs font-bold tracking-widest uppercase gap-2 mb-2">
-            <span className="w-4 h-[1px] bg-[#fe696a]" />
+          <span className="inline-flex items-center text-[#e13b3d] text-xs font-bold tracking-widest uppercase gap-2 mb-2">
+            <span className="w-4 h-[1px] bg-[#e13b3d]" />
             PORTOFOLIO KAMI
-            <span className="w-4 h-[1px] bg-[#fe696a]" />
+            <span className="w-4 h-[1px] bg-[#e13b3d]" />
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#373f50] leading-tight tracking-tight mt-2">
-            Dipercaya Berbagai <span className="text-[#fe696a]">Brand & Instansi</span>
+            Dipercaya Berbagai <span className="text-[#e13b3d]">Brand & Instansi</span>
           </h2>
-          <p className="text-gray-400 text-sm font-medium mt-3">
+          <p className="text-gray-500 text-sm font-medium mt-3">
             Gunakan mouse drag atau swipe jari Anda untuk memutar portofolio lanyard kami.
           </p>
         </div>
@@ -117,7 +117,7 @@ export default function LanyardPortfolio() {
       <div className="relative w-full h-[450px] sm:h-[550px] md:h-[600px] overflow-hidden select-none bg-radial from-transparent to-transparent my-6">
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#fe696a]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#e13b3d]"></div>
           </div>
         ) : (
           <CircularGallery
@@ -138,7 +138,7 @@ export default function LanyardPortfolio() {
           <Link
             href="https://wa.me/6282210200700"
             target="_blank"
-            className="inline-flex items-center justify-center bg-white border border-[#fe696a] text-[#fe696a] hover:bg-[#ffe3e3]/20 text-xs sm:text-sm font-extrabold px-6 py-3.5 rounded-full transition-all duration-300 transform hover:-translate-y-0.5"
+            className="inline-flex items-center justify-center bg-white border border-[#e13b3d] text-[#e13b3d] hover:bg-[#ffe3e3]/20 text-xs sm:text-sm font-extrabold px-6 py-3.5 rounded-full transition-all duration-300 transform hover:-translate-y-0.5"
           >
             <span>Lihat Portofolio Lainnya</span>
             <Icon icon="lucide:arrow-right" className="ml-1.5 h-4 w-4" />

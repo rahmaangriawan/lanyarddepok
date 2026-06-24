@@ -37,7 +37,7 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
   const limit = 9;
   const skip = (currentPage - 1) * limit;
 
-  const [posts, totalPosts] = await Promise.all([
+  const [posts, totalPosts, adminUser] = await Promise.all([
     prisma.post.findMany({
       where: { published: true },
       include: { category: true },
@@ -47,9 +47,14 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
     }),
     prisma.post.count({
       where: { published: true },
+    }),
+    prisma.user.findFirst({
+      where: { role: "ADMIN" },
+      select: { name: true },
     })
   ]);
 
+  const authorName = adminUser?.name || "Admin Lanyard Jakarta";
   const totalPages = Math.ceil(totalPosts / limit);
 
   const blogListingSchema = {
@@ -103,7 +108,7 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
             Blogs & Artikel
           </span>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-[#373f50] leading-tight tracking-tight">
-            Informasi Terbaru & Tips <span className="text-[#fe696a]">Lanyard</span>
+            Informasi Terbaru & Tips <span className="text-[#e13b3d]">Lanyard</span>
           </h1>
           <p className="text-base sm:text-lg text-gray-500 font-normal leading-relaxed max-w-2xl mx-auto">
             Temukan artikel ulasan produk, tips promosi event, panduan desain gantungan ID card custom, dan ulasan branding terkini dari Lanyard Jakarta.
@@ -167,14 +172,18 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
                   {/* Body Content */}
                   <div className="p-6 flex-grow flex flex-col justify-between space-y-4">
                     <div className="flex flex-col">
-                      {/* Date Meta */}
-                      <span className="text-[10px] text-gray-400 font-bold block mb-2">
-                        {formattedDate}
-                      </span>
+                      {/* Date & Author Meta */}
+                      <div className="flex items-center space-x-2 text-[10px] text-gray-400 font-bold mb-2">
+                        <Link href="/blog/author/admin" className="hover:text-[#e13b3d] transition-colors">
+                          {authorName}
+                        </Link>
+                        <span>•</span>
+                        <span>{formattedDate}</span>
+                      </div>
 
                       {/* Post Title */}
                       <Link href={`/blog/${post.slug}`} className="block mb-3.5">
-                        <h2 className="text-[#373f50] text-lg font-semibold leading-snug group-hover:text-[#fe696a] transition-colors line-clamp-2">
+                        <h2 className="text-[#373f50] text-lg font-semibold leading-snug group-hover:text-[#e13b3d] transition-colors line-clamp-2">
                           {post.title}
                         </h2>
                       </Link>
@@ -189,7 +198,7 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
                     <div className="pt-2">
                       <Link
                         href={`/blog/${post.slug}`}
-                        className="text-[11px] font-extrabold text-[#fe696a] hover:text-[#e04e4f] inline-flex items-center space-x-1.5 transition-colors group/btn select-none"
+                        className="text-[11px] font-extrabold text-[#e13b3d] hover:text-[#c82a2c] inline-flex items-center space-x-1.5 transition-colors group/btn select-none"
                       >
                         <span>Baca Selengkapnya</span>
                         <svg
@@ -217,7 +226,7 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
             {currentPage > 1 ? (
               <Link
                 href={`/blog?page=${currentPage - 1}`}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-600 hover:border-[#fe696a] hover:text-[#fe696a] transition-all cursor-pointer"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-600 hover:border-[#e13b3d] hover:text-[#e13b3d] transition-all cursor-pointer"
                 aria-label="Previous Page"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
@@ -244,8 +253,8 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
                   href={`/blog?page=${pageNumber}`}
                   className={`inline-flex items-center justify-center w-10 h-10 rounded-full font-bold text-xs transition-all cursor-pointer ${
                     isCurrent
-                      ? "bg-[#fe696a] text-white shadow-xs"
-                      : "border border-gray-200 text-gray-600 hover:border-[#fe696a] hover:text-[#fe696a]"
+                      ? "bg-[#e13b3d] text-white shadow-xs"
+                      : "border border-gray-200 text-gray-600 hover:border-[#e13b3d] hover:text-[#e13b3d]"
                   }`}
                   aria-current={isCurrent ? "page" : undefined}
                 >
@@ -258,7 +267,7 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
             {currentPage < totalPages ? (
               <Link
                 href={`/blog?page=${currentPage + 1}`}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-600 hover:border-[#fe696a] hover:text-[#fe696a] transition-all cursor-pointer"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-600 hover:border-[#e13b3d] hover:text-[#e13b3d] transition-all cursor-pointer"
                 aria-label="Next Page"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">

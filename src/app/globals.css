@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #373f50;
-  --color-brand-red: #fe696a;
+  --color-brand-red: #e13b3d;
   --color-brand-dark: #373f50;
   --color-brand-blue: #4b566b;
   --color-brand-light-50: #fff5f5;
@@ -356,7 +356,7 @@ button:focus-visible {
 }
 
 .sidebar-scroll:hover {
-  scrollbar-color: var(--color-brand-red, #fe696a) transparent;
+  scrollbar-color: var(--color-brand-red, #e13b3d) transparent;
 }
 
 /* Chrome, Edge, Safari */
