@@ -39,12 +39,12 @@ jobs:
           cp -r .next/static .next/standalone/.next/static
 
       - name: SFTP Standalone Code to CloudPanel
-        uses: appleboy/scp-action@v0.1.7
+        uses: wangyucode/sftp-upload-action@v2.0.2
         with:
           host: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 22
-          source: ".next/standalone/**"
-          target: "/home/mantap-jakarta/htdocs/jakartalanyard.com"
-          strip_components: 2
+          localDir: '.next/standalone'
+          remoteDir: '/home/mantap-jakarta/htdocs/jakartalanyard.com'
+          concurrency: 10
