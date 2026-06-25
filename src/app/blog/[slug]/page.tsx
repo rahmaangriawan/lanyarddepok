@@ -18,39 +18,50 @@ interface PageProps {
 export const revalidate = 1800; // Regenerate pages in background every 30 minutes
 
 export async function generateStaticParams() {
-  const posts = await prisma.post.findMany({
-    where: { published: true },
-    select: { slug: true }
-  });
-  
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+  try {
+    const posts = await prisma.post.findMany({
+      where: { published: true },
+      select: { slug: true }
+    });
+    
+    return posts.map((post) => ({
+      slug: post.slug,
+    }));
+  } catch (err: any) {
+    console.warn("Database not accessible during generateStaticParams, returning empty array:", err.message);
+    return [];
+  }
 }
 
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await prisma.post.findFirst({
-    where: { slug, published: true },
-  });
+  try {
+    const { slug } = await params;
+    const post = await prisma.post.findFirst({
+      where: { slug, published: true },
+    });
 
-  if (!post) {
+    if (!post) {
+      return {};
+    }
+
+    return {
+      title: post.metaTitle || post.title,
+      description: post.metaDescription || post.title.substring(0, 150),
+      alternates: {
+        canonical: `/blog/${post.slug}`,
+      },
+    };
+  } catch (err: any) {
+    console.warn("Database not accessible during generateMetadata:", err.message);
     return {};
   }
-
-  return {
-    title: post.metaTitle || post.title,
-    description: post.metaDescription || post.title.substring(0, 150),
-    alternates: {
-      canonical: `/blog/${post.slug}`,
-    },
-  };
 }
 
 
 export default async function BlogPostPage({ params, searchParams }: PageProps) {
-  const { slug } = await params;
+  try {
+    const { slug } = await params;
   const resolvedSearchParams = await searchParams;
 
   // Check if preview-ID is passed in URL query keys
@@ -596,4 +607,8 @@ export default async function BlogPostPage({ params, searchParams }: PageProps) 
       <Footer />
     </div>
   );
+  } catch (err: any) {
+    console.error("Database connection failed during build/render:", err);
+    notFound();
+  }
 }
