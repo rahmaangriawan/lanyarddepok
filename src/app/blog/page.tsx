@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Metadata } from "next";
+import { getPaginationItems } from "@/lib/pagination";
 
 export const metadata: Metadata = {
   title: "Blog & Artikel Lanyard Custom",
@@ -56,6 +57,7 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
 
   const authorName = adminUser?.name || "Admin Lanyard Jakarta";
   const totalPages = Math.ceil(totalPosts / limit);
+  const paginationItems = getPaginationItems(currentPage, totalPages);
 
   const blogListingSchema = {
     "@context": "https://schema.org",
@@ -221,7 +223,7 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
-          <div className="flex justify-center items-center space-x-2 pt-16 select-none">
+          <div className="flex flex-wrap justify-center items-center gap-2 pt-16 select-none">
             {/* Prev Button */}
             {currentPage > 1 ? (
               <Link
@@ -245,7 +247,19 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
             )}
 
             {/* Page Numbers */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => {
+            {paginationItems.map((pageNumber) => {
+              if (typeof pageNumber === "string") {
+                return (
+                  <span
+                    key={pageNumber}
+                    className="inline-flex items-center justify-center w-10 h-10 text-gray-300 text-xs font-bold"
+                    aria-hidden="true"
+                  >
+                    ...
+                  </span>
+                );
+              }
+
               const isCurrent = pageNumber === currentPage;
               return (
                 <Link

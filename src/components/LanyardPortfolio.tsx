@@ -107,7 +107,7 @@ export default function LanyardPortfolio() {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#373f50] leading-tight tracking-tight mt-2">
             Dipercaya Berbagai <span className="text-[#e13b3d]">Brand & Instansi</span>
           </h2>
-          <p className="text-gray-500 text-sm font-medium mt-3">
+          <p className="text-gray-500 text-sm font-normal mt-3">
             Gunakan mouse drag atau swipe jari Anda untuk memutar portofolio lanyard kami.
           </p>
         </div>

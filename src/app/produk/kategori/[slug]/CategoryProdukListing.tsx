@@ -7,6 +7,7 @@ import { UnifiedProduct } from "@/lib/products-service";
 import { animateWishlistFly } from "@/lib/wishlist-animation";
 import { getWishlist, saveWishlist, checkRateLimit } from "@/lib/wishlist-storage";
 import { useToast } from "@/components/Toast";
+import { getPaginationItems } from "@/lib/pagination";
 
 interface CategoryProdukListingProps {
   products: UnifiedProduct[];
@@ -21,20 +22,18 @@ export default function CategoryProdukListing({ products, categoryName }: Catego
 
   const ITEMS_PER_PAGE = 8;
 
-  // Reset page to 1 when search query changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery]);
-
   // Load wishlist state
   const loadLoved = () => {
     setLovedSkus(getWishlist());
   };
 
   useEffect(() => {
-    loadLoved();
+    const timer = window.setTimeout(loadLoved, 0);
     window.addEventListener("wishlist-updated", loadLoved);
-    return () => window.removeEventListener("wishlist-updated", loadLoved);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("wishlist-updated", loadLoved);
+    };
   }, []);
 
   // Toggle wishlist item
@@ -77,6 +76,7 @@ export default function CategoryProdukListing({ products, categoryName }: Catego
 
   // Paginated products
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const paginationItems = useMemo(() => getPaginationItems(currentPage, totalPages), [currentPage, totalPages]);
   const paginatedProducts = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
@@ -91,7 +91,10 @@ export default function CategoryProdukListing({ products, categoryName }: Catego
             type="text"
             placeholder={`Cari produk di kategori ${categoryName}...`}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full bg-gray-50/50 border border-gray-200 rounded-2xl py-3 pl-11 pr-4 text-xs font-semibold text-gray-700 placeholder-gray-400 focus:ring-brand-red focus:border-brand-red outline-none transition-all"
           />
           <Icon 
@@ -117,7 +120,10 @@ export default function CategoryProdukListing({ products, categoryName }: Catego
             </p>
           </div>
           <button
-            onClick={() => setSearchQuery("")}
+            onClick={() => {
+              setSearchQuery("");
+              setCurrentPage(1);
+            }}
             className="text-xs font-bold text-brand-red hover:underline"
           >
             Reset pencarian
@@ -189,7 +195,7 @@ export default function CategoryProdukListing({ products, categoryName }: Catego
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex justify-center items-center space-x-2 pt-6 select-none">
+            <div className="flex flex-wrap justify-center items-center gap-2 pt-6 select-none">
               {currentPage > 1 ? (
                 <button
                   type="button"
@@ -208,7 +214,19 @@ export default function CategoryProdukListing({ products, categoryName }: Catego
                 </span>
               )}
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => {
+              {paginationItems.map((pageNumber) => {
+                if (typeof pageNumber === "string") {
+                  return (
+                    <span
+                      key={pageNumber}
+                      className="inline-flex items-center justify-center w-10 h-10 text-gray-300 text-xs font-bold"
+                      aria-hidden="true"
+                    >
+                      ...
+                    </span>
+                  );
+                }
+
                 const isCurrent = pageNumber === currentPage;
                 return (
                   <button

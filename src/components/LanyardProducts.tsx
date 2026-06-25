@@ -98,11 +98,11 @@ export default function LanyardProducts() {
           <div className="lg:col-span-5 relative bg-[#fff5f5] rounded-[2rem] overflow-hidden p-8 sm:p-10 flex flex-col justify-between min-h-[480px] lg:min-h-[500px]">
             
             {/* Content Top */}
-            <div className="relative z-10 select-none">
+            <div className="relative z-10 select-none text-center lg:text-left">
               <h3 className="text-4xl font-extrabold text-[#e13b3d] mb-3">
                 Lanyard
               </h3>
-              <p className="text-[#4b566b] text-sm sm:text-base font-normal leading-relaxed max-w-[280px]">
+              <p className="text-[#4b566b] text-sm sm:text-base font-normal leading-relaxed max-w-[280px] mx-auto lg:mx-0">
                 Temukan berbagai pilihan lanyard dengan kualitas terbaik untuk kebutuhan corporate, panitia, maupun personal.
               </p>
               

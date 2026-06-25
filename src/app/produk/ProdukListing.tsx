@@ -7,6 +7,7 @@ import { DEFAULT_PRODUCTS, UnifiedProduct } from "@/lib/products-service";
 import { animateWishlistFly } from "@/lib/wishlist-animation";
 import { getWishlist, saveWishlist, checkRateLimit } from "@/lib/wishlist-storage";
 import { useToast } from "@/components/Toast";
+import { getPaginationItems } from "@/lib/pagination";
 
 export default function ProdukListing() {
   const [products, setProducts] = useState<UnifiedProduct[]>([]);
@@ -16,11 +17,6 @@ export default function ProdukListing() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
-
-  // Reset page to 1 when search or category changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedCategory]);
 
   // Fetch all products
   useEffect(() => {
@@ -50,9 +46,12 @@ export default function ProdukListing() {
   };
 
   useEffect(() => {
-    loadLoved();
+    const timer = window.setTimeout(loadLoved, 0);
     window.addEventListener("wishlist-updated", loadLoved);
-    return () => window.removeEventListener("wishlist-updated", loadLoved);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("wishlist-updated", loadLoved);
+    };
   }, []);
 
   // Toggle wishlist item
@@ -111,6 +110,7 @@ export default function ProdukListing() {
 
   const itemsPerPage = 8;
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginationItems = useMemo(() => getPaginationItems(currentPage, totalPages), [currentPage, totalPages]);
 
   const paginatedProducts = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -127,7 +127,10 @@ export default function ProdukListing() {
             type="text"
             placeholder="Cari nama lanyard, spesifikasi, atau SKU..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl focus:ring-brand-red focus:ring-1 focus:border-brand-red p-3 pr-10 focus:outline-none"
           />
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
@@ -138,7 +141,10 @@ export default function ProdukListing() {
         {/* Category Selector */}
         <div className="flex items-center space-x-2 overflow-x-auto pb-1 md:pb-0 shrink-0">
           <button
-            onClick={() => setSelectedCategory("all")}
+            onClick={() => {
+              setSelectedCategory("all");
+              setCurrentPage(1);
+            }}
             className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer whitespace-nowrap ${
               selectedCategory === "all"
                 ? "bg-brand-red border-brand-red text-white shadow-xs shadow-red-100"
@@ -150,7 +156,10 @@ export default function ProdukListing() {
           {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => {
+                setSelectedCategory(cat);
+                setCurrentPage(1);
+              }}
               className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer whitespace-nowrap ${
                 selectedCategory === cat
                   ? "bg-brand-red border-brand-red text-white shadow-xs shadow-red-100"
@@ -195,6 +204,7 @@ export default function ProdukListing() {
             onClick={() => {
               setSearchQuery("");
               setSelectedCategory("all");
+              setCurrentPage(1);
             }}
             className="text-xs font-bold text-brand-red hover:underline"
           >
@@ -267,7 +277,7 @@ export default function ProdukListing() {
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex justify-center items-center space-x-2 pt-6 select-none">
+            <div className="flex flex-wrap justify-center items-center gap-2 pt-6 select-none">
               {/* Prev Button */}
               {currentPage > 1 ? (
                 <button
@@ -288,7 +298,19 @@ export default function ProdukListing() {
               )}
 
               {/* Page Numbers */}
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => {
+              {paginationItems.map((pageNumber) => {
+                if (typeof pageNumber === "string") {
+                  return (
+                    <span
+                      key={pageNumber}
+                      className="inline-flex items-center justify-center w-10 h-10 text-gray-300 text-xs font-bold"
+                      aria-hidden="true"
+                    >
+                      ...
+                    </span>
+                  );
+                }
+
                 const isCurrent = pageNumber === currentPage;
                 return (
                   <button

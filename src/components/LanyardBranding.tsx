@@ -44,11 +44,12 @@ export default function LanyardBranding() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-6 sm:space-y-8">
         
         {/* Tagline */}
-        <div className={`flex items-center justify-center space-x-2 text-[#e13b3d] text-xs font-extrabold tracking-widest uppercase transition-all duration-1000 ${
+        <div className={`inline-flex items-center justify-center gap-3 text-[#e13b3d] transition-all duration-1000 ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
         }`}>
-          <Icon icon="lucide:sparkles" className="h-4 w-4 animate-pulse" />
-          <span>Lanyard Jakarta Branding</span>
+          <span className="h-px w-8 bg-current" />
+          <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Lanyard Jakarta Branding</span>
+          <span className="h-px w-8 bg-current" />
         </div>
 
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#373f50] tracking-tight leading-tight select-none max-w-3xl mx-auto">

@@ -7,7 +7,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Kontak Kami - Hubungi Kami untuk Pemesanan",
   description:
-    "Hubungi tim Lanyard Jakarta untuk konsultasi, pemesanan, dan informasi harga lanyard custom premium. WhatsApp, email, atau kunjungi workshop kami di Jakarta Pusat.",
+    "Hubungi tim Lanyard Jakarta untuk konsultasi, pemesanan, dan informasi harga lanyard custom premium di DKI Jakarta, Indonesia.",
   alternates: {
     canonical: "/kontak",
   },
@@ -248,7 +248,7 @@ export default function KontakPage() {
                         Alamat
                       </span>
                       <p className="text-sm text-gray-600 font-medium leading-relaxed">
-                        Indonesia, DKI Jakarta
+                        DKI Jakarta, Indonesia
                       </p>
                     </div>
                   </div>

@@ -275,21 +275,21 @@ export default function Home() {
               </div>
 
               {/* 2 CTA Buttons */}
-              <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-2">
+              <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 pt-2">
                 <Link
                   href="https://wa.me/6282210200700"
                   target="_blank"
-                  className="inline-flex items-center justify-center bg-[#e13b3d] hover:bg-[#c82a2c] text-white text-sm sm:text-base font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-[#e13b3d]/20 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-xl cursor-pointer"
+                  className="inline-flex w-full sm:w-auto items-center justify-center bg-[#e13b3d] hover:bg-[#c82a2c] text-white text-sm sm:text-base font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-[#e13b3d]/20 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-xl cursor-pointer"
                 >
                   <Icon icon="lucide:phone" className="mr-2 h-5 w-5" />
                   <span>Pesan via WhatsApp</span>
                 </Link>
                 <Link
-                  href="#calculator"
-                  className="inline-flex items-center justify-center bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm sm:text-base font-bold px-6 py-3.5 rounded-xl shadow-sm transition-all duration-300 transform hover:-translate-y-0.5"
+                  href="/produk"
+                  className="inline-flex w-full sm:w-auto items-center justify-center bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm sm:text-base font-bold px-6 py-3.5 rounded-xl shadow-sm transition-all duration-300 transform hover:-translate-y-0.5"
                 >
-                  <span>Hitung Harga Instan</span>
-                  <Icon icon="lucide:calculator" className="ml-2 h-5 w-5 text-gray-400" />
+                  <span>Lihat Katalog</span>
+                  <Icon icon="lucide:shopping-bag" className="ml-2 h-5 w-5 text-gray-400" />
                 </Link>
               </div>
 

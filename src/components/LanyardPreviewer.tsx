@@ -66,18 +66,20 @@ export default function LanyardPreviewer() {
           {/* Left Column: Text & Lanyard Image */}
           <div className="lg:col-span-6 relative pb-16 lg:pb-0 text-center lg:text-left">
             {/* Badge */}
-            <span className="inline-flex items-center bg-[#ffe3e3]/50 text-[#e13b3d] px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase mb-6">
-              Kenapa Memilih Kami?
-            </span>
+            <div className="mb-6 inline-flex items-center gap-3 text-[#e13b3d]">
+              <span className="h-px w-8 bg-current" />
+              <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Kenapa Memilih Kami?</span>
+              <span className="h-px w-8 bg-current" />
+            </div>
             
             {/* Heading */}
-            <h2 className="text-4xl sm:text-5xl font-extrabold text-[#373f50] leading-[1.15] tracking-tight mb-6">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#373f50] leading-tight tracking-tight mb-5">
               Lanyard Bukan <br />
               <span className="text-[#e13b3d]">Tali Biasa Saja</span>
             </h2>
             
             {/* Description */}
-            <p className="text-base sm:text-lg text-gray-500 font-normal leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
+            <p className="text-sm sm:text-base text-gray-500 font-normal leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
               Kami menggabungkan kualitas terbaik, desain modern, dan layanan profesional untuk memberikan pengalaman terbaik bagi setiap pelanggan.
             </p>
             
@@ -158,7 +160,7 @@ export default function LanyardPreviewer() {
                     <h3 className="font-bold text-[#373f50] text-lg leading-snug mb-1 transition-colors duration-300 group-hover:text-[#e13b3d]">
                       {item.title}
                     </h3>
-                    <div className="flex items-start text-sm text-gray-500 font-medium leading-relaxed">
+                    <div className="flex items-start text-sm text-gray-500 font-normal leading-relaxed">
                       {/* Red bullet indicator */}
                       <span className="w-1.5 h-1.5 rounded-full bg-[#e13b3d] mt-2 mr-2 shrink-0" />
                       <p className="max-w-[280px]">{item.desc}</p>
@@ -182,7 +184,7 @@ export default function LanyardPreviewer() {
                     <h3 className="font-bold text-[#373f50] text-base leading-snug mb-1">
                       {item.title}
                     </h3>
-                    <div className="flex items-start text-sm text-gray-500 font-medium leading-relaxed">
+                    <div className="flex items-start text-sm text-gray-500 font-normal leading-relaxed">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#e13b3d] mt-1.5 mr-2 shrink-0" />
                       <p>{item.desc}</p>
                     </div>

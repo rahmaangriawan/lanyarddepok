@@ -100,19 +100,21 @@ export default function OrderForm() {
 
   return (
     <div id="contact" className="bg-white py-20 scroll-mt-16 border-t border-gray-100">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           {/* Contact Details */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="lg:col-span-5 space-y-6 text-center lg:text-left">
             <div>
-              <span className="inline-block bg-[#FFF0F0] text-brand-red text-xs font-bold px-4 py-1.5 rounded-full border border-red-100 uppercase tracking-wider">
-                Hubungi Kami
-              </span>
-              <h2 className="text-4xl font-extrabold text-gray-900 mt-4 tracking-tight leading-tight">
+              <div className="inline-flex items-center gap-3 text-brand-red">
+                <span className="h-px w-8 bg-current" />
+                <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Hubungi Kami</span>
+                <span className="h-px w-8 bg-current" />
+              </div>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#373f50] mt-4 tracking-tight leading-tight">
                 Ada Pertanyaan?<br />
-                Hubungi <span className="text-brand-red">Kami</span>
+                Hubungi <span className="text-[#e13b3d]">Kami</span>
               </h2>
-              <p className="text-[13px] font-medium text-gray-500 mt-4 leading-relaxed">
+              <p className="text-sm sm:text-base font-normal text-gray-500 mt-4 leading-relaxed">
                 Butuh bantuan mengenai spesifikasi desain, penawaran harga khusus instansi
                 pemerintah/perusahaan skala besar, atau info stok aksesoris? Kirimkan pesan Anda langsung
                 di samping.
@@ -121,7 +123,7 @@ export default function OrderForm() {
 
             <hr className="border-gray-200 my-6" />
 
-            <div className="space-y-6">
+            <div className="space-y-6 text-left">
               {/* Alamat Produksi */}
               <div className="flex items-start space-x-4">
                 <div className="bg-[#FFF0F0] p-3 rounded-xl text-brand-red shrink-0 flex items-center justify-center">
@@ -130,9 +132,7 @@ export default function OrderForm() {
                 <div>
                   <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Alamat Produksi</h3>
                   <p className="text-xs font-semibold text-gray-500 leading-relaxed mt-1">
-                    Jl. Salemba Raya No. 34-36, Senen,
-                    <br />
-                    Jakarta Pusat, DKI Jakarta 10430
+                    DKI Jakarta, Indonesia
                   </p>
                 </div>
               </div>
@@ -311,4 +311,3 @@ export default function OrderForm() {
     </div>
   );
 }
-
