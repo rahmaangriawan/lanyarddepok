@@ -301,7 +301,7 @@ export default function HomeClient() {
           {/* Right Column - Image (Stretching and flush to screen edge) */}
           <div className="w-full lg:w-1/2 relative min-h-[350px] lg:min-h-0 bg-gray-100 overflow-hidden">
             <Image
-              src="/images/lanyard-jakarta-hero-1782129081107.webp"
+              src="/uploads/lanyard-jakarta-hero-1782129081107.webp"
               alt="Lanyard Jakarta Premium"
               className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none"
               draggable="false"
