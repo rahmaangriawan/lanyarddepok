@@ -15,25 +15,7 @@ interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export const revalidate = 1800; // Regenerate pages in background every 30 minutes
-
-export async function generateStaticParams() {
-  try {
-    const posts = await prisma.post.findMany({
-      where: { published: true },
-      select: { slug: true }
-    });
-    
-    return posts.map((post) => ({
-      slug: post.slug,
-    }));
-  } catch (err: any) {
-    console.warn("Database not accessible during generateStaticParams, returning empty array:", err.message);
-    return [];
-  }
-}
-
-
+export const revalidate = 0; // dynamic rendering for blog post detail pages
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params;
@@ -60,8 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 
 export default async function BlogPostPage({ params, searchParams }: PageProps) {
-  try {
-    const { slug } = await params;
+  const { slug } = await params;
   const resolvedSearchParams = await searchParams;
 
   // Check if preview-ID is passed in URL query keys
@@ -607,15 +588,4 @@ export default async function BlogPostPage({ params, searchParams }: PageProps) 
       <Footer />
     </div>
   );
-  } catch (err: any) {
-    if (
-      err.digest === "DYNAMIC_SERVER_USAGE" ||
-      err.digest?.startsWith("NEXT_") ||
-      err.message?.includes("Dynamic server usage")
-    ) {
-      throw err;
-    }
-    console.error("Database connection failed during build/render:", err);
-    notFound();
-  }
 }
