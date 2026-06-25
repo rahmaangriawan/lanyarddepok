@@ -4,18 +4,67 @@ import { getSessionUser } from "@/lib/auth";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await getSessionUser();
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "24", 10);
+    const search = searchParams.get("search") || "";
+    const type = searchParams.get("type") || "all";
+
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (search) {
+      where.filename = {
+        contains: search,
+      };
+    }
+
+    if (type !== "all") {
+      if (type === "image") {
+        where.mimetype = {
+          startsWith: "image/",
+        };
+      } else if (type === "document") {
+        where.mimetype = {
+          not: {
+            startsWith: "image/",
+          },
+        };
+      }
+    }
+
+    // Get total count matching query
+    const total = await prisma.media.count({ where });
+
     const mediaList = await prisma.media.findMany({
+      where,
       orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
     });
 
-    return NextResponse.json({ success: true, mediaList });
+    const totalPages = Math.ceil(total / limit);
+    const hasMore = page < totalPages;
+
+    return NextResponse.json({
+      success: true,
+      mediaList,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages,
+        hasMore,
+      },
+    });
   } catch (error: any) {
     console.error("Fetch Media Error:", error);
     return NextResponse.json({ error: "Failed to fetch media files" }, { status: 500 });

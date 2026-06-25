@@ -3,6 +3,7 @@ import { Rubik } from "next/font/google";
 import { prisma } from "@/lib/db";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { ToastProvider } from "@/components/Toast";
+import WhatsAppFloating from "@/components/WhatsAppFloating";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
@@ -81,13 +82,20 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   let measurementId = "";
+  let whatsappNumber = "6282210200700"; // Fallback hotline
+
   try {
-    const gaSetting = await prisma.setting.findUnique({
-      where: { key: "google_analytics_measurement_id" },
-    });
+    const [gaSetting, waSetting] = await Promise.all([
+      prisma.setting.findUnique({ where: { key: "google_analytics_measurement_id" } }),
+      prisma.setting.findUnique({ where: { key: "contact_whatsapp" } }),
+    ]);
+    
     measurementId = gaSetting?.value || "";
+    if (waSetting?.value) {
+      whatsappNumber = waSetting.value;
+    }
   } catch (err) {
-    console.error("Failed to fetch GA measurement ID in layout", err);
+    console.error("Failed to fetch settings in layout", err);
   }
 
   return (
@@ -102,6 +110,7 @@ export default async function RootLayout({
         <ToastProvider>
           {children}
         </ToastProvider>
+        <WhatsAppFloating whatsappNumber={whatsappNumber} />
       </body>
     </html>
   );

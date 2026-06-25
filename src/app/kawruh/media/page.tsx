@@ -27,12 +27,49 @@ export default function MediaLibraryPage() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
 
-  const fetchMedia = async () => {
+  // Pagination & Filtering state
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [fileTypeFilter, setFileTypeFilter] = useState("all");
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch paginated & filtered media list
+  const fetchMediaList = async (pageNum: number, searchVal: string, filterVal: string, isLoadMore = false) => {
+    if (isLoadMore) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
+
     try {
-      const res = await fetch("/api/cms/media");
+      const params = new URLSearchParams({
+        page: pageNum.toString(),
+        limit: "24",
+        search: searchVal,
+        type: filterVal,
+      });
+
+      const res = await fetch(`/api/cms/media?${params.toString()}`);
       const data = await res.json();
+
       if (res.ok) {
-        setMediaList(data.mediaList || []);
+        const list = data.mediaList || [];
+        if (isLoadMore) {
+          setMediaList((prev) => [...prev, ...list]);
+        } else {
+          setMediaList(list);
+        }
+        setHasMore(data.pagination?.hasMore || false);
       } else {
         toast.error(data.error || "Gagal memuat file media.");
       }
@@ -40,13 +77,26 @@ export default function MediaLibraryPage() {
       toast.error("Kesalahan koneksi saat memuat media.");
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
   };
 
+  // Reload lists when search query or filter changes
+  useEffect(() => {
+    setPage(1);
+    fetchMediaList(1, debouncedSearch, fileTypeFilter, false);
+  }, [debouncedSearch, fileTypeFilter]);
+
   useEffect(() => {
     document.title = "Pustaka Media | Kawruh Admin";
-    fetchMedia();
   }, []);
+
+  // Handle Load More click
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchMediaList(nextPage, debouncedSearch, fileTypeFilter, true);
+  };
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -218,9 +268,37 @@ export default function MediaLibraryPage() {
         </div>
       </div>
 
-      {/* Media Grid */}
       <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-xs">
-        <h3 className="text-base font-bold text-gray-900 mb-4">File Terunggah</h3>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <h3 className="text-base font-bold text-gray-900 shrink-0">File Terunggah</h3>
+          
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {/* Search input with icon */}
+            <div className="relative flex-1 sm:w-64">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                <Icon icon="lucide:search" className="h-4 w-4" />
+              </span>
+              <input
+                type="text"
+                placeholder="Cari nama file..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 border border-gray-250 rounded-lg text-xs font-semibold text-gray-800 placeholder-gray-450 focus:outline-none focus:border-brand-red bg-white"
+              />
+            </div>
+            
+            {/* Type selector */}
+            <select
+              value={fileTypeFilter}
+              onChange={(e) => setFileTypeFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-250 rounded-lg text-xs font-semibold text-gray-700 bg-white focus:outline-none focus:border-brand-red cursor-pointer"
+            >
+              <option value="all">Semua Tipe File</option>
+              <option value="image">Gambar saja</option>
+              <option value="document">Dokumen/PDF saja</option>
+            </select>
+          </div>
+        </div>
 
         {mediaList.length === 0 ? (
           <div className="p-8 text-center space-y-2">
@@ -251,6 +329,7 @@ export default function MediaLibraryPage() {
                       <img
                         src={m.url}
                         alt={m.filename}
+                        loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                       />
                     ) : (
@@ -296,6 +375,30 @@ export default function MediaLibraryPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* Load More Button */}
+        {hasMore && (
+          <div className="flex justify-center mt-8">
+            <button
+              type="button"
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              className="inline-flex items-center justify-center px-5 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-xs font-bold text-gray-750 rounded-lg shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-50"
+            >
+              {loadingMore ? (
+                <>
+                  <div className="animate-spin rounded-full h-3 w-3 border-2 border-brand-red border-t-transparent mr-2" />
+                  <span>Memuat...</span>
+                </>
+              ) : (
+                <>
+                  <span>Muat Lebih Banyak</span>
+                  <Icon icon="lucide:chevron-down" className="ml-1.5 h-3.5 w-3.5 text-gray-400" />
+                </>
+              )}
+            </button>
           </div>
         )}
       </div>
