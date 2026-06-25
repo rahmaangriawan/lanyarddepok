@@ -283,7 +283,7 @@ export default function MediaLibraryPage() {
                 placeholder="Cari nama file..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border border-gray-250 rounded-lg text-xs font-semibold text-gray-800 placeholder-gray-450 focus:outline-none focus:border-brand-red bg-white"
+                className="w-full pl-9 pr-4 py-2 border border-gray-200/60 rounded-lg text-xs font-semibold text-gray-800 placeholder-gray-400 focus:outline-none focus:border-brand-red bg-white"
               />
             </div>
             
@@ -291,7 +291,7 @@ export default function MediaLibraryPage() {
             <select
               value={fileTypeFilter}
               onChange={(e) => setFileTypeFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-250 rounded-lg text-xs font-semibold text-gray-700 bg-white focus:outline-none focus:border-brand-red cursor-pointer"
+              className="px-3 py-2 border border-gray-200/60 rounded-lg text-xs font-semibold text-gray-700 bg-white focus:outline-none focus:border-brand-red cursor-pointer"
             >
               <option value="all">Semua Tipe File</option>
               <option value="image">Gambar saja</option>

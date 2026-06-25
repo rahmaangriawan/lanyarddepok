@@ -608,6 +608,13 @@ export default async function BlogPostPage({ params, searchParams }: PageProps) 
     </div>
   );
   } catch (err: any) {
+    if (
+      err.digest === "DYNAMIC_SERVER_USAGE" ||
+      err.digest?.startsWith("NEXT_") ||
+      err.message?.includes("Dynamic server usage")
+    ) {
+      throw err;
+    }
     console.error("Database connection failed during build/render:", err);
     notFound();
   }
