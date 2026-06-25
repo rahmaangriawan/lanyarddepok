@@ -7,8 +7,10 @@ interface CityPageData {
   updatedAt: Date;
 }
 
-export async function GET() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
+export async function GET(request: Request) {
+  const host = request.headers.get("host") || "jakartalanyard.com";
+  const protocol = request.headers.get("x-forwarded-proto") || "https";
+  const siteUrl = `${protocol}://${host}`;
 
   // Fetch all published CityPage entries from the database
   let cityPages: CityPageData[] = [];

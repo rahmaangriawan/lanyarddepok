@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/db";
 
-export async function GET() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
+export async function GET(request: Request) {
+  const host = request.headers.get("host") || "jakartalanyard.com";
+  const protocol = request.headers.get("x-forwarded-proto") || "https";
+  const siteUrl = `${protocol}://${host}`;
   const now = new Date().toISOString();
 
   // Fetch all published static pages from db

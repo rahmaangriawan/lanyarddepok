@@ -2,8 +2,10 @@ import { prisma } from "@/lib/db";
 import { getProducts } from "@/lib/products-server";
 import { UnifiedProduct } from "@/lib/products-service";
 
-export async function GET() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
+export async function GET(request: Request) {
+  const host = request.headers.get("host") || "jakartalanyard.com";
+  const protocol = request.headers.get("x-forwarded-proto") || "https";
+  const siteUrl = `${protocol}://${host}`;
 
   // Fetch all published/active products using the unified service
   let products: UnifiedProduct[] = [];
