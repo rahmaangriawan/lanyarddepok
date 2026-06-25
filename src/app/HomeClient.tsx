@@ -7,15 +7,13 @@ import { Icon } from "@iconify/react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LogoLoop from "@/components/LogoLoop";
-import dynamic from "next/dynamic";
 
-// Below-the-fold components dynamically loaded
-const LanyardPreviewer = dynamic(() => import("@/components/LanyardPreviewer"), { ssr: false });
-const LanyardProducts = dynamic(() => import("@/components/LanyardProducts"), { ssr: false });
-const LanyardPortfolio = dynamic(() => import("@/components/LanyardPortfolio"), { ssr: false });
-const LanyardBranding = dynamic(() => import("@/components/LanyardBranding"), { ssr: false });
-const Testimonials = dynamic(() => import("@/components/Testimonials"), { ssr: false });
-const OrderForm = dynamic(() => import("@/components/OrderForm"), { ssr: false });
+import LanyardPreviewer from "@/components/LanyardPreviewer";
+import LanyardProducts from "@/components/LanyardProducts";
+import LanyardPortfolio from "@/components/LanyardPortfolio";
+import LanyardBranding from "@/components/LanyardBranding";
+import Testimonials from "@/components/Testimonials";
+import OrderForm from "@/components/OrderForm";
 
 const PARTNER_LOGOS = [
   { src: "/images/logos/bank-indonesia.svg", alt: "Bank Indonesia", href: "https://www.bi.go.id", width: 112, height: 32 },
