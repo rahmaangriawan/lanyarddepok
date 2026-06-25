@@ -96,10 +96,7 @@ export default async function RootLayout({
       className={`${rubik.variable} h-full`}
       suppressHydrationWarning
     >
-      <head>
-        <link rel="preconnect" href="https://otp-api.rahmaangriawan78.workers.dev" />
-        <link rel="preconnect" href="https://www.google-analytics.com" />
-      </head>
+      <head />
       <body className="min-h-full flex flex-col bg-white text-[#373f50]" suppressHydrationWarning>
         <GoogleAnalytics measurementId={measurementId} />
         <ToastProvider>

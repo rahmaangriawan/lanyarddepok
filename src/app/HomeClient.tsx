@@ -8,12 +8,31 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LogoLoop from "@/components/LogoLoop";
 
+import dynamic from "next/dynamic";
+
 import LanyardPreviewer from "@/components/LanyardPreviewer";
 import LanyardProducts from "@/components/LanyardProducts";
-import LanyardPortfolio from "@/components/LanyardPortfolio";
 import LanyardBranding from "@/components/LanyardBranding";
 import Testimonials from "@/components/Testimonials";
-import OrderForm from "@/components/OrderForm";
+
+const LanyardPortfolio = dynamic(() => import("@/components/LanyardPortfolio"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[450px] sm:h-[550px] md:h-[600px] flex items-center justify-center bg-gray-50/50 rounded-2xl select-none">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#e13b3d]"></div>
+    </div>
+  ),
+});
+
+const OrderForm = dynamic(() => import("@/components/OrderForm"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[400px] flex items-center justify-center bg-gray-50/50 rounded-2xl">
+      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#e13b3d]"></div>
+    </div>
+  ),
+});
+
 
 const PARTNER_LOGOS = [
   { src: "/images/logos/bank-indonesia.svg", alt: "Bank Indonesia", href: "https://www.bi.go.id", width: 112, height: 32 },

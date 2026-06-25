@@ -648,6 +648,17 @@ class App {
       this.container.removeEventListener('keydown', this.boundOnKeyDown);
     }
   }
+  pause() {
+    if (this.raf) {
+      window.cancelAnimationFrame(this.raf);
+      this.raf = null;
+    }
+  }
+  resume() {
+    if (!this.raf) {
+      this.raf = window.requestAnimationFrame(this.update.bind(this));
+    }
+  }
 }
 
 interface CircularGalleryProps {
@@ -678,6 +689,8 @@ export default function CircularGallery({
     if (!containerRef.current) return;
     let app: any;
     let isMounted = true;
+    let observer: IntersectionObserver;
+
     resolveFont(font, fontUrl).then(resolvedFont => {
       if (!isMounted || !containerRef.current) return;
       app = new App(containerRef.current, {
@@ -689,10 +702,27 @@ export default function CircularGallery({
         scrollSpeed,
         scrollEase
       });
+
+      // Initially pause the animation loop
+      app.pause();
+
+      if (typeof window !== 'undefined' && window.IntersectionObserver) {
+        observer = new IntersectionObserver(([entry]) => {
+          if (entry.isIntersecting) {
+            app.resume();
+          } else {
+            app.pause();
+          }
+        }, { threshold: 0.05 });
+        observer.observe(containerRef.current);
+      } else {
+        app.resume();
+      }
     });
 
     return () => {
       isMounted = false;
+      if (observer) observer.disconnect();
       if (app) app.destroy();
     };
   }, [itemsString, bend, textColor, borderRadius, font, fontUrl, scrollSpeed, scrollEase]);
