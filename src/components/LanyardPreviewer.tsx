@@ -100,7 +100,7 @@ export default function LanyardPreviewer() {
                 className="w-full h-auto transition-transform duration-500 hover:rotate-1"
                 alt="Lanyard Custom Premium"
                 width={800}
-                height={600}
+                height={450}
               />
             </div>
 
@@ -111,7 +111,7 @@ export default function LanyardPreviewer() {
                 className="w-full h-auto"
                 alt="Lanyard Custom Premium"
                 width={800}
-                height={600}
+                height={450}
               />
             </div>
           </div>
