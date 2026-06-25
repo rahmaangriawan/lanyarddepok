@@ -72,7 +72,7 @@ const TestimonialsComponent = ({
                     </Avatar>
 
                     <div className="min-w-0 flex-1">
-                      <h4 className="truncate text-base font-bold text-[#373f50]">{testimonial.name}</h4>
+                      <h3 className="truncate text-base font-bold text-[#373f50]">{testimonial.name}</h3>
                       <p className="text-sm leading-snug text-gray-500">
                         {testimonial.role} at <span className="font-semibold text-[#373f50]">{testimonial.company}</span>
                       </p>

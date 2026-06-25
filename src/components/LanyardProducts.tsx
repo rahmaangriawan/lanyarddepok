@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { DEFAULT_PRODUCTS, UnifiedProduct } from "@/lib/products-service";
 import { animateWishlistFly } from "@/lib/wishlist-animation";
@@ -133,13 +134,13 @@ export default function LanyardProducts() {
 
             {/* Highlight Lanyard Image */}
             <div className="absolute bottom-[120px] right-[-20px] w-[105%] max-w-[380px] sm:max-w-[430px] z-10 pointer-events-none">
-              <img
-                src="/uploads/aset-lanyard-4-1782114161098.webp"
-                className="w-full h-auto"
-                alt="Highlight Lanyard Custom"
-                width={430}
-                height={242}
-              />
+            <Image
+              src="/uploads/aset-lanyard-4-1782114161098.webp"
+              className="w-full h-auto"
+              alt="Highlight Lanyard Custom"
+              width={430}
+              height={242}
+            />
             </div>
           </div>
 
@@ -185,7 +186,7 @@ export default function LanyardProducts() {
                     {/* Product Image Area */}
                     <div className="w-full aspect-[4/3] rounded-2xl bg-gray-50 border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden select-none group-hover:bg-[#e13b3d]/5 group-hover:border-[#e13b3d]/20 transition-all duration-300 mb-4 z-10">
                       {item.featuredImage ? (
-                        <img
+                        <Image
                           src={item.featuredImage}
                           alt={item.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

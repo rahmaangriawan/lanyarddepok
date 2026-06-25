@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const { email, password, checkOnly } = await request.json();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -34,6 +34,10 @@ export async function POST(request: Request) {
         { error: "Invalid email or password" },
         { status: 401 }
       );
+    }
+
+    if (checkOnly) {
+      return NextResponse.json({ success: true });
     }
 
     // Create token

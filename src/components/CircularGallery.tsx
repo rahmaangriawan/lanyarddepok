@@ -26,8 +26,8 @@ function autoBind(instance: any) {
   });
 }
 
-const DEFAULT_FONT = 'bold 30px Figtree';
-const DEFAULT_FONT_URL = 'https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap';
+const DEFAULT_FONT = 'bold 30px sans-serif';
+const DEFAULT_FONT_URL = '';
 
 function deriveFontFamilyFromUrl(url: string) {
   const fileName = (url.split('/').pop() || 'custom-font').split('?')[0];
@@ -666,7 +666,7 @@ export default function CircularGallery({
   bend = 3,
   textColor = '#ffffff',
   borderRadius = 0.05,
-  font = 'bold 30px Figtree',
+  font = 'bold 30px sans-serif',
   fontUrl,
   scrollSpeed = 2,
   scrollEase = 0.05

@@ -9,32 +9,82 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  
+  // OTP states
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const router = useRouter();
+  const ADMIN_PHONE = "082210200700";
 
+  // Step 1: Check Email/Password
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
+      // 1. Verify credentials on server (without setting cookies)
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, checkOnly: true }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Gagal masuk");
+        throw new Error(data.error || "Email atau password salah.");
       }
 
-      router.push("/kawruh");
-      router.refresh();
+      // 2. Credentials correct, show OTP verification field
+      setOtpSent(true);
     } catch (err: any) {
-      setError(err.message || "Email atau password salah.");
+      setError(err.message || "Gagal masuk. Silakan periksa kembali email & password Anda.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2: Verify OTP, then finalize Login on server
+  const handleVerifyOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otp) {
+      setError("Kode OTP wajib diisi");
+      return;
+    }
+    setLoading(true);
+    setError("");
+
+    try {
+      // 1. Verify OTP via Cloudflare Worker API
+      const verifyRes = await fetch("https://otp-api.rahmaangriawan78.workers.dev/verify-otp", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-api-key": "eAtZeiO97K0PIaV47aIm" },
+        body: JSON.stringify({ target: ADMIN_PHONE, otp: otp })
+      });
+      const verifyData = await verifyRes.json();
+
+      if (verifyRes.ok && verifyData.verified === true) {
+        // 2. OTP valid, perform actual login to set JWT cookie
+        const loginRes = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        const loginData = await loginRes.json();
+        if (!loginRes.ok) {
+          throw new Error(loginData.error || "Gagal memproses otentikasi sesi.");
+        }
+        
+        router.push("/kawruh");
+        router.refresh();
+      } else {
+        throw new Error(verifyData.message || "Kode OTP salah atau kedaluwarsa.");
+      }
+    } catch (err: any) {
+      setError(err.message || "Gagal memverifikasi OTP.");
     } finally {
       setLoading(false);
     }
@@ -59,71 +109,128 @@ export default function Login() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl py-8 px-4 sm:rounded-xl sm:px-10">
-          <form onSubmit={handleLoginSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block mb-2 text-sm font-medium text-white flex items-center space-x-1.5">
-                <Icon icon="lucide:mail" className="h-4 w-4 text-brand-red" />
-                <span>Alamat Email</span>
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="nama@email.com"
-                className="bg-white/10 border border-white/20 text-white placeholder-gray-400 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block mb-2 text-sm font-medium text-white flex items-center space-x-1.5">
-                <Icon icon="lucide:lock" className="h-4 w-4 text-brand-red" />
-                <span>Password</span>
-              </label>
-              <div className="relative">
+          
+          {!otpSent ? (
+            <form onSubmit={handleLoginSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block mb-2 text-sm font-medium text-white flex items-center space-x-1.5">
+                  <Icon icon="lucide:mail" className="h-4 w-4 text-brand-red" />
+                  <span>Alamat Email</span>
+                </label>
                 <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="bg-white/10 border border-white/20 text-white placeholder-gray-400 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5 pr-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="nama@email.com"
+                  className="bg-white/10 border border-white/20 text-white placeholder-gray-400 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5 outline-none transition-all"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-300 hover:text-white transition-colors cursor-pointer"
-                >
-                  <Icon icon={showPassword ? "lucide:eye-off" : "lucide:eye"} className="h-5 w-5" />
-                </button>
               </div>
-            </div>
 
-            {error && (
-              <div className="flex p-4 mb-4 text-sm text-red-200 rounded-lg bg-red-950/40 border border-red-800" role="alert">
-                <Icon icon="lucide:alert-circle" className="flex-shrink-0 inline w-5 h-5 mr-3 mt-0.5" />
-                <div>
-                  <span className="font-bold">Gagal:</span> {error}
+              <div>
+                <label htmlFor="password" className="block mb-2 text-sm font-medium text-white flex items-center space-x-1.5">
+                  <Icon icon="lucide:lock" className="h-4 w-4 text-brand-red" />
+                  <span>Password</span>
+                </label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="bg-white/10 border border-white/20 text-white placeholder-gray-400 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5 pr-10 outline-none transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-300 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <Icon icon={showPassword ? "lucide:eye-off" : "lucide:eye"} className="h-5 w-5" />
+                  </button>
                 </div>
               </div>
-            )}
 
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full text-white bg-brand-red hover:bg-brand-dark focus:ring-4 focus:ring-red-300 font-bold rounded-lg text-sm px-5 py-3 text-center disabled:opacity-50 cursor-pointer uppercase"
-              >
-                {loading ? "Memproses..." : "Masuk Akun"}
-              </button>
-            </div>
-          </form>
+              {error && (
+                <div className="flex p-4 text-sm text-red-200 rounded-lg bg-red-950/40 border border-red-800" role="alert">
+                  <Icon icon="lucide:alert-circle" className="flex-shrink-0 inline w-5 h-5 mr-3 mt-0.5" />
+                  <div>
+                    <span className="font-bold">Gagal:</span> {error}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full text-white bg-brand-red hover:bg-[#D9383D] focus:ring-4 focus:ring-red-200 font-bold rounded-lg text-sm px-5 py-3 text-center disabled:opacity-50 cursor-pointer uppercase transition-all"
+                >
+                  {loading ? "Memproses..." : "Masuk Akun"}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtpSubmit} className="space-y-6">
+              <div>
+                <p className="text-xs font-semibold text-gray-300 mb-4 bg-white/5 border border-white/10 rounded-lg p-3">
+                  Kredensial benar. Silakan masukkan kode OTP dari aplikasi OTP Generator Anda.
+                </p>
+                <label htmlFor="otp" className="block mb-2 text-sm font-medium text-white flex items-center space-x-1.5">
+                  <Icon icon="lucide:key-round" className="h-4 w-4 text-brand-red" />
+                  <span>Masukkan 6-Digit OTP</span>
+                </label>
+                <input
+                  id="otp"
+                  name="otp"
+                  type="text"
+                  maxLength={6}
+                  required
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  placeholder="Contoh: 123456"
+                  className="bg-white/10 border border-white/20 text-white placeholder-gray-400 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5 text-center tracking-widest text-lg font-black outline-none transition-all"
+                />
+              </div>
+
+              {error && (
+                <div className="flex p-4 text-sm text-red-200 rounded-lg bg-red-950/40 border border-red-800" role="alert">
+                  <Icon icon="lucide:alert-circle" className="flex-shrink-0 inline w-5 h-5 mr-3 mt-0.5" />
+                  <div>
+                    <span className="font-bold">Gagal:</span> {error}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full text-white bg-brand-red hover:bg-[#D9383D] focus:ring-4 focus:ring-red-200 font-bold rounded-lg text-sm px-5 py-3 text-center disabled:opacity-50 cursor-pointer uppercase transition-all"
+                >
+                  {loading ? "Memverifikasi..." : "Verifikasi & Masuk"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpSent(false);
+                    setOtp("");
+                    setError("");
+                  }}
+                  className="w-full text-gray-300 hover:text-white text-xs font-bold py-2 transition-all cursor-pointer"
+                >
+                  Kembali ke Login Password
+                </button>
+              </div>
+            </form>
+          )}
+
         </div>
       </div>
     </div>

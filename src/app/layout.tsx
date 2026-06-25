@@ -7,7 +7,7 @@ import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
 
-export const revalidate = 0; // force dynamic rendering to fetch fresh settings on every request
+export const revalidate = 300; // Cache metadata SEO selama 5 menit
 
 const rubik = Rubik({
   variable: "--font-rubik",
@@ -96,6 +96,10 @@ export default async function RootLayout({
       className={`${rubik.variable} h-full`}
       suppressHydrationWarning
     >
+      <head>
+        <link rel="preconnect" href="https://otp-api.rahmaangriawan78.workers.dev" />
+        <link rel="preconnect" href="https://www.google-analytics.com" />
+      </head>
       <body className="min-h-full flex flex-col bg-white text-[#373f50]" suppressHydrationWarning>
         <GoogleAnalytics measurementId={measurementId} />
         <ToastProvider>

@@ -15,6 +15,20 @@ interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+export const revalidate = 1800; // Regenerate pages in background every 30 minutes
+
+export async function generateStaticParams() {
+  const posts = await prisma.post.findMany({
+    where: { published: true },
+    select: { slug: true }
+  });
+  
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await prisma.post.findFirst({

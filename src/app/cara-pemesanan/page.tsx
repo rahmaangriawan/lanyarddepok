@@ -4,6 +4,8 @@ import { Icon } from "@iconify/react";
 import { Metadata } from "next";
 import CaraPemesananContent from "./CaraPemesananContent";
 
+export const revalidate = 3600; // Cache page for 1 hour
+
 export const metadata: Metadata = {
   title: "Cara Pemesanan Lanyard Custom",
   description:

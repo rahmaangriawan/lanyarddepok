@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Icon } from "@iconify/react";
 
 interface FooterCategory {
@@ -120,7 +121,7 @@ export default function Footer() {
           {/* Column 1: Brand Info (4 cols) */}
           <div className="col-span-2 lg:col-span-4 space-y-4">
             <div className="flex items-center space-x-2 select-none">
-              <img src="/images/logo.webp" alt="Lanyard Jakarta Logo" className="h-10 w-auto object-contain" />
+              <Image src="/images/logo.webp" alt="Lanyard Jakarta Logo" className="h-10 w-auto object-contain" width={164} height={40} />
             </div>
             <p className="text-sm text-gray-500 font-normal leading-relaxed max-w-sm">
               Pusatnya Lanyard Custom berkualitas untuk perusahaan, instansi, sekolah, komunitas, dan event di seluruh Indonesia.

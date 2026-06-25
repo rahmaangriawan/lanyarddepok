@@ -3,6 +3,8 @@ import Footer from "@/components/Footer";
 import { Icon } from "@iconify/react";
 import { Metadata } from "next";
 
+export const revalidate = 3600; // Cache page for 1 hour
+
 export const metadata: Metadata = {
   title: "Tentang Kami",
   description:

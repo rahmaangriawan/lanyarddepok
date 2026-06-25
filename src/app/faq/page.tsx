@@ -4,6 +4,8 @@ import { Icon } from "@iconify/react";
 import { Metadata } from "next";
 import FaqContent from "./FaqContent";
 
+export const revalidate = 3600; // Cache page for 1 hour
+
 export const metadata: Metadata = {
   title: "Tanya Jawab (FAQ) Pemesanan Tali Lanyard",
   description:

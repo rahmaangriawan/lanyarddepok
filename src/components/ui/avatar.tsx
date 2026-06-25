@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 type AvatarProps = React.ComponentProps<"span"> & {
@@ -23,8 +24,18 @@ function Avatar({ className, size = "md", ...props }: AvatarProps) {
   );
 }
 
-function AvatarImage({ className, alt = "", ...props }: React.ComponentProps<"img">) {
-  return <img data-slot="avatar-image" alt={alt} className={cn("aspect-square h-full w-full object-cover", className)} {...props} />;
+function AvatarImage({ className, alt = "", src, ...props }: React.ComponentProps<"img">) {
+  if (!src) return null;
+  return (
+    <Image
+      data-slot="avatar-image"
+      alt={alt}
+      src={src as string}
+      width={96}
+      height={96}
+      className={cn("aspect-square h-full w-full object-cover", className)}
+    />
+  );
 }
 
 function AvatarFallback({ className, ...props }: React.ComponentProps<"span">) {

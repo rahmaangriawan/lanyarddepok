@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Icon } from "@iconify/react";
 export default function LanyardPreviewer() {
   const items = [
@@ -94,19 +95,23 @@ export default function LanyardPreviewer() {
 
             {/* Desktop Lanyard Image (Absolute Positioned for overlapping layout) */}
             <div className="absolute bottom-[-160px] left-[-80px] w-[540px] pointer-events-none -z-5 hidden lg:block">
-              <img
+              <Image
                 src="/uploads/aset-lanyard-3-1782112472764.webp"
                 className="w-full h-auto transition-transform duration-500 hover:rotate-1"
                 alt="Lanyard Custom Premium"
+                width={800}
+                height={600}
               />
             </div>
 
             {/* Mobile Lanyard Image (In-flow layout for mobile rendering) */}
             <div className="w-full max-w-sm mx-auto mt-10 lg:hidden pointer-events-none">
-              <img
+              <Image
                 src="/uploads/aset-lanyard-3-1782112472764.webp"
                 className="w-full h-auto"
                 alt="Lanyard Custom Premium"
+                width={800}
+                height={600}
               />
             </div>
           </div>

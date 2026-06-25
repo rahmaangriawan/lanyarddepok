@@ -126,7 +126,6 @@ export default function LanyardPortfolio() {
             textColor="#373f50"
             borderRadius={0.06}
             scrollEase={0.03}
-            fontUrl="https://fonts.googleapis.com/css2?family=Rubik:wght@700&display=swap"
             font="bold 22px Rubik"
           />
         )}

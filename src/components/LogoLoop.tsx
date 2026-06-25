@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState, memo } from 'react';
+import Image from 'next/image';
 import './LogoLoop.css';
 
 export interface LogoItem {
@@ -289,16 +290,12 @@ export const LogoLoop = memo(
             {item.node}
           </span>
         ) : (
-          <img
-            src={item.src}
-            srcSet={item.srcSet}
-            sizes={item.sizes}
-            width={item.width}
-            height={item.height}
+          <Image
+            src={item.src!}
+            width={typeof item.width === 'number' ? item.width : parseInt(item.width as string, 10) || 120}
+            height={typeof item.height === 'number' ? item.height : parseInt(item.height as string, 10) || 32}
             alt={item.alt ?? ''}
             title={item.title}
-            loading="lazy"
-            decoding="async"
             draggable={false}
           />
         );

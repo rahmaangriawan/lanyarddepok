@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import { DEFAULT_PRODUCTS, UnifiedProduct } from "@/lib/products-service";
@@ -236,7 +237,7 @@ export default function Header() {
           
           {/* Brand Logo */}
           <Link href="/" className="flex items-center space-x-2 shrink-0">
-            <img src="/images/logo.webp" alt="Lanyard Jakarta Logo" className="h-10 w-auto object-contain" />
+            <Image src="/images/logo.webp" alt="Lanyard Jakarta Logo" className="h-10 w-auto object-contain" width={164} height={40} priority />
           </Link>
 
           {/* Center Search Bar with Live Search */}
