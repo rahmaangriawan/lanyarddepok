@@ -138,7 +138,7 @@ function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
           </Link>
         </div>
 
-        <div className="-mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:px-0 md:pb-0 lg:gap-8">
+        <div className="-mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-3 sm:-mx-6 sm:px-8 md:mx-0 md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:px-0 md:pb-0 lg:gap-8">
           {posts.map((post) => {
             const formattedDate = new Date(post.createdAt).toLocaleDateString("id-ID", {
               day: "2-digit",
