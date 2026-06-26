@@ -17,6 +17,10 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
+function renderInlineMarkdown(value: string) {
+  return value.replace(/\*([^*\n]+?)\*/g, (_match, text: string) => `<strong>${text.trim()}</strong>`);
+}
+
 function normalizeDescription(description: string) {
   const trimmed = description.trim();
 
@@ -25,12 +29,12 @@ function normalizeDescription(description: string) {
   }
 
   if (HTML_TAG_PATTERN.test(trimmed)) {
-    return trimmed;
+    return renderInlineMarkdown(trimmed);
   }
 
   return trimmed
     .split(/\n{2,}/)
-    .map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, "<br />")}</p>`)
+    .map((paragraph) => `<p>${renderInlineMarkdown(escapeHtml(paragraph)).replace(/\n/g, "<br />")}</p>`)
     .join("");
 }
 
