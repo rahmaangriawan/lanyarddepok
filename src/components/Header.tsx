@@ -402,6 +402,7 @@ export default function Header() {
               onClick={() => setMenuOpen(!menuOpen)}
               className="text-gray-500 hover:text-brand-red hover:bg-gray-100 focus:outline-none p-2 rounded-lg md:hidden cursor-pointer"
               aria-label="Toggle menu"
+              aria-expanded={menuOpen}
             >
               {menuOpen ? <Icon icon="lucide:x" className="h-6 w-6" /> : <Icon icon="lucide:menu" className="h-6 w-6" />}
             </button>
@@ -620,8 +621,13 @@ export default function Header() {
       </div>
 
       {/* Mobile Drawer Navigation */}
-      {menuOpen && (
-        <div className="md:hidden bg-white border-b border-gray-200 px-4 pt-2 pb-4 space-y-2 text-sm font-medium animate-slide-down">
+      <div
+        className={`absolute left-0 right-0 top-full z-50 md:hidden bg-white border-y border-gray-100 px-4 pt-2 pb-4 space-y-2 text-sm font-medium shadow-xl transition-all duration-300 ease-out ${
+          menuOpen
+            ? "visible translate-y-0 opacity-100 pointer-events-auto"
+            : "invisible -translate-y-3 opacity-0 pointer-events-none"
+        }`}
+      >
           
           {/* Mobile Live Search */}
           <div className="relative w-full py-2">
@@ -729,7 +735,6 @@ export default function Header() {
             Minta Quotation (WhatsApp)
           </a>
         </div>
-      )}
     </header>
   );
 }
