@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Metadata } from "next";
 import { getPaginationItems } from "@/lib/pagination";
+import { getPublicAuthorName } from "@/lib/public-author";
 
 export const metadata: Metadata = {
   title: "Blog & Artikel Lanyard Custom",
@@ -55,7 +56,7 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
     })
   ]);
 
-  const authorName = adminUser?.name || "Admin Lanyard Jakarta";
+  const authorName = getPublicAuthorName(adminUser?.name);
   const totalPages = Math.ceil(totalPosts / limit);
   const paginationItems = getPaginationItems(currentPage, totalPages);
 

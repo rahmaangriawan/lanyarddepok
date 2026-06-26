@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getPublicAuthorName, PUBLIC_AUTHOR_ROLE } from "@/lib/public-author";
 
 export const revalidate = 0; // dynamic rendering
 
@@ -35,11 +36,10 @@ export default async function AuthorPostPage({ params }: PageProps) {
   // 1. Fetch admin details
   const adminUser = await prisma.user.findFirst({
     where: { role: "ADMIN" },
-    select: { name: true, email: true },
+    select: { name: true },
   });
 
-  const authorName = adminUser?.name || "Admin Lanyard Jakarta";
-  const authorEmail = adminUser?.email || "info@lanyardjakarta.co.id";
+  const authorName = getPublicAuthorName(adminUser?.name);
 
   // 2. Fetch all posts (as they are all authored by admin)
   const posts = await prisma.post.findMany({
@@ -114,7 +114,7 @@ export default async function AuthorPostPage({ params }: PageProps) {
               {authorName}
             </h1>
             <p className="text-xs font-semibold text-gray-400">
-              {authorEmail}
+              {PUBLIC_AUTHOR_ROLE}
             </p>
           </div>
           

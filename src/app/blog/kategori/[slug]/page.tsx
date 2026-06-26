@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { getPublicAuthorName } from "@/lib/public-author";
 
 export const revalidate = 0; // dynamic rendering
 
@@ -70,7 +71,7 @@ export default async function CategoryPostPage({ params }: PageProps) {
       select: { name: true },
     })
   ]);
-  const authorName = adminUser?.name || "Admin Lanyard Jakarta";
+  const authorName = getPublicAuthorName(adminUser?.name);
 
   const categoryPageSchema = {
     "@context": "https://schema.org",
