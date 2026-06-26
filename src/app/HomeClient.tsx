@@ -112,45 +112,23 @@ function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
   if (posts.length === 0) return null;
 
   return (
-    <section className="bg-[#FDFDFD] py-16 sm:py-20 border-t border-gray-100">
+    <section className="bg-white py-14 sm:py-16 border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 text-center lg:text-left mb-10">
-          <div className="space-y-4">
-            <div className="inline-flex items-center justify-center gap-3 text-brand-red">
-              <span className="h-px w-8 bg-current" />
-              <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Blog Terbaru</span>
-              <span className="h-px w-8 bg-current" />
-            </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#373f50] tracking-tight leading-tight">
-              Insight & Tips <span className="text-brand-red">Lanyard</span>
-            </h2>
-            <p className="text-sm sm:text-base font-normal text-gray-500 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-              Baca panduan terbaru seputar desain, bahan, dan kebutuhan branding untuk lanyard custom.
-            </p>
-          </div>
-
-          <Link
-            href="/blog"
-            className="inline-flex items-center justify-center self-center lg:self-auto rounded-xl border border-gray-200 bg-white px-5 py-3 text-xs font-extrabold text-[#373f50] hover:border-brand-red hover:text-brand-red transition-colors"
-          >
-            <span>Lihat Semua Artikel</span>
-            <Icon icon="lucide:arrow-right" className="ml-2 h-4 w-4" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-7 lg:gap-8">
           {posts.map((post) => {
             const formattedDate = new Date(post.createdAt).toLocaleDateString("id-ID", {
-              dateStyle: "long",
+              day: "2-digit",
+              month: "long",
+              year: "numeric",
               timeZone: "Asia/Jakarta",
             });
 
             return (
               <article
                 key={post.id}
-                className="group bg-white rounded-3xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full"
+                className="group flex h-full flex-col"
               >
-                <Link href={`/blog/${post.slug}`} className="block relative aspect-video overflow-hidden bg-gray-50 shrink-0">
+                <Link href={`/blog/${post.slug}`} className="block relative aspect-[16/9] overflow-hidden bg-gray-50 rounded-md shrink-0">
                   {post.featuredImage ? (
                     <Image
                       src={post.featuredImage}
@@ -160,41 +138,35 @@ function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
                       height={292}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300 border-b border-gray-100">
+                    <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-100">
                       <Icon icon="lucide:image" className="h-12 w-12" />
                     </div>
                   )}
-                  {post.categoryName && (
-                    <span className="absolute top-4 left-4 bg-white/95 backdrop-blur-xs text-brand-red text-[9px] font-extrabold px-3 py-1 rounded-full border border-red-50 uppercase tracking-wider shadow-xs">
-                      {post.categoryName}
-                    </span>
-                  )}
+                  <span className="absolute top-4 right-4 bg-white/80 backdrop-blur-xs text-[#373f50] text-sm font-medium px-4 py-1 rounded-full">
+                    {post.categoryName || "Artikel"}
+                  </span>
                 </Link>
 
-                <div className="p-6 flex-grow flex flex-col justify-between space-y-4">
-                  <div>
-                    <div className="flex items-center space-x-2 text-[10px] text-gray-400 font-bold mb-2">
-                      <span>Admin Lanyard Jakarta</span>
-                      <span>&bull;</span>
-                      <span>{formattedDate}</span>
-                    </div>
-                    <Link href={`/blog/${post.slug}`} className="block mb-3">
-                      <h3 className="text-[#373f50] text-lg font-semibold leading-snug group-hover:text-brand-red transition-colors line-clamp-2">
-                        {post.title}
-                      </h3>
-                    </Link>
-                    <p className="text-xs font-normal text-gray-500 leading-relaxed line-clamp-3">
-                      {post.excerpt}
-                    </p>
-                  </div>
-
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="text-[11px] font-extrabold text-brand-red hover:text-[#c82a2c] inline-flex items-center space-x-1.5 transition-colors group/btn select-none"
-                  >
-                    <span>Baca Selengkapnya</span>
-                    <Icon icon="lucide:arrow-right" className="h-3.5 w-3.5 group-hover/btn:translate-x-1 transition-transform" />
+                <div className="flex flex-1 flex-col justify-between pt-5 px-4 sm:px-5">
+                  <Link href={`/blog/${post.slug}`} className="block">
+                    <h3 className="text-[#111827] text-xl sm:text-2xl font-medium leading-snug tracking-normal group-hover:text-brand-red transition-colors line-clamp-2">
+                      {post.title}
+                    </h3>
                   </Link>
+
+                  <div className="mt-6 flex items-center justify-between gap-4 text-sm text-gray-500">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Icon icon="lucide:calendar-days" className="h-4 w-4 shrink-0 text-gray-500" />
+                      <span className="truncate">{formattedDate}</span>
+                    </div>
+                    <Link
+                      href={`/blog/${post.slug}`}
+                      className="inline-flex shrink-0 items-center gap-2 text-sm font-normal text-[#111827] hover:text-brand-red transition-colors"
+                    >
+                      <span>Read more</span>
+                      <Icon icon="lucide:chevron-right" className="h-4 w-4" />
+                    </Link>
+                  </div>
                 </div>
               </article>
             );

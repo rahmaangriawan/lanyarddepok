@@ -48,6 +48,7 @@ export default function OrderForm() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileReady, setTurnstileReady] = useState(false);
   const [turnstileError, setTurnstileError] = useState("");
+  const [showTurnstile, setShowTurnstile] = useState(false);
   const turnstileRef = useRef<HTMLDivElement>(null);
   const turnstileWidgetIdRef = useRef<string | null>(null);
 
@@ -70,7 +71,7 @@ export default function OrderForm() {
   }, []);
 
   useEffect(() => {
-    if (!turnstileConfig.enabled || !turnstileConfig.siteKey) return;
+    if (!showTurnstile || !turnstileConfig.enabled || !turnstileConfig.siteKey) return;
 
     const scriptId = "cloudflare-turnstile-script";
     const existingScript = document.getElementById(scriptId) as HTMLScriptElement | null;
@@ -119,7 +120,7 @@ export default function OrderForm() {
         turnstileWidgetIdRef.current = null;
       }
     };
-  }, [turnstileConfig.enabled, turnstileConfig.siteKey]);
+  }, [showTurnstile, turnstileConfig.enabled, turnstileConfig.siteKey]);
 
   const resetTurnstile = () => {
     if (turnstileWidgetIdRef.current && window.turnstile) {
@@ -179,6 +180,7 @@ export default function OrderForm() {
     }
 
     if (turnstileConfig.enabled && !turnstileToken) {
+      setShowTurnstile(true);
       setTurnstileError("Silakan selesaikan verifikasi keamanan terlebih dahulu.");
       return;
     }
@@ -204,6 +206,7 @@ export default function OrderForm() {
       setMessage("");
       setFieldErrors({});
       resetTurnstile();
+      setShowTurnstile(false);
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan. Silakan coba lagi.");
       resetTurnstile();
@@ -410,7 +413,16 @@ export default function OrderForm() {
                 </div>
               )}
 
-              {turnstileConfig.enabled && (
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full text-white bg-brand-red hover:bg-[#D9383D] active:bg-[#C22F34] focus:ring-4 focus:ring-red-200 font-bold rounded-xl text-[13px] px-6 py-4 text-center disabled:opacity-50 cursor-pointer uppercase flex items-center justify-center space-x-2.5 tracking-wider transition-all"
+              >
+                <Icon icon="lucide:send" className="h-4.5 w-4.5 transition-transform group-hover:translate-x-1" />
+                <span>{loading ? "Mengirim..." : "Kirim Pertanyaan"}</span>
+              </button>
+
+              {turnstileConfig.enabled && showTurnstile && (
                 <div className="space-y-2">
                   <div ref={turnstileRef} className="min-h-[65px]" />
                   {!turnstileReady && (
@@ -424,15 +436,6 @@ export default function OrderForm() {
                   )}
                 </div>
               )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full text-white bg-brand-red hover:bg-[#D9383D] active:bg-[#C22F34] focus:ring-4 focus:ring-red-200 font-bold rounded-xl text-[13px] px-6 py-4 text-center disabled:opacity-50 cursor-pointer uppercase flex items-center justify-center space-x-2.5 tracking-wider transition-all"
-              >
-                <Icon icon="lucide:send" className="h-4.5 w-4.5 transition-transform group-hover:translate-x-1" />
-                <span>{loading ? "Mengirim..." : "Kirim Pertanyaan"}</span>
-              </button>
             </form>
           </div>
         </div>
