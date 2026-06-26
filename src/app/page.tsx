@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/db";
-import { shouldSkipDbDuringBuild } from "@/lib/build-env";
 import HomeClient from "./HomeClient";
 
 type HomepagePost = {
@@ -31,10 +30,6 @@ function getExcerpt(htmlContent: string, maxLength = 120): string {
 }
 
 export default async function Home() {
-  if (shouldSkipDbDuringBuild()) {
-    return <HomeClient latestPosts={[]} />;
-  }
-
   let posts: HomepagePost[] = [];
 
   try {
