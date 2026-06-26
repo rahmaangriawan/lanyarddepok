@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Metadata } from "next";
 import { Icon } from "@iconify/react";
+import { shouldSkipDbDuringBuild } from "@/lib/build-env";
 import { getProducts } from "@/lib/products-server";
 import ProductActions from "./ProductActions";
 import ProductDescription from "./ProductDescription";
@@ -16,6 +17,10 @@ interface ProductPageProps {
 export const revalidate = 1800; // Regenerate pages in background every 30 minutes
 
 export async function generateStaticParams() {
+  if (shouldSkipDbDuringBuild()) {
+    return [];
+  }
+
   const products = await getProducts();
   
   return products.map((product) => ({

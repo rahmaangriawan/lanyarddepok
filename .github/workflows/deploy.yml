@@ -1,6 +1,9 @@
 name: Build and Deploy Standalone Next.js to CloudPanel
 
 on:
+  push:
+    branches:
+      - main # Ganti dengan branch utama Anda jika berbeda (misal: master)
   workflow_dispatch:
 
 jobs:
@@ -28,6 +31,7 @@ jobs:
         run: npm run build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SKIP_DB_DURING_BUILD: "true"
           # Tambahkan environment variables lain di sini jika dibutuhkan saat build
 
       - name: Zip Standalone Assets

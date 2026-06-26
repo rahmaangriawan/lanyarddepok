@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 import { prisma } from "@/lib/db";
+import { shouldSkipDbDuringBuild } from "@/lib/build-env";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { ToastProvider } from "@/components/Toast";
 import WhatsAppFloating from "@/components/WhatsAppFloating";
@@ -23,28 +24,30 @@ export async function generateMetadata(): Promise<Metadata> {
   let siteTitle = "Lanyard Jakarta | Custom Premium Lanyard Printing";
   let siteDesc = "Cetak lanyard premium cepat & murah di Jakarta. Layanan 1 hari jadi dengan kualitas cetak tajam, warna cerah, dan bahan awet untuk kebutuhan kantor, event, atau promosi Anda.";
 
-  try {
-    const settings = await prisma.setting.findMany({
-      where: {
-        key: {
-          in: ["bing_site_verification", "seo_meta_title", "seo_meta_description", "site_title"]
+  if (!shouldSkipDbDuringBuild()) {
+    try {
+      const settings = await prisma.setting.findMany({
+        where: {
+          key: {
+            in: ["bing_site_verification", "seo_meta_title", "seo_meta_description", "site_title"]
+          }
         }
-      }
-    });
+      });
 
-    const bingSetting = settings.find((s) => s.key === "bing_site_verification");
-    if (bingSetting) bingVerification = bingSetting.value;
+      const bingSetting = settings.find((s) => s.key === "bing_site_verification");
+      if (bingSetting) bingVerification = bingSetting.value;
 
-    const siteNameSetting = settings.find((s) => s.key === "site_title");
-    if (siteNameSetting && siteNameSetting.value) siteName = siteNameSetting.value;
+      const siteNameSetting = settings.find((s) => s.key === "site_title");
+      if (siteNameSetting && siteNameSetting.value) siteName = siteNameSetting.value;
 
-    const titleSetting = settings.find((s) => s.key === "seo_meta_title");
-    if (titleSetting && titleSetting.value) siteTitle = titleSetting.value;
+      const titleSetting = settings.find((s) => s.key === "seo_meta_title");
+      if (titleSetting && titleSetting.value) siteTitle = titleSetting.value;
 
-    const descSetting = settings.find((s) => s.key === "seo_meta_description");
-    if (descSetting && descSetting.value) siteDesc = descSetting.value;
-  } catch (err) {
-    console.error("Failed to fetch settings for metadata in layout", err);
+      const descSetting = settings.find((s) => s.key === "seo_meta_description");
+      if (descSetting && descSetting.value) siteDesc = descSetting.value;
+    } catch (err) {
+      console.error("Failed to fetch settings for metadata in layout", err);
+    }
   }
 
   return {
@@ -84,18 +87,20 @@ export default async function RootLayout({
   let measurementId = "";
   let whatsappNumber = "6282210200700"; // Fallback hotline
 
-  try {
-    const [gaSetting, waSetting] = await Promise.all([
-      prisma.setting.findUnique({ where: { key: "google_analytics_measurement_id" } }),
-      prisma.setting.findUnique({ where: { key: "contact_whatsapp" } }),
-    ]);
-    
-    measurementId = gaSetting?.value || "";
-    if (waSetting?.value) {
-      whatsappNumber = waSetting.value;
+  if (!shouldSkipDbDuringBuild()) {
+    try {
+      const [gaSetting, waSetting] = await Promise.all([
+        prisma.setting.findUnique({ where: { key: "google_analytics_measurement_id" } }),
+        prisma.setting.findUnique({ where: { key: "contact_whatsapp" } }),
+      ]);
+      
+      measurementId = gaSetting?.value || "";
+      if (waSetting?.value) {
+        whatsappNumber = waSetting.value;
+      }
+    } catch (err) {
+      console.error("Failed to fetch settings in layout", err);
     }
-  } catch (err) {
-    console.error("Failed to fetch settings in layout", err);
   }
 
   return (

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { fetchSpreadsheetProducts, SpreadsheetProduct } from "@/lib/google-sheets";
+import { shouldSkipDbDuringBuild } from "@/lib/build-env";
 import {
   getCurrentSiteKeys,
   getSpreadsheetProductOrder,
@@ -9,6 +10,10 @@ import {
 import { DEFAULT_PRODUCTS, UnifiedProduct } from "./products-service";
 
 export async function getProducts(): Promise<UnifiedProduct[]> {
+  if (shouldSkipDbDuringBuild()) {
+    return DEFAULT_PRODUCTS;
+  }
+
   try {
     const settingsList = await prisma.setting.findMany();
     const settings: Record<string, string> = {};
