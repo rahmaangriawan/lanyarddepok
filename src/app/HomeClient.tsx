@@ -138,7 +138,7 @@ function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
           </Link>
         </div>
 
-        <div className="-mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-3 sm:-mx-6 sm:px-8 md:mx-0 md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:px-0 md:pb-0 lg:gap-8">
+        <div className="-mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto pl-8 pr-4 pb-3 sm:-mx-6 sm:pl-10 sm:pr-6 md:mx-0 md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:px-0 md:pb-0 lg:gap-8">
           {posts.map((post) => {
             const formattedDate = new Date(post.createdAt).toLocaleDateString("id-ID", {
               day: "2-digit",
@@ -178,17 +178,17 @@ function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
                     </h3>
                   </Link>
 
-                  <div className="mt-6 flex items-center justify-between gap-4 text-sm text-gray-500">
+                  <div className="mt-6 flex items-center justify-between gap-4 text-xs font-normal text-gray-500">
                     <div className="flex items-center gap-2 min-w-0">
-                      <Icon icon="lucide:calendar-days" className="h-4 w-4 shrink-0 text-gray-500" />
+                      <Icon icon="lucide:calendar-days" className="h-3.5 w-3.5 shrink-0 text-gray-400" />
                       <span className="truncate">{formattedDate}</span>
                     </div>
                     <Link
                       href={`/blog/${post.slug}`}
-                      className="inline-flex shrink-0 items-center gap-2 text-sm font-normal text-[#111827] hover:text-brand-red transition-colors"
+                      className="inline-flex shrink-0 items-center gap-2 text-xs font-normal text-gray-500 hover:text-brand-red transition-colors"
                     >
                       <span>Read more</span>
-                      <Icon icon="lucide:chevron-right" className="h-4 w-4" />
+                      <Icon icon="lucide:chevron-right" className="h-3.5 w-3.5" />
                     </Link>
                   </div>
                 </div>
