@@ -3,6 +3,30 @@ import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import sharp from "sharp";
+
+const WEBP_CONVERTIBLE_TYPES = new Set([
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+]);
+
+export const runtime = "nodejs";
+
+function sanitizeFilenameBase(filename: string) {
+  const ext = path.extname(filename);
+  const baseNameWithoutExt = path.basename(filename || "upload", ext);
+  const sanitizedBase = baseNameWithoutExt
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9.-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return sanitizedBase || "upload";
+}
 
 export async function GET(request: Request) {
   try {
@@ -86,26 +110,39 @@ export async function POST(request: Request) {
     }
 
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const originalBuffer = Buffer.from(bytes);
 
     // Sanitize filename
     const originalName = file.name;
-    const ext = path.extname(originalName);
-    const baseNameWithoutExt = path.basename(originalName, ext);
-    const sanitizedBase = baseNameWithoutExt
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9.-]/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/^-+|-+$/g, "");
-    const uniqueFilename = `${sanitizedBase}-${Date.now()}${ext}`;
+    const originalExt = path.extname(originalName).toLowerCase() || "";
+    const sanitizedBase = sanitizeFilenameBase(originalName);
+    const shouldConvertToWebp = WEBP_CONVERTIBLE_TYPES.has(file.type.toLowerCase());
+    const outputExt = shouldConvertToWebp ? ".webp" : originalExt || ".bin";
+    const uniqueFilename = `${sanitizedBase}-${Date.now()}${outputExt}`;
+
+    let outputBuffer: Buffer<ArrayBufferLike> = originalBuffer;
+    let outputMimeType = file.type || "application/octet-stream";
+
+    if (shouldConvertToWebp) {
+      outputBuffer = await sharp(originalBuffer)
+        .rotate()
+        .resize({
+          width: 1920,
+          height: 1920,
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .webp({ quality: 82 })
+        .toBuffer();
+      outputMimeType = "image/webp";
+    }
 
     // Path resolution
     const uploadDir = path.join(process.cwd(), "public", "uploads");
     await mkdir(uploadDir, { recursive: true });
 
     const filePath = path.join(uploadDir, uniqueFilename);
-    await writeFile(filePath, buffer);
+    await writeFile(filePath, outputBuffer);
 
     const fileUrl = `/uploads/${uniqueFilename}`;
     const relativePath = `public/uploads/${uniqueFilename}`;
@@ -115,8 +152,8 @@ export async function POST(request: Request) {
       data: {
         filename: uniqueFilename,
         filepath: relativePath,
-        mimetype: file.type,
-        size: file.size,
+        mimetype: outputMimeType,
+        size: outputBuffer.length,
         url: fileUrl,
       },
     });

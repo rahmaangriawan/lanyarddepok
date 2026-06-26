@@ -4,6 +4,8 @@ import { getSessionUser } from "@/lib/auth";
 import fs from "fs";
 import path from "path";
 
+export const runtime = "nodejs";
+
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -36,10 +38,10 @@ export async function DELETE(
         let resolvedPath = media.filepath;
         const relativeMatch = media.filepath.match(/public[/\\]uploads[/\\](.+)/);
         if (relativeMatch) {
-          resolvedPath = path.join(process.cwd(), "public", "uploads", relativeMatch[1]);
+          resolvedPath = path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "uploads", relativeMatch[1]);
         } else {
           const filename = path.basename(media.filepath);
-          resolvedPath = path.join(process.cwd(), "public", "uploads", filename);
+          resolvedPath = path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "uploads", filename);
         }
 
         if (fs.existsSync(resolvedPath)) {

@@ -155,7 +155,7 @@ export default function CitiesEditor({ editId }: { editId?: number }) {
     try {
       const res = await fetch("/api/cms/media");
       const data = await res.json();
-      if (res.ok) setMediaList(data.media || []);
+      if (res.ok) setMediaList(data.mediaList || []);
     } catch (err) { console.error("Failed to load media"); }
     finally { setMediaLoading(false); }
   };

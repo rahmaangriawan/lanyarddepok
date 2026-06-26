@@ -122,9 +122,9 @@ export default function PromoPage() {
                   src="/uploads/gratis-layanan-desain-mockup-1782194427111.webp"
                   alt="Gratis Layanan Jasa Desain Mockup Lanyard Jakarta"
                   fill
-                  sizes="(max-w-768px) 100vw, 400px"
+                  sizes="(max-width: 768px) 100vw, 400px"
                   className="object-cover hover:scale-105 transition-transform duration-500"
-                  priority
+                  preload
                 />
               </div>
             </div>
@@ -138,7 +138,7 @@ export default function PromoPage() {
                   src="/uploads/diskon-volume-pemesanan-1782194540663.webp"
                   alt="Diskon Volume Pemesanan Skala Besar Lanyard Jakarta"
                   fill
-                  sizes="(max-w-768px) 100vw, 400px"
+                  sizes="(max-width: 768px) 100vw, 400px"
                   className="object-cover hover:scale-105 transition-transform duration-500"
                 />
               </div>
@@ -193,7 +193,7 @@ export default function PromoPage() {
                   src="/uploads/paket-bundling-1782194588004.webp"
                   alt="Paket Bundling Lanyard & Holder Premium Lanyard Jakarta"
                   fill
-                  sizes="(max-w-768px) 100vw, 400px"
+                  sizes="(max-width: 768px) 100vw, 400px"
                   className="object-cover hover:scale-105 transition-transform duration-500"
                 />
               </div>

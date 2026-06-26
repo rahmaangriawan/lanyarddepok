@@ -429,7 +429,7 @@ export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
               alt="Lanyard Jakarta Premium"
               className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none"
               draggable="false"
-              priority
+              preload
               width={964}
               height={1254}
             />

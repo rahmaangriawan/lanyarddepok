@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { shouldSkipDbDuringBuild } from "@/lib/build-env";
 import HomeClient from "./HomeClient";
 
 type HomepagePost = {
@@ -32,15 +33,17 @@ function getExcerpt(htmlContent: string, maxLength = 120): string {
 export default async function Home() {
   let posts: HomepagePost[] = [];
 
-  try {
-    posts = await prisma.post.findMany({
-      where: { published: true },
-      include: { category: true },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-    });
-  } catch (err) {
-    console.error("Failed to fetch homepage posts:", err);
+  if (!shouldSkipDbDuringBuild()) {
+    try {
+      posts = await prisma.post.findMany({
+        where: { published: true },
+        include: { category: true },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+      });
+    } catch (err) {
+      console.error("Failed to fetch homepage posts:", err);
+    }
   }
 
   const latestPosts = posts.map((post) => ({

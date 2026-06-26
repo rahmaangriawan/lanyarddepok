@@ -329,7 +329,6 @@ export default function KontakPage() {
                     width={400}
                     height={400}
                     className="object-contain max-h-[320px] drop-shadow-lg"
-                    priority={false}
                   />
                 </div>
               </div>

@@ -45,6 +45,7 @@ export default function Header() {
         setIsSticky(false);
       }
     };
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -212,7 +213,7 @@ export default function Header() {
           </div>
 
           {/* Center: Carousel Text Taglines */}
-          <div className="hidden md:block transition-all duration-500 ease-in-out select-none text-gray-300">
+          <div className="hidden md:block w-[260px] text-center truncate transition-opacity duration-500 ease-in-out select-none text-gray-300">
             {taglines[taglineIndex]}
           </div>
 
@@ -237,7 +238,7 @@ export default function Header() {
           
           {/* Brand Logo */}
           <Link href="/" className="flex items-center space-x-2 shrink-0">
-            <Image src="/images/logo.webp" alt="Lanyard Jakarta Logo" className="h-10 w-auto object-contain" width={164} height={40} priority />
+            <Image src="/images/logo.webp" alt="Lanyard Jakarta Logo" className="h-10 w-auto object-contain" width={164} height={40} preload />
           </Link>
 
           {/* Center Search Bar with Live Search */}

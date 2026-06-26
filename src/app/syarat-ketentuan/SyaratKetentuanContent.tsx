@@ -45,9 +45,9 @@ export default function SyaratKetentuanContent() {
                 src="/uploads/moq-1782195695075.webp"
                 alt="Jumlah Minimum Pemesanan MOQ Lanyard Jakarta"
                 fill
-                sizes="(max-w-768px) 100vw, 300px"
+                sizes="(max-width: 768px) 100vw, 300px"
                 className="object-cover"
-                priority
+                preload
               />
             </div>
           </div>
@@ -90,7 +90,7 @@ export default function SyaratKetentuanContent() {
                 src="/uploads/persetujuan-mockup-1782195889939.webp"
                 alt="Persetujuan Mockup Desain Approval Lanyard Jakarta"
                 fill
-                sizes="(max-w-768px) 100vw, 300px"
+                sizes="(max-width: 768px) 100vw, 300px"
                 className="object-cover"
               />
             </div>
@@ -134,7 +134,7 @@ export default function SyaratKetentuanContent() {
                 src="/uploads/sistem-pembayaran-1782195950038.webp"
                 alt="Sistem Pembayaran DP Lanyard Jakarta"
                 fill
-                sizes="(max-w-768px) 100vw, 300px"
+                sizes="(max-width: 768px) 100vw, 300px"
                 className="object-cover"
               />
             </div>
@@ -178,7 +178,7 @@ export default function SyaratKetentuanContent() {
                 src="/uploads/pengiriman-dan-garansi-1782196021934.webp"
                 alt="Pengiriman dan Garansi Kualitas Lanyard Jakarta"
                 fill
-                sizes="(max-w-768px) 100vw, 300px"
+                sizes="(max-width: 768px) 100vw, 300px"
                 className="object-cover"
               />
             </div>
