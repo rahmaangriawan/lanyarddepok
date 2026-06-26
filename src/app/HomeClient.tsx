@@ -138,7 +138,7 @@ function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-7 lg:gap-8">
+        <div className="-mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:px-0 md:pb-0 lg:gap-8">
           {posts.map((post) => {
             const formattedDate = new Date(post.createdAt).toLocaleDateString("id-ID", {
               day: "2-digit",
@@ -150,7 +150,7 @@ function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
             return (
               <article
                 key={post.id}
-                className="group flex h-full flex-col"
+                className="group flex h-full w-[84%] min-w-[84%] snap-start flex-col md:w-auto md:min-w-0"
               >
                 <Link href={`/blog/${post.slug}`} className="block relative aspect-[16/9] overflow-hidden bg-gray-50 rounded-[10px] shrink-0">
                   {post.featuredImage ? (
@@ -173,7 +173,7 @@ function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
 
                 <div className="flex flex-1 flex-col justify-between pt-5 px-4 sm:px-5">
                   <Link href={`/blog/${post.slug}`} className="block">
-                    <h3 className="text-[#111827] text-xl sm:text-2xl font-medium leading-snug tracking-normal group-hover:text-brand-red transition-colors line-clamp-2">
+                    <h3 className="text-[#111827] text-lg sm:text-xl font-medium leading-snug tracking-normal group-hover:text-brand-red transition-colors line-clamp-2">
                       {post.title}
                     </h3>
                   </Link>
