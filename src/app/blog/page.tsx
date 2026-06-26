@@ -1,6 +1,4 @@
 import { prisma } from "@/lib/db";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Metadata } from "next";
 import { getPaginationItems } from "@/lib/pagination";
@@ -105,7 +103,6 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogListingSchema) }}
       />
-      <Header />
 
       {/* Hero Banner Section */}
       <section className="bg-[#FDFDFD] border-b border-gray-100 pt-8 pb-12 sm:pt-12 sm:pb-16 text-center select-none">
@@ -306,7 +303,6 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
         )}
       </main>
 
-      <Footer />
     </div>
   );
 }

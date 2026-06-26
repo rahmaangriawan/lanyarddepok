@@ -1,11 +1,8 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <Header />
       <main className="flex flex-1 items-center justify-center px-4 py-20">
         <section className="w-full max-w-2xl text-center">
           <p className="text-7xl sm:text-8xl md:text-9xl font-black tracking-wider text-brand-red leading-none select-none animate-pulse">404</p>
@@ -31,7 +28,6 @@ export default function NotFound() {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }

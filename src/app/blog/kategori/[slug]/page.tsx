@@ -1,6 +1,4 @@
 import { prisma } from "@/lib/db";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
@@ -121,7 +119,6 @@ export default async function CategoryPostPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryPageSchema) }}
       />
-      <Header />
 
       {/* Hero Banner Section */}
       <section className="bg-[#FDFDFD] border-b border-gray-100 pt-8 pb-12 sm:pt-12 sm:pb-16 text-center select-none">
@@ -242,7 +239,6 @@ export default async function CategoryPostPage({ params }: PageProps) {
         )}
       </main>
 
-      <Footer />
     </div>
   );
 }

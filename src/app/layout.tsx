@@ -4,9 +4,12 @@ import { getCachedSiteChromeSettings } from "@/lib/settings-cache";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { ToastProvider } from "@/components/Toast";
 import WhatsAppFloating from "@/components/WhatsAppFloating";
+import ClientHeader from "@/components/ClientHeader";
+import ClientFooter from "@/components/ClientFooter";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
 
 export const revalidate = 300; // Cache metadata SEO selama 5 menit
 
@@ -34,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
       icon: [
         { url: "/favicon.ico" },
         { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
-        { url: "/favicon.svg", type: "image/svg+xml" }
+        { url: "/favicon.svg", type: "image/svg+xml" },
       ],
       apple: "/apple-touch-icon.png",
     },
@@ -63,10 +66,15 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head />
-      <body className="min-h-full flex flex-col bg-white text-[#373f50]" suppressHydrationWarning>
+      <body
+        className="min-h-full flex flex-col bg-white text-[#373f50]"
+        suppressHydrationWarning
+      >
         <GoogleAnalytics measurementId={settings.measurementId} />
         <ToastProvider>
+          <ClientHeader />
           {children}
+          <ClientFooter />
         </ToastProvider>
         <WhatsAppFloating whatsappNumber={settings.whatsappNumber} />
       </body>

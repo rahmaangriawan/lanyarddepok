@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 
 export default function ErrorPage({
@@ -18,7 +16,6 @@ export default function ErrorPage({
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <Header />
       <main className="flex flex-1 items-center justify-center px-4 py-20">
         <section className="w-full max-w-2xl text-center">
           <p className="text-sm font-extrabold uppercase tracking-[0.2em] text-brand-red">500</p>
@@ -45,7 +42,6 @@ export default function ErrorPage({
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }

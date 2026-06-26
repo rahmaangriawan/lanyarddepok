@@ -1,7 +1,5 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 import { Metadata } from "next";
 import { Icon } from "@iconify/react";
@@ -145,7 +143,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <Header />
 
       {/* Main Container */}
       <main className="flex-grow py-8 sm:py-12">
@@ -265,7 +262,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

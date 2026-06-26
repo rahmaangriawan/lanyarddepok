@@ -1,6 +1,4 @@
 import { prisma } from "@/lib/db";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublicAuthorName, PUBLIC_AUTHOR_ROLE } from "@/lib/public-author";
@@ -96,7 +94,6 @@ export default async function AuthorPostPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(authorProfileSchema) }}
       />
-      <Header />
 
       {/* Author Profile Header Section */}
       <section className="bg-[#FDFDFD] border-b border-gray-100 pt-10 pb-12 sm:pt-14 sm:pb-16 select-none">
@@ -232,7 +229,6 @@ export default async function AuthorPostPage({ params }: PageProps) {
         )}
       </main>
 
-      <Footer />
     </div>
   );
 }

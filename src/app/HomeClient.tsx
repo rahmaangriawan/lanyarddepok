@@ -4,8 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import LogoLoop from "@/components/LogoLoop";
 
 import dynamic from "next/dynamic";
@@ -269,14 +267,12 @@ export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
   if (previewLoading) {
     return (
       <div className="flex flex-col min-h-screen bg-gray-50">
-        <Header />
         <div className="flex-grow flex items-center justify-center py-20">
           <div className="text-center space-y-4">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-brand-red border-t-transparent" />
             <p className="text-sm font-semibold text-gray-500">Memuat pratinjau draf...</p>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -284,7 +280,6 @@ export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
   if (previewError) {
     return (
       <div className="flex flex-col min-h-screen bg-gray-50">
-        <Header />
         <div className="flex-grow flex items-center justify-center py-20 px-5">
           <div className="max-w-md w-full bg-white border border-gray-100 rounded-3xl p-8 text-center shadow-lg space-y-4">
             <div className="inline-flex p-3 rounded-full bg-red-50 text-red-500">
@@ -299,7 +294,6 @@ export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
             </div>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -311,7 +305,6 @@ export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(HOMEPAGE_SCHEMA) }}
         />
-        <Header />
         
         {/* Draft Notice Banner */}
         <div className="bg-amber-50 border-b border-amber-200 py-3 px-5 text-center text-xs text-amber-800 font-bold flex items-center justify-center space-x-2 animate-pulse mt-[72px] md:mt-[80px]">
@@ -348,7 +341,6 @@ export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
           </div>
         </main>
 
-        <Footer />
       </div>
     );
   }
@@ -359,7 +351,6 @@ export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(HOMEPAGE_SCHEMA) }}
       />
-      <Header />
 
       <main className="flex-grow">
         
@@ -477,7 +468,6 @@ export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
         <LatestBlogSection posts={latestPosts} />
       </main>
 
-      <Footer />
     </div>
   );
 }

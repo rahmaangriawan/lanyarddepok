@@ -1,5 +1,3 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 import { Metadata } from "next";
@@ -138,7 +136,6 @@ export default function KontakPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <Header />
 
       {/* ─── Hero ─── */}
       <section className="bg-[#FDFDFD] border-b border-gray-100 pt-10 pb-14 sm:pt-14 sm:pb-18 text-center select-none relative overflow-hidden">
@@ -357,7 +354,6 @@ export default function KontakPage() {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

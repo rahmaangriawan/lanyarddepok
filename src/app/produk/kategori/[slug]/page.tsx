@@ -1,6 +1,4 @@
 import { prisma } from "@/lib/db";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
@@ -102,7 +100,6 @@ export default async function ProductCategoryArchivePage({ params }: PageProps) 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryPageSchema) }}
       />
-      <Header />
 
       {/* ─── Hero Section ─── */}
       <section className="relative w-full bg-white border-b border-gray-100 pt-16 pb-20 sm:pt-20 sm:pb-24 overflow-hidden">
@@ -141,7 +138,6 @@ export default async function ProductCategoryArchivePage({ params }: PageProps) 
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

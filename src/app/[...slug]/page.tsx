@@ -1,7 +1,5 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Metadata } from "next";
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 
@@ -159,7 +157,6 @@ export default async function CatchAllPage({ params }: PageProps) {
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
           />
-          <Header />
           <section className="bg-[#FDFDFD] border-b border-gray-100 pt-10 pb-12 sm:pt-14 sm:pb-16 text-center select-none animate-fade-in">
             <div className="max-w-4xl mx-auto px-5 space-y-3">
               <span className="inline-block bg-[#FFF0F0] text-brand-red text-[10px] font-extrabold px-4 py-1.5 rounded-full border border-red-100 uppercase tracking-wider">
@@ -187,7 +184,6 @@ export default async function CatchAllPage({ params }: PageProps) {
               </div>
             </div>
           </main>
-          <Footer />
         </div>
       );
     }
@@ -268,7 +264,6 @@ export default async function CatchAllPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Header />
 
       {/* Hero Banner Section */}
       <section className="bg-[#FFFDFD] border-b border-gray-100 pt-10 pb-12 sm:pt-14 sm:pb-16 text-center select-none animate-fade-in relative overflow-hidden">
@@ -315,7 +310,6 @@ export default async function CatchAllPage({ params }: PageProps) {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }

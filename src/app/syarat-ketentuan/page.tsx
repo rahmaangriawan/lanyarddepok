@@ -1,5 +1,3 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Icon } from "@iconify/react";
 import { Metadata } from "next";
 import SyaratKetentuanContent from "./SyaratKetentuanContent";
@@ -53,7 +51,6 @@ export default function SyaratKetentuanPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <Header />
 
       {/* ─── Hero Section (Full-Width Background) ─── */}
       <section className="relative w-full bg-white border-b border-gray-100 pt-16 pb-20 sm:pt-20 sm:pb-24 overflow-hidden">
@@ -117,7 +114,6 @@ export default function SyaratKetentuanPage() {
 
       </div>
 
-      <Footer />
     </div>
   );
 }

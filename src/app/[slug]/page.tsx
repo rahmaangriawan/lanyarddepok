@@ -1,7 +1,5 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Metadata } from "next";
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 
@@ -91,7 +89,6 @@ export default async function CustomPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <Header />
 
       {/* Hero Banner Section */}
       <section className="bg-[#FDFDFD] border-b border-gray-100 pt-10 pb-12 sm:pt-14 sm:pb-16 text-center select-none animate-fade-in">
@@ -127,7 +124,6 @@ export default async function CustomPage({ params }: PageProps) {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 }
