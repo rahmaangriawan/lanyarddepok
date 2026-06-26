@@ -13,7 +13,7 @@ type HomepagePost = {
   content: string;
 };
 
-export const revalidate = 600; // Cache homepage for 10 minutes
+export const revalidate = 0; // Render homepage at request time so CI builds do not need database access
 
 function getExcerpt(htmlContent: string, maxLength = 120): string {
   if (!htmlContent) return "";
