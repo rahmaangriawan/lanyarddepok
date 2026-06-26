@@ -1,12 +1,10 @@
 import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
-
-const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === "production" ? "" : "local-dev-secret-change-me");
+import { getJwtSecret } from "@/lib/jwt-secret";
 
 async function verifyAdminToken(token: string) {
-  if (!JWT_SECRET) return false;
-
   try {
+    const JWT_SECRET = getJwtSecret();
     const key = new TextEncoder().encode(JWT_SECRET);
     const { payload } = await jwtVerify(token, key, { algorithms: ["HS256"] });
     return payload.role === "ADMIN";
