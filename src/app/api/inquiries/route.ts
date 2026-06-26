@@ -6,6 +6,7 @@ import { getSessionUser } from "@/lib/auth";
 const rateLimitMap = new Map<string, number[]>();
 const RATE_LIMIT_WINDOW = 5 * 60 * 1000; // 5 minutes
 const MAX_REQUESTS = 3;
+const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -21,6 +22,59 @@ function checkRateLimit(ip: string): boolean {
   validTimestamps.push(now);
   rateLimitMap.set(ip, validTimestamps);
   return true;
+}
+
+async function getTurnstileSettings() {
+  const settings = await prisma.setting.findMany({
+    where: {
+      key: {
+        in: ["turnstile_homepage_enabled", "turnstile_secret_key"],
+      },
+    },
+  });
+
+  const map = new Map(settings.map((setting) => [setting.key, setting.value]));
+
+  return {
+    enabled: map.get("turnstile_homepage_enabled") === "true",
+    secretKey: map.get("turnstile_secret_key") || "",
+  };
+}
+
+async function verifyTurnstileToken(token: string, ip: string) {
+  const { enabled, secretKey } = await getTurnstileSettings();
+
+  if (!enabled) {
+    return { ok: true };
+  }
+
+  if (!secretKey) {
+    console.error("Turnstile is enabled but secret key is missing.");
+    return { ok: false, error: "Konfigurasi keamanan form belum lengkap." };
+  }
+
+  if (!token) {
+    return { ok: false, error: "Verifikasi keamanan wajib diselesaikan." };
+  }
+
+  const formData = new FormData();
+  formData.append("secret", secretKey);
+  formData.append("response", token);
+  formData.append("remoteip", ip.split(",")[0]?.trim() || ip);
+
+  const res = await fetch(TURNSTILE_SITEVERIFY_URL, {
+    method: "POST",
+    body: formData,
+    cache: "no-store",
+  });
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok || data?.success !== true) {
+    return { ok: false, error: "Verifikasi keamanan gagal. Silakan coba lagi." };
+  }
+
+  return { ok: true };
 }
 
 // GET: Fetch all inquiries (Admin only)
@@ -50,7 +104,7 @@ export async function POST(request: Request) {
   try {
     // 1. Parse request body
     const body = await request.json();
-    const { name, email, phone, message } = body || {};
+    const { name, email, phone, message, turnstileToken } = body || {};
 
     // 2. Validation Checks
     if (!name || typeof name !== "string" || name.trim().length < 3) {
@@ -107,7 +161,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // 4. Save to Database
+    // 4. Optional Cloudflare Turnstile validation for the homepage form
+    const turnstileResult = await verifyTurnstileToken(
+      typeof turnstileToken === "string" ? turnstileToken : "",
+      ip
+    );
+
+    if (!turnstileResult.ok) {
+      return NextResponse.json(
+        { error: turnstileResult.error || "Verifikasi keamanan gagal." },
+        { status: 400 }
+      );
+    }
+
+    // 5. Save to Database
     const inquiry = await prisma.inquiry.create({
       data: {
         name: name.trim(),
@@ -126,4 +193,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

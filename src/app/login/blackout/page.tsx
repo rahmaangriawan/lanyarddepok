@@ -17,8 +17,6 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const router = useRouter();
-  const ADMIN_PHONE = "082210200700";
-
   // Step 1: Check Email/Password
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,11 +56,11 @@ export default function Login() {
     setError("");
 
     try {
-      // 1. Verify OTP via Cloudflare Worker API
-      const verifyRes = await fetch("https://otp-api.rahmaangriawan78.workers.dev/verify-otp", {
+      // 1. Verify OTP through internal server route so Worker URL/API key stay server-side.
+      const verifyRes = await fetch("/api/auth/verify-otp", {
         method: "POST",
-        headers: { "content-type": "application/json", "x-api-key": "eAtZeiO97K0PIaV47aIm" },
-        body: JSON.stringify({ target: ADMIN_PHONE, otp: otp })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otp })
       });
       const verifyData = await verifyRes.json();
 

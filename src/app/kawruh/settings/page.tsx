@@ -32,6 +32,12 @@ interface SettingsState {
   google_spreadsheet_range: string;
   seo_auto_links: string;
   seo_auto_links_limit: string;
+  turnstile_homepage_enabled: string;
+  turnstile_site_key: string;
+  turnstile_secret_key: string;
+  otp_verify_url: string;
+  otp_api_key: string;
+  otp_target: string;
 }
 
 const defaultSettings: SettingsState = {
@@ -56,6 +62,12 @@ const defaultSettings: SettingsState = {
   google_spreadsheet_range: "",
   seo_auto_links: "",
   seo_auto_links_limit: "2",
+  turnstile_homepage_enabled: "false",
+  turnstile_site_key: "",
+  turnstile_secret_key: "",
+  otp_verify_url: "",
+  otp_api_key: "",
+  otp_target: "",
 };
 
 const tabs = [
@@ -63,6 +75,7 @@ const tabs = [
   { id: "kontak", name: "Kontak", icon: "lucide:phone" },
   { id: "seo", name: "SEO", icon: "lucide:search" },
   { id: "sosial", name: "Sosial", icon: "lucide:share-2" },
+  { id: "keamanan", name: "Keamanan", icon: "lucide:shield-check" },
   { id: "tampilan", name: "Tampilan", icon: "lucide:palette" },
   { id: "integrasi", name: "Integrasi Google", icon: "lucide:cpu" },
 ];
@@ -466,6 +479,126 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
+          <div className="flex justify-end">
+            <button type="submit" disabled={saving} className="flex items-center space-x-2 px-6 py-2.5 bg-brand-red hover:bg-brand-dark text-white rounded-lg text-xs font-bold disabled:opacity-50 cursor-pointer uppercase transition-colors">
+              {saving ? <><div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent" /><span>Menyimpan...</span></> : <><Icon icon="lucide:save" className="h-3.5 w-3.5" /><span>Simpan</span></>}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Tab: Keamanan */}
+      {activeTab === "keamanan" && (
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-gray-100 bg-gray-50/50 flex items-center space-x-2">
+              <Icon icon="lucide:key-round" className="h-4 w-4 text-brand-red" />
+              <h3 className="text-sm font-bold text-gray-900">OTP Login Admin</h3>
+            </div>
+            <div className="p-5 space-y-5">
+              <div className="bg-amber-50/50 border border-amber-150 rounded-xl p-4 text-xs text-amber-800 space-y-1 leading-relaxed font-medium">
+                <div className="flex items-center space-x-2 text-amber-900 font-bold">
+                  <Icon icon="lucide:info" className="h-4 w-4 text-amber-600" />
+                  <span>Konfigurasi Server-Side</span>
+                </div>
+                <p>Data OTP ini dipakai oleh server untuk memanggil Cloudflare Worker. Browser hanya akan melihat request internal ke website, bukan URL Worker atau API key.</p>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">OTP Verify URL</label>
+                <input
+                  type="url"
+                  value={settings.otp_verify_url}
+                  onChange={(e) => handleChange("otp_verify_url", e.target.value)}
+                  placeholder="https://worker-domain.workers.dev/verify-otp"
+                  className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5"
+                />
+                <p className="text-[10px] text-gray-400 font-semibold mt-1">Endpoint Worker untuk verifikasi OTP.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">OTP API Key</label>
+                  <input
+                    type="password"
+                    value={settings.otp_api_key}
+                    onChange={(e) => handleChange("otp_api_key", e.target.value)}
+                    placeholder="Masukkan x-api-key Worker"
+                    className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5"
+                  />
+                  <p className="text-[10px] text-gray-400 font-semibold mt-1">Nilai untuk header x-api-key saat server memanggil Worker.</p>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">OTP Target</label>
+                  <input
+                    type="text"
+                    value={settings.otp_target}
+                    onChange={(e) => handleChange("otp_target", e.target.value)}
+                    placeholder="082210200700"
+                    className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5"
+                  />
+                  <p className="text-[10px] text-gray-400 font-semibold mt-1">Nomor/target OTP admin yang dikirim ke Worker.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-gray-100 bg-gray-50/50 flex items-center space-x-2">
+              <Icon icon="lucide:shield-check" className="h-4 w-4 text-brand-red" />
+              <h3 className="text-sm font-bold text-gray-900">Cloudflare Turnstile</h3>
+            </div>
+            <div className="p-5 space-y-5">
+              <div className="bg-blue-50/50 border border-blue-150 rounded-xl p-4 text-xs text-blue-800 space-y-1 leading-relaxed font-medium">
+                <div className="flex items-center space-x-2 text-blue-900 font-bold">
+                  <Icon icon="lucide:info" className="h-4 w-4 text-blue-600" />
+                  <span>Perlindungan Form Homepage</span>
+                </div>
+                <p>Aktifkan Turnstile untuk menambahkan checkbox keamanan di section Hubungi Kami pada homepage. Secret key hanya dipakai server-side untuk validasi token.</p>
+              </div>
+
+              <label className="flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50/60 p-4 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.turnstile_homepage_enabled === "true"}
+                  onChange={(e) => handleChange("turnstile_homepage_enabled", e.target.checked ? "true" : "false")}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-red focus:ring-brand-red"
+                />
+                <span className="space-y-1">
+                  <span className="block text-sm font-bold text-gray-900">Aktifkan Turnstile di Form Homepage</span>
+                  <span className="block text-xs font-medium text-gray-500 leading-relaxed">
+                    Jika aktif, pengunjung wajib menyelesaikan verifikasi sebelum pesan dapat dikirim.
+                  </span>
+                </span>
+              </label>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Turnstile Site Key</label>
+                  <input
+                    type="text"
+                    value={settings.turnstile_site_key}
+                    onChange={(e) => handleChange("turnstile_site_key", e.target.value)}
+                    placeholder="0x4AAAA..."
+                    className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5"
+                  />
+                  <p className="text-[10px] text-gray-400 font-semibold mt-1">Key publik untuk render widget di browser.</p>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Turnstile Secret Key</label>
+                  <input
+                    type="password"
+                    value={settings.turnstile_secret_key}
+                    onChange={(e) => handleChange("turnstile_secret_key", e.target.value)}
+                    placeholder="0x4AAAA..."
+                    className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5"
+                  />
+                  <p className="text-[10px] text-gray-400 font-semibold mt-1">Secret hanya dipakai server untuk Siteverify dan tidak dikirim ke public config.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-end">
             <button type="submit" disabled={saving} className="flex items-center space-x-2 px-6 py-2.5 bg-brand-red hover:bg-brand-dark text-white rounded-lg text-xs font-bold disabled:opacity-50 cursor-pointer uppercase transition-colors">
               {saving ? <><div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent" /><span>Menyimpan...</span></> : <><Icon icon="lucide:save" className="h-3.5 w-3.5" /><span>Simpan</span></>}

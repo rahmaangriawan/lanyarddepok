@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 
 interface ValidationErrors {
@@ -8,6 +8,30 @@ interface ValidationErrors {
   email?: string;
   phone?: string;
   message?: string;
+}
+
+type TurnstileConfig = {
+  enabled: boolean;
+  siteKey: string;
+};
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        container: HTMLElement,
+        options: {
+          sitekey: string;
+          theme?: "light" | "dark" | "auto";
+          callback?: (token: string) => void;
+          "expired-callback"?: () => void;
+          "error-callback"?: () => void;
+        }
+      ) => string;
+      reset: (widgetId?: string) => void;
+      remove: (widgetId: string) => void;
+    };
+  }
 }
 
 export default function OrderForm() {
@@ -20,6 +44,89 @@ export default function OrderForm() {
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<ValidationErrors>({});
   const [success, setSuccess] = useState(false);
+  const [turnstileConfig, setTurnstileConfig] = useState<TurnstileConfig>({ enabled: false, siteKey: "" });
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileReady, setTurnstileReady] = useState(false);
+  const [turnstileError, setTurnstileError] = useState("");
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const turnstileWidgetIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const fetchTurnstileConfig = async () => {
+      try {
+        const res = await fetch("/api/turnstile-config", { cache: "no-store" });
+        const data = await res.json();
+        setTurnstileConfig({
+          enabled: Boolean(data.enabled && data.siteKey),
+          siteKey: typeof data.siteKey === "string" ? data.siteKey : "",
+        });
+      } catch (err) {
+        console.error("Failed to load Turnstile config:", err);
+        setTurnstileConfig({ enabled: false, siteKey: "" });
+      }
+    };
+
+    fetchTurnstileConfig();
+  }, []);
+
+  useEffect(() => {
+    if (!turnstileConfig.enabled || !turnstileConfig.siteKey) return;
+
+    const scriptId = "cloudflare-turnstile-script";
+    const existingScript = document.getElementById(scriptId) as HTMLScriptElement | null;
+
+    const renderWidget = () => {
+      if (!turnstileRef.current || !window.turnstile || turnstileWidgetIdRef.current) return;
+
+      turnstileWidgetIdRef.current = window.turnstile.render(turnstileRef.current, {
+        sitekey: turnstileConfig.siteKey,
+        theme: "light",
+        callback: (token) => {
+          setTurnstileToken(token);
+          setTurnstileError("");
+        },
+        "expired-callback": () => {
+          setTurnstileToken("");
+          setTurnstileError("Verifikasi keamanan kedaluwarsa. Silakan centang ulang.");
+        },
+        "error-callback": () => {
+          setTurnstileToken("");
+          setTurnstileError("Verifikasi keamanan gagal dimuat. Silakan coba ulang.");
+        },
+      });
+      setTurnstileReady(true);
+    };
+
+    if (window.turnstile) {
+      renderWidget();
+      return;
+    }
+
+    const script = existingScript || document.createElement("script");
+    script.id = scriptId;
+    script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    script.async = true;
+    script.defer = true;
+    script.onload = renderWidget;
+
+    if (!existingScript) {
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      if (turnstileWidgetIdRef.current && window.turnstile) {
+        window.turnstile.remove(turnstileWidgetIdRef.current);
+        turnstileWidgetIdRef.current = null;
+      }
+    };
+  }, [turnstileConfig.enabled, turnstileConfig.siteKey]);
+
+  const resetTurnstile = () => {
+    if (turnstileWidgetIdRef.current && window.turnstile) {
+      window.turnstile.reset(turnstileWidgetIdRef.current);
+    }
+    setTurnstileToken("");
+  };
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
@@ -71,13 +178,18 @@ export default function OrderForm() {
       return;
     }
 
+    if (turnstileConfig.enabled && !turnstileToken) {
+      setTurnstileError("Silakan selesaikan verifikasi keamanan terlebih dahulu.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await fetch("/api/inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, message }),
+        body: JSON.stringify({ name, email, phone, message, turnstileToken }),
       });
 
       const data = await res.json();
@@ -91,8 +203,10 @@ export default function OrderForm() {
       setPhone("");
       setMessage("");
       setFieldErrors({});
+      resetTurnstile();
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan. Silakan coba lagi.");
+      resetTurnstile();
     } finally {
       setLoading(false);
     }
@@ -293,6 +407,21 @@ export default function OrderForm() {
                   <div>
                     <span className="font-bold">Pesan Terkirim!</span> Tim Lanyard Jakarta akan segera menghubungi Anda melalui nomor telepon / WhatsApp yang dicantumkan. Terima kasih.
                   </div>
+                </div>
+              )}
+
+              {turnstileConfig.enabled && (
+                <div className="space-y-2">
+                  <div ref={turnstileRef} className="min-h-[65px]" />
+                  {!turnstileReady && (
+                    <p className="text-xs font-semibold text-gray-400">Memuat verifikasi keamanan...</p>
+                  )}
+                  {turnstileError && (
+                    <p className="text-xs font-semibold text-red-500 flex items-center space-x-1">
+                      <Icon icon="lucide:alert-circle" className="h-3.5 w-3.5 shrink-0" />
+                      <span>{turnstileError}</span>
+                    </p>
+                  )}
                 </div>
               )}
 
