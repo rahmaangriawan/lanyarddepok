@@ -1,9 +1,7 @@
 name: Build and Deploy Standalone Next.js to CloudPanel
 
 on:
-  push:
-    branches:
-      - main # Ganti dengan branch utama Anda jika berbeda (misal: master)
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
