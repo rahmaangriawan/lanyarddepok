@@ -53,6 +53,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
   const pageUrl = `${siteUrl}/produk/${product.slug}`;
+  const categoryName = product.category?.name || "Lanyard Custom";
+  const categoryHref = product.category?.slug ? `/produk/kategori/${product.category.slug}` : "/produk";
+  const categoryUrl = `${siteUrl}${categoryHref}`;
 
   // Structured Data (JSON-LD Product Schema)
   const jsonLd = {
@@ -122,14 +125,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           {
             "@type": "ListItem",
             "position": 2,
-            "name": "Katalog Produk",
-            "item": `${siteUrl}/produk`
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": product.name,
-            "item": pageUrl
+            "name": categoryName,
+            "item": categoryUrl
           }
         ]
       }
@@ -153,9 +150,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <nav className="flex items-center space-x-2 text-[11px] font-semibold text-gray-400 mb-6 select-none">
             <Link href="/" className="hover:text-brand-red transition-colors">Beranda</Link>
             <span>&rsaquo;</span>
-            <Link href="/produk" className="hover:text-brand-red transition-colors">Katalog Produk</Link>
-            <span>&rsaquo;</span>
-            <span className="text-brand-red truncate max-w-[200px]">{product.name}</span>
+            <Link href={categoryHref} className="text-brand-red hover:text-[#c92f31] transition-colors truncate max-w-[220px]">
+              {categoryName}
+            </Link>
           </nav>
 
           {/* Product Detail Card */}
@@ -199,7 +196,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   {/* Category and SKU Badges */}
                   <div className="flex items-center space-x-2 select-none">
                     <span className="bg-[#FFF0F0] text-brand-red text-[9px] font-extrabold px-3 py-1 rounded-full border border-red-100 uppercase tracking-wider">
-                      {product.category?.name || "Produk Pilihan"}
+                      {categoryName}
                     </span>
                     <span className="bg-gray-100 text-gray-500 text-[9px] font-mono font-bold px-3 py-1 rounded-full border border-gray-200">
                       SKU: {product.sku}

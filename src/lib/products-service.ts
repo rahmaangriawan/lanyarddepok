@@ -18,7 +18,7 @@ export interface UnifiedProduct {
   sites?: string;
   order?: number | null;
   categoryId?: number | null;
-  category?: { id: number; name: string } | null;
+  category?: { id: number; name: string; slug?: string } | null;
 }
 
 export const DEFAULT_PRODUCTS: UnifiedProduct[] = [

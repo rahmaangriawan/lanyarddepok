@@ -207,24 +207,24 @@ export default function Footer() {
           </div>
 
           {/* Column 5: KONTAK (2 cols) */}
-          <div className="col-span-2 md:col-span-2 lg:col-span-2">
+          <div className="col-span-1 lg:col-span-2">
             <h3 className="text-[13px] sm:text-sm font-bold mb-4 tracking-wider uppercase text-gray-800">Kontak</h3>
-            <ul className="space-y-3.5 text-xs sm:text-sm text-gray-500 font-normal">
-              <li className="flex items-center space-x-2">
+            <ul className="space-y-3.5 text-[13px] sm:text-sm text-gray-500 font-normal">
+              <li className="flex items-start gap-2">
                 <Icon icon="lucide:phone" className="h-4.5 w-4.5 text-brand-red shrink-0" />
-                <a href="https://wa.me/6282210200700" target="_blank" rel="noopener noreferrer" className="hover:text-brand-red transition-colors">
+                <a href="https://wa.me/6282210200700" target="_blank" rel="noopener noreferrer" className="min-w-0 hover:text-brand-red transition-colors">
                   0822-1020-0700
                 </a>
               </li>
-              <li className="flex items-center space-x-2">
+              <li className="flex items-start gap-2">
                 <Icon icon="lucide:mail" className="h-4.5 w-4.5 text-brand-red shrink-0" />
-                <a href="mailto:info@lanyardjakarta.co.id" className="hover:text-brand-red transition-colors truncate">
+                <a href="mailto:info@lanyardjakarta.co.id" className="min-w-0 break-words hover:text-brand-red transition-colors">
                   info@lanyardjakarta.co.id
                 </a>
               </li>
-              <li className="flex items-start space-x-2">
+              <li className="flex items-start gap-2">
                 <Icon icon="lucide:map-pin" className="h-4.5 w-4.5 text-brand-red shrink-0 mt-0.5" />
-                <span className="leading-relaxed">
+                <span className="min-w-0 leading-relaxed">
                   DKI Jakarta, Indonesia
                 </span>
               </li>
