@@ -1,19 +1,11 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { getCachedSiteChromeSettings } from "@/lib/settings-cache";
 
 export async function GET() {
   try {
-    const settings = await prisma.setting.findMany({
-      where: {
-        key: {
-          in: ["turnstile_homepage_enabled", "turnstile_site_key"],
-        },
-      },
-    });
-
-    const map = new Map(settings.map((setting) => [setting.key, setting.value]));
-    const enabled = map.get("turnstile_homepage_enabled") === "true";
-    const siteKey = map.get("turnstile_site_key") || "";
+    const settings = await getCachedSiteChromeSettings();
+    const enabled = settings.turnstileEnabled;
+    const siteKey = settings.turnstileSiteKey;
 
     return NextResponse.json({
       enabled: enabled && Boolean(siteKey),

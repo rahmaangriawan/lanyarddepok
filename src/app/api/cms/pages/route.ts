@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
+import { assertSameOrigin } from "@/lib/security";
+import { normalizeCmsHtml } from "@/lib/sanitize-html";
 
 export async function GET() {
   try {
@@ -22,6 +25,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
     const session = await getSessionUser();
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -46,9 +52,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Slug already exists" }, { status: 400 });
     }
 
-    const cleanContent = typeof content === "string"
-      ? content.replace(/&nbsp;/gi, " ").replace(/\u00a0/g, " ").replace(/\xa0/g, " ")
-      : content;
+    const cleanContent = typeof content === "string" ? normalizeCmsHtml(content) : content;
 
     const page = await prisma.page.create({
       data: {
@@ -60,6 +64,8 @@ export async function POST(request: Request) {
         metaDescription: metaDescription || null,
       },
     });
+
+    revalidatePath(`/${page.slug}`);
 
     return NextResponse.json({ success: true, page });
   } catch (error: any) {

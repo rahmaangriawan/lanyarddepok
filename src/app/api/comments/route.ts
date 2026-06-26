@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { assertSameOrigin, checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/security";
 
 export async function POST(request: Request) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
+    const ip = getClientIp(request);
+    if (!checkRateLimit(`comment:${ip}`, 5, 10 * 60 * 1000)) {
+      return rateLimitResponse("Terlalu banyak mengirim komentar. Silakan coba lagi nanti.");
+    }
+
     const { postId, name, email, content } = await request.json();
 
     if (!postId || !name || !email || !content) {

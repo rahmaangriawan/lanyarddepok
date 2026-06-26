@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
+import { assertSameOrigin } from "@/lib/security";
+import { normalizeCmsHtml } from "@/lib/sanitize-html";
 
 export async function GET(
   request: Request,
@@ -47,6 +50,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
     const session = await getSessionUser();
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -80,9 +86,7 @@ export async function PUT(
       return NextResponse.json({ error: "Slug already exists" }, { status: 400 });
     }
 
-    const cleanContent = typeof content === "string"
-      ? content.replace(/&nbsp;/gi, " ").replace(/\u00a0/g, " ").replace(/\xa0/g, " ")
-      : content;
+    const cleanContent = typeof content === "string" ? normalizeCmsHtml(content) : content;
 
     const updatedPost = await prisma.post.update({
       where: { id: postId },
@@ -99,6 +103,10 @@ export async function PUT(
       },
     });
 
+    revalidatePath("/");
+    revalidatePath("/blog");
+    revalidatePath(`/blog/${updatedPost.slug}`);
+
     return NextResponse.json({ success: true, post: updatedPost });
   } catch (error: any) {
     console.error("Update Post Error:", error);
@@ -111,6 +119,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
     const session = await getSessionUser();
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -122,9 +133,13 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid post ID" }, { status: 400 });
     }
 
-    await prisma.post.delete({
+    const deletedPost = await prisma.post.delete({
       where: { id: postId },
     });
+
+    revalidatePath("/");
+    revalidatePath("/blog");
+    revalidatePath(`/blog/${deletedPost.slug}`);
 
     return NextResponse.json({ success: true, message: "Post deleted successfully" });
   } catch (error: any) {

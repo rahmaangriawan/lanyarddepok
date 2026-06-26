@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
+import { assertSameOrigin } from "@/lib/security";
+import { normalizeCmsHtml } from "@/lib/sanitize-html";
 
 export async function GET(
   request: Request,
@@ -35,6 +38,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
     const session = await getSessionUser();
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -62,9 +68,7 @@ export async function PUT(
       return NextResponse.json({ error: "Slug already exists" }, { status: 400 });
     }
 
-    const cleanContent = typeof content === "string"
-      ? content.replace(/&nbsp;/gi, " ").replace(/\u00a0/g, " ").replace(/\xa0/g, " ")
-      : content;
+    const cleanContent = typeof content === "string" ? normalizeCmsHtml(content) : content;
 
     const updatedPage = await prisma.page.update({
       where: { id: pageId },
@@ -78,6 +82,8 @@ export async function PUT(
       },
     });
 
+    revalidatePath(`/${updatedPage.slug}`);
+
     return NextResponse.json({ success: true, page: updatedPage });
   } catch (error: any) {
     console.error("Update Page Error:", error);
@@ -90,6 +96,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
     const session = await getSessionUser();
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -101,7 +110,8 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid page ID" }, { status: 400 });
     }
 
-    await prisma.page.delete({ where: { id: pageId } });
+    const deletedPage = await prisma.page.delete({ where: { id: pageId } });
+    revalidatePath(`/${deletedPage.slug}`);
 
     return NextResponse.json({ success: true, message: "Page deleted successfully" });
   } catch (error: any) {

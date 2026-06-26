@@ -1,28 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { assertSameOrigin, checkRateLimit, getClientIp } from "@/lib/security";
 
-// Rate limiting in-memory storage
-const rateLimitMap = new Map<string, number[]>();
 const RATE_LIMIT_WINDOW = 5 * 60 * 1000; // 5 minutes
 const MAX_REQUESTS = 3;
 const TURNSTILE_SITEVERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const timestamps = rateLimitMap.get(ip) || [];
-
-  // Filter out timestamps older than 5 minutes
-  const validTimestamps = timestamps.filter((time) => now - time < RATE_LIMIT_WINDOW);
-
-  if (validTimestamps.length >= MAX_REQUESTS) {
-    return false;
-  }
-
-  validTimestamps.push(now);
-  rateLimitMap.set(ip, validTimestamps);
-  return true;
-}
 
 async function getTurnstileSettings() {
   const settings = await prisma.setting.findMany({
@@ -102,6 +85,9 @@ export async function GET() {
 // POST: Submit a new inquiry with validation and rate limiting
 export async function POST(request: Request) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
     // 1. Parse request body
     const body = await request.json();
     const { name, email, phone, message, turnstileToken } = body || {};
@@ -150,11 +136,9 @@ export async function POST(request: Request) {
     }
 
     // 3. Rate Limiting Check (Only for valid submissions)
-    const ip = request.headers.get("x-forwarded-for") || 
-               request.headers.get("x-real-ip") || 
-               "127.0.0.1";
+    const ip = getClientIp(request);
 
-    if (!checkRateLimit(ip)) {
+    if (!checkRateLimit(`inquiry:${ip}`, MAX_REQUESTS, RATE_LIMIT_WINDOW)) {
       return NextResponse.json(
         { error: "Terlalu banyak mengirim pesan. Silakan coba lagi dalam 5 menit." },
         { status: 429 }

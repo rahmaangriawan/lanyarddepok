@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Metadata } from "next";
+import { sanitizeCmsHtml } from "@/lib/sanitize-html";
+
+export const revalidate = 600;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -117,7 +120,7 @@ export default async function CustomPage({ params }: PageProps) {
             <div className="blog-post-content w-full overflow-hidden">
               <div
                 className="ql-editor !p-0 !min-h-0 text-[#4a5568] leading-relaxed text-sm sm:text-base font-normal break-words"
-                dangerouslySetInnerHTML={{ __html: page.content }}
+                dangerouslySetInnerHTML={{ __html: sanitizeCmsHtml(page.content) }}
               />
             </div>
           </div>

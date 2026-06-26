@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 import { getPaginationItems } from "@/lib/pagination";
 import { getPublicAuthorName } from "@/lib/public-author";
+import { shouldSkipDbDuringBuild } from "@/lib/build-env";
 
 export const metadata: Metadata = {
   title: "Blog & Artikel Lanyard Custom",
@@ -27,7 +28,7 @@ function getExcerpt(htmlContent: string, maxLength = 120): string {
   return clean.substring(0, maxLength).trim() + "...";
 }
 
-export const revalidate = 0; // dynamic rendering
+export const revalidate = 600;
 
 interface PageProps {
   searchParams: Promise<{ page?: string }>;
@@ -39,22 +40,24 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
   const limit = 9;
   const skip = (currentPage - 1) * limit;
 
-  const [posts, totalPosts, adminUser] = await Promise.all([
-    prisma.post.findMany({
-      where: { published: true },
-      include: { category: true },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: limit,
-    }),
-    prisma.post.count({
-      where: { published: true },
-    }),
-    prisma.user.findFirst({
-      where: { role: "ADMIN" },
-      select: { name: true },
-    })
-  ]);
+  const [posts, totalPosts, adminUser] = shouldSkipDbDuringBuild()
+    ? [[], 0, null] as const
+    : await Promise.all([
+        prisma.post.findMany({
+          where: { published: true },
+          include: { category: true },
+          orderBy: { createdAt: "desc" },
+          skip,
+          take: limit,
+        }),
+        prisma.post.count({
+          where: { published: true },
+        }),
+        prisma.user.findFirst({
+          where: { role: "ADMIN" },
+          select: { name: true },
+        })
+      ]);
 
   const authorName = getPublicAuthorName(adminUser?.name);
   const totalPages = Math.ceil(totalPosts / limit);

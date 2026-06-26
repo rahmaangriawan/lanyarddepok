@@ -34,6 +34,9 @@ model Order {
   status       String   @default("PENDING")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
 }
 
 model Inquiry {
@@ -43,6 +46,8 @@ model Inquiry {
   phone     String
   message   String   @db.Text
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 model Category {
@@ -55,6 +60,8 @@ model Category {
   products    Product[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([type, slug])
 }
 
 model Post {
@@ -73,6 +80,7 @@ model Post {
   comments        Comment[]
 
   @@index([published, createdAt])
+  @@index([categoryId, published, createdAt])
 }
 
 model Page {
@@ -85,6 +93,8 @@ model Page {
   updatedAt DateTime @updatedAt
   metaTitle       String?
   metaDescription String?  @db.Text
+
+  @@index([published, createdAt])
 }
 
 model Media {
@@ -95,6 +105,8 @@ model Media {
   size      Int
   url       String
   createdAt DateTime @default(now())
+
+  @@index([mimetype, createdAt])
 }
 
 model Setting {
@@ -108,6 +120,16 @@ model Setting {
 model Product {
   id              Int      @id @default(autoincrement())
   sku             String   @unique
+  name            String?
+  slug            String?  @unique
+  specs           String?  @db.Text
+  accessories     String?  @db.Text
+  basePrice       String?
+  minOrder        String?
+  shortDescription String? @db.Text
+  sheetStatus     String?
+  sites           String?
+  sortOrder       Int?
   featuredImage   String?
   categoryId      Int?
   category        Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -119,6 +141,8 @@ model Product {
   updatedAt       DateTime @updatedAt
 
   @@index([published, createdAt])
+  @@index([categoryId, published, createdAt])
+  @@index([published, sortOrder, createdAt])
 }
 
 model Portfolio {
@@ -131,6 +155,8 @@ model Portfolio {
   link        String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([createdAt])
 }
 
 model Comment {
@@ -142,6 +168,8 @@ model Comment {
   content   String   @db.Text
   approved  Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@index([postId, approved, createdAt])
 }
 
 model CityPage {
@@ -158,5 +186,7 @@ model CityPage {
   updatedAt       DateTime   @updatedAt
   metaTitle       String?
   metaDescription String?    @db.Text
-}
 
+  @@index([published, createdAt])
+  @@index([parentId, published, createdAt])
+}

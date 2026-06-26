@@ -3,6 +3,10 @@ import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { fetchSpreadsheetProducts, SpreadsheetProduct } from "@/lib/google-sheets";
 import { isSpreadsheetProductPublished } from "@/lib/product-visibility";
+import { revalidateTag } from "next/cache";
+import { PRODUCTS_CACHE_TAG } from "@/lib/products-server";
+import { assertSameOrigin } from "@/lib/security";
+import { normalizeCmsHtml } from "@/lib/sanitize-html";
 
 export async function GET(
   request: Request,
@@ -105,6 +109,9 @@ export async function PUT(
   { params }: { params: Promise<{ sku: string }> }
 ) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
     const session = await getSessionUser();
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -139,7 +146,7 @@ export async function PUT(
         data: {
           featuredImage: featuredImage || null,
           categoryId: categoryId ? parseInt(categoryId, 10) : null,
-          description: description || "",
+          description: typeof description === "string" ? normalizeCmsHtml(description) : "",
           published: !!published,
           metaTitle: metaTitle || null,
           metaDescription: metaDescription || null,
@@ -152,13 +159,15 @@ export async function PUT(
           sku,
           featuredImage: featuredImage || null,
           categoryId: categoryId ? parseInt(categoryId, 10) : null,
-          description: description || "",
+          description: typeof description === "string" ? normalizeCmsHtml(description) : "",
           published: !!published,
           metaTitle: metaTitle || null,
           metaDescription: metaDescription || null,
         },
       });
     }
+
+    revalidateTag(PRODUCTS_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, product: updatedProduct });
   } catch (error) {

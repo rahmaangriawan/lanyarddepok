@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
-import { prisma } from "@/lib/db";
-import { shouldSkipDbDuringBuild } from "@/lib/build-env";
+import { getCachedSiteChromeSettings } from "@/lib/settings-cache";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { ToastProvider } from "@/components/Toast";
 import WhatsAppFloating from "@/components/WhatsAppFloating";
@@ -19,43 +18,14 @@ const rubik = Rubik({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  let bingVerification = "";
-  let siteName = "Lanyard Jakarta";
-  let siteTitle = "Lanyard Jakarta | Custom Premium Lanyard Printing";
-  let siteDesc = "Cetak lanyard premium cepat & murah di Jakarta. Layanan 1 hari jadi dengan kualitas cetak tajam, warna cerah, dan bahan awet untuk kebutuhan kantor, event, atau promosi Anda.";
-
-  if (!shouldSkipDbDuringBuild()) {
-    try {
-      const settings = await prisma.setting.findMany({
-        where: {
-          key: {
-            in: ["bing_site_verification", "seo_meta_title", "seo_meta_description", "site_title"]
-          }
-        }
-      });
-
-      const bingSetting = settings.find((s) => s.key === "bing_site_verification");
-      if (bingSetting) bingVerification = bingSetting.value;
-
-      const siteNameSetting = settings.find((s) => s.key === "site_title");
-      if (siteNameSetting && siteNameSetting.value) siteName = siteNameSetting.value;
-
-      const titleSetting = settings.find((s) => s.key === "seo_meta_title");
-      if (titleSetting && titleSetting.value) siteTitle = titleSetting.value;
-
-      const descSetting = settings.find((s) => s.key === "seo_meta_description");
-      if (descSetting && descSetting.value) siteDesc = descSetting.value;
-    } catch (err) {
-      console.error("Failed to fetch settings for metadata in layout", err);
-    }
-  }
+  const settings = await getCachedSiteChromeSettings();
 
   return {
     title: {
-      default: siteTitle,
-      template: `%s - ${siteName}`,
+      default: settings.siteTitle,
+      template: `%s - ${settings.siteName}`,
     },
-    description: siteDesc,
+    description: settings.siteDescription,
     metadataBase: new URL(siteUrl),
     alternates: {
       canonical: "/",
@@ -69,10 +39,10 @@ export async function generateMetadata(): Promise<Metadata> {
       apple: "/apple-touch-icon.png",
     },
     manifest: "/site.webmanifest",
-    verification: bingVerification
+    verification: settings.bingVerification
       ? {
           other: {
-            "msvalidate.01": [bingVerification],
+            "msvalidate.01": [settings.bingVerification],
           },
         }
       : undefined,
@@ -84,24 +54,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let measurementId = "";
-  let whatsappNumber = "6282210200700"; // Fallback hotline
-
-  if (!shouldSkipDbDuringBuild()) {
-    try {
-      const [gaSetting, waSetting] = await Promise.all([
-        prisma.setting.findUnique({ where: { key: "google_analytics_measurement_id" } }),
-        prisma.setting.findUnique({ where: { key: "contact_whatsapp" } }),
-      ]);
-      
-      measurementId = gaSetting?.value || "";
-      if (waSetting?.value) {
-        whatsappNumber = waSetting.value;
-      }
-    } catch (err) {
-      console.error("Failed to fetch settings in layout", err);
-    }
-  }
+  const settings = await getCachedSiteChromeSettings();
 
   return (
     <html
@@ -111,11 +64,11 @@ export default async function RootLayout({
     >
       <head />
       <body className="min-h-full flex flex-col bg-white text-[#373f50]" suppressHydrationWarning>
-        <GoogleAnalytics measurementId={measurementId} />
+        <GoogleAnalytics measurementId={settings.measurementId} />
         <ToastProvider>
           {children}
         </ToastProvider>
-        <WhatsAppFloating whatsappNumber={whatsappNumber} />
+        <WhatsAppFloating whatsappNumber={settings.whatsappNumber} />
       </body>
     </html>
   );

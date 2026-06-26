@@ -26,7 +26,14 @@ export async function GET(request: Request) {
       filtered = filtered.slice(0, limit);
     }
 
-    return NextResponse.json({ success: true, products: filtered });
+    return NextResponse.json(
+      { success: true, products: filtered },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=600, stale-while-revalidate=300",
+        },
+      }
+    );
   } catch (error: any) {
     console.error("API GET /api/products error:", error);
     return NextResponse.json(

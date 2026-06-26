@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { revalidateTag } from "next/cache";
+import { SETTINGS_CACHE_TAG } from "@/lib/settings-cache";
+import { assertSameOrigin } from "@/lib/security";
 
 export async function GET() {
   try {
@@ -25,6 +28,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
     const session = await getSessionUser();
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -44,6 +50,8 @@ export async function POST(request: Request) {
         create: { key, value: String(value) },
       });
     }
+
+    revalidateTag(SETTINGS_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, message: "Settings updated successfully" });
   } catch (error: any) {

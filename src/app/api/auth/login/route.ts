@@ -2,9 +2,18 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { comparePassword, signToken } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { assertSameOrigin, checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/security";
 
 export async function POST(request: Request) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
+    const ip = getClientIp(request);
+    if (!checkRateLimit(`login:${ip}`, 10, 10 * 60 * 1000)) {
+      return rateLimitResponse("Terlalu banyak percobaan login. Silakan coba lagi dalam 10 menit.");
+    }
+
     const { email, password, checkOnly } = await request.json();
 
     if (!email || !password) {

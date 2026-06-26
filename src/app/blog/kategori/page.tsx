@@ -2,19 +2,22 @@ import { prisma } from "@/lib/db";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import { shouldSkipDbDuringBuild } from "@/lib/build-env";
 
-export const revalidate = 0; // dynamic rendering
+export const revalidate = 600;
 
 export default async function CategoriesPage() {
-  const categories = await prisma.category.findMany({
-    where: { type: "BLOG" },
-    include: {
-      _count: {
-        select: { posts: { where: { published: true } } }
-      }
-    },
-    orderBy: { name: "asc" }
-  });
+  const categories = shouldSkipDbDuringBuild()
+    ? []
+    : await prisma.category.findMany({
+        where: { type: "BLOG" },
+        include: {
+          _count: {
+            select: { posts: { where: { published: true } } }
+          }
+        },
+        orderBy: { name: "asc" }
+      });
 
   const categoryListingSchema = {
     "@context": "https://schema.org",

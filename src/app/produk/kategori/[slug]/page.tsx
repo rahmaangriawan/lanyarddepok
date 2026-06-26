@@ -8,7 +8,7 @@ import CategoryProdukListing from "./CategoryProdukListing";
 import { UnifiedProduct } from "@/lib/products-service";
 import { getProducts } from "@/lib/products-server";
 
-export const revalidate = 0; // dynamic rendering
+export const revalidate = 600;
 
 interface PageProps {
   params: Promise<{ slug: string }>;

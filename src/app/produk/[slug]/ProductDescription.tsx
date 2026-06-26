@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 
 type ProductDescriptionProps = {
   description: string;
@@ -29,7 +30,7 @@ function normalizeDescription(description: string) {
   }
 
   if (HTML_TAG_PATTERN.test(trimmed)) {
-    return renderInlineMarkdown(trimmed);
+    return sanitizeCmsHtml(renderInlineMarkdown(trimmed));
   }
 
   return trimmed

@@ -2,10 +2,25 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { fetchSpreadsheetProducts, SpreadsheetProduct } from "@/lib/google-sheets";
-import { getSpreadsheetProductOrder, isSpreadsheetProductPublished } from "@/lib/product-visibility";
+import {
+  getCurrentSiteKeys,
+  getSpreadsheetProductOrder,
+  isSpreadsheetProductPublished,
+  isSpreadsheetProductVisibleOnSite,
+} from "@/lib/product-visibility";
+import { revalidateTag } from "next/cache";
+import { PRODUCTS_CACHE_TAG } from "@/lib/products-server";
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Unknown error";
+}
+
+function productSlug(product: SpreadsheetProduct) {
+  return (product.slug || product.sku || product.name)
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 export async function GET() {
@@ -51,6 +66,7 @@ export async function GET() {
     }
 
     // 2. Fetch local products
+    const currentSiteKeys = getCurrentSiteKeys(settings);
     let localProducts = await prisma.product.findMany({
       include: {
         category: true,
@@ -65,7 +81,18 @@ export async function GET() {
       await prisma.product.createMany({
         data: newSkus.map((ns) => ({
           sku: ns.sku,
-          published: isSpreadsheetProductPublished(ns.status),
+          name: ns.name || "Produk Lanyard",
+          slug: productSlug(ns),
+          specs: ns.specs || "",
+          accessories: ns.accessories || "",
+          basePrice: ns.basePrice || "0",
+          minOrder: ns.minOrder || "0",
+          shortDescription: ns.shortDesc || "",
+          description: ns.longDesc || ns.shortDesc || "",
+          sheetStatus: ns.status || "",
+          sites: ns.sites || "",
+          sortOrder: getSpreadsheetProductOrder(ns),
+          published: isSpreadsheetProductPublished(ns.status) && isSpreadsheetProductVisibleOnSite(ns.sites, currentSiteKeys),
         })),
         skipDuplicates: true,
       });
@@ -84,13 +111,26 @@ export async function GET() {
     const publishUpdates = spreadsheetProducts
       .map((sp) => {
         const localData = localSkuMap.get(sp.sku);
-        const sheetPublished = isSpreadsheetProductPublished(sp.status);
+        const sheetPublished = isSpreadsheetProductPublished(sp.status) && isSpreadsheetProductVisibleOnSite(sp.sites, currentSiteKeys);
 
-        if (!localData || localData.published === sheetPublished) return null;
+        if (!localData) return null;
 
         return prisma.product.update({
           where: { sku: sp.sku },
-          data: { published: sheetPublished },
+          data: {
+            name: sp.name || localData.name || "Produk Lanyard",
+            slug: productSlug(sp) || localData.slug,
+            specs: sp.specs || "",
+            accessories: sp.accessories || "",
+            basePrice: sp.basePrice || "0",
+            minOrder: sp.minOrder || "0",
+            shortDescription: sp.shortDesc || "",
+            description: localData.description || sp.longDesc || sp.shortDesc || "",
+            sheetStatus: sp.status || "",
+            sites: sp.sites || "",
+            sortOrder: getSpreadsheetProductOrder(sp),
+            published: sheetPublished,
+          },
         });
       })
       .filter((update): update is NonNullable<typeof update> => Boolean(update));
@@ -148,6 +188,8 @@ export async function GET() {
       const dateB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
       return dateB - dateA;
     });
+
+    revalidateTag(PRODUCTS_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, products: mergedProducts });
   } catch (error) {

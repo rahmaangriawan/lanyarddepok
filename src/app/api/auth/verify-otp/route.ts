@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { assertSameOrigin, checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/security";
 
 export async function POST(request: Request) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
+    const ip = getClientIp(request);
+    if (!checkRateLimit(`verify-otp:${ip}`, 8, 10 * 60 * 1000)) {
+      return rateLimitResponse("Terlalu banyak percobaan OTP. Silakan coba lagi dalam 10 menit.");
+    }
+
     const { otp } = await request.json();
 
     if (!otp || typeof otp !== "string") {
@@ -43,10 +52,7 @@ export async function POST(request: Request) {
     const verifyData = await verifyRes.json().catch(() => ({}));
 
     if (!verifyRes.ok || verifyData.verified !== true) {
-      return NextResponse.json(
-        { error: verifyData.message || "Kode OTP salah atau kedaluwarsa." },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Kode OTP salah atau kedaluwarsa." }, { status: 401 });
     }
 
     return NextResponse.json({ success: true, verified: true });

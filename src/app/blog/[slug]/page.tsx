@@ -10,13 +10,14 @@ import { injectAutoLinks, injectRelatedReading, parseFaqs, injectTableOfContents
 import ShareButtons from "@/components/ShareButtons";
 import { Metadata } from "next";
 import { getPublicAuthorName } from "@/lib/public-author";
+import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export const revalidate = 0; // dynamic rendering for blog post detail pages
+export const revalidate = 600;
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params;
@@ -132,7 +133,7 @@ export default async function BlogPostPage({ params, searchParams }: PageProps) 
   const contentWithWrappedTables = processedContent.replace(/<table([^>]*)>([\s\S]*?)<\/table>/gi, (match, attrs, body) => {
     return `<div class="w-full overflow-x-auto my-6"><table class="w-full border-collapse" ${attrs}>${body}</table></div>`;
   });
-  const contentWithToc = injectTableOfContents(contentWithWrappedTables);
+  const contentWithToc = sanitizeCmsHtml(injectTableOfContents(contentWithWrappedTables));
   const faqs = parseFaqs(cleanContent);
 
   // 4. Fetch admin details for Author Box

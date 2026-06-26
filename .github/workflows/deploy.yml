@@ -3,12 +3,12 @@ name: Build and Deploy Standalone Next.js to CloudPanel
 on:
   push:
     branches:
-      - main # Ganti dengan branch utama Anda jika berbeda (misal: master)
+      - main
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
-    name: Build & Deploy via FTP
+    name: Build & Deploy via SSH
     runs-on: ubuntu-latest
 
     steps:
@@ -18,11 +18,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Generate Prisma Client
         run: npx prisma generate
@@ -32,7 +32,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SKIP_DB_DURING_BUILD: "true"
-          # Tambahkan environment variables lain di sini jika dibutuhkan saat build
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
       - name: Zip Standalone Assets
         run: |
@@ -41,86 +41,68 @@ jobs:
           mkdir -p .next/standalone/.next
           cp -r .next/static .next/standalone/.next/static
           cd .next/standalone
-          zip -r ../../deploy.zip .
+          zip -r ../../deploy.zip . \
+            -x ".env" "*.map" "scratch/*" "scratch/**" ".git/*" ".github/*"
           cd ../..
 
       - name: Install sshpass
         run: sudo apt-get update && sudo apt-get install -y sshpass
 
-      - name: Deploy via SSH Streaming (Upload and Unzip)
+      - name: Trust SSH Host Key
         run: |
-          # Step 1: Stream the zip file to the server
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy via SSH Streaming
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
             "cd htdocs/jakartalanyard.com && cat > deploy.zip" < deploy.zip
 
-          # Step 2: Unzip, then restart Node.js inline with full PATH and PM2 detection
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash -s << 'ENDSSH'
-            # ---- Load NVM & shell env ----
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash -s << 'ENDSSH'
+            set -euo pipefail
+            APP_NAME="jakartalanyard"
+
             export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
             for f in "$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.profile"; do [ -f "$f" ] && . "$f"; done
 
-            # ---- Augment PATH ----
             NVM_NODE_VER=$(ls "$HOME/.nvm/versions/node" 2>/dev/null | sort -V | tail -n1)
             if [ -n "$NVM_NODE_VER" ]; then
               export PATH="$HOME/.nvm/versions/node/$NVM_NODE_VER/bin:$PATH"
             fi
             export PATH="/usr/local/bin:/usr/bin:$PATH"
 
-            echo "=== ENVIRONMENT ==="
-            echo "pm2: $(which pm2 2>/dev/null || echo NOT_FOUND)"
-            echo "node: $(which node 2>/dev/null || echo NOT_FOUND)"
-
-            # ---- Unzip the new build ----
             cd "$HOME/htdocs/jakartalanyard.com"
-            echo "=== Extracting new build ==="
             unzip -oq deploy.zip
             rm -f deploy.zip
-            echo "=== Extract complete ==="
 
-            # ---- Load .env ----
-            [ -f .env ] && export $(grep -v '^#' .env | sed 's/\r$//' | xargs)
+            if [ -f .env ]; then
+              set -a
+              . ./.env
+              set +a
+            fi
             export PORT="${PORT:-3005}"
             export NODE_ENV=production
 
-            # ---- Show current PM2 processes BEFORE restart ----
-            echo "=== PM2 process list BEFORE restart ==="
-            pm2 list 2>/dev/null || echo "pm2 list failed"
-
-            # ---- Restart ----
-            if command -v pm2 &>/dev/null; then
-              echo "=== Restarting via PM2 ==="
-
-              # Kill anything holding port 3005 (prevents EADDRINUSE)
-              echo "Releasing port 3005..."
-              fuser -k 3005/tcp 2>/dev/null && echo "Port 3005 freed." || echo "Port 3005 was already free."
+            if command -v pm2 >/dev/null 2>&1; then
+              echo "Restarting $APP_NAME on port $PORT"
+              fuser -k "$PORT/tcp" 2>/dev/null || true
               sleep 2
-
-              # Restart with --update-env so new env vars are picked up
-              pm2 restart all --update-env 2>&1 || {
-                echo "pm2 restart all failed, starting fresh..."
-                pm2 start server.js --name jakartalanyard
-              }
+              pm2 restart "$APP_NAME" --update-env 2>&1 || pm2 start server.js --name "$APP_NAME"
               pm2 save 2>/dev/null || true
-              # Wait 5s then check if server is still alive and show logs
               sleep 5
-              echo "=== PM2 status after 5s ==="
               pm2 list 2>/dev/null || true
-              echo "=== PM2 logs (last 40 lines) ==="
-              pm2 logs jakartalanyard.com --lines 40 --nostream 2>&1 || pm2 logs --lines 40 --nostream 2>&1 || true
-              echo "✅ PM2 restart done."
+              pm2 logs "$APP_NAME" --lines 40 --nostream 2>&1 || true
             else
-              echo "=== PM2 not found — pkill fallback ==="
+              echo "PM2 not found, starting with nohup"
               pkill -f "node server.js" 2>/dev/null || true
               pkill -f "next-server" 2>/dev/null || true
               sleep 2
               nohup node server.js > node.log 2>&1 &
-              sleep 2
-              if pgrep -f "node server.js" > /dev/null; then
-                echo "✅ Server started via nohup."
-              else
-                echo "❌ Failed to start server. Last logs:"
-                tail -30 node.log
-              fi
+              sleep 5
             fi
+
+            curl -fsS "http://127.0.0.1:$PORT/" >/dev/null
+            curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null
+            echo "Deploy health checks passed."
           ENDSSH

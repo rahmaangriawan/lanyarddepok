@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { assertSameOrigin } from "@/lib/security";
 
 // GET: Fetch order history (single user orders, or all orders if role is ADMIN)
 export async function GET() {
@@ -37,6 +38,9 @@ export async function GET() {
 // POST: Save a new custom lanyard order
 export async function POST(request: Request) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
     const user = await getSessionUser();
     
     // We allow orders only for logged-in users to track them in their dashboard

@@ -14,6 +14,7 @@ import LanyardPreviewer from "@/components/LanyardPreviewer";
 import LanyardProducts from "@/components/LanyardProducts";
 import LanyardBranding from "@/components/LanyardBranding";
 import Testimonials from "@/components/Testimonials";
+import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 
 const LanyardPortfolio = dynamic(() => import("@/components/LanyardPortfolio"), {
   ssr: false,
@@ -342,7 +343,7 @@ export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
           <div className="py-8 prose max-w-none">
             <div 
               className="ql-editor !p-0 !min-h-0 text-gray-700 leading-relaxed text-base" 
-              dangerouslySetInnerHTML={{ __html: previewData.content }} 
+              dangerouslySetInnerHTML={{ __html: sanitizeCmsHtml(previewData.content) }} 
             />
           </div>
         </main>
