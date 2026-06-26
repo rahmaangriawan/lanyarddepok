@@ -114,6 +114,30 @@ function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
   return (
     <section className="bg-white py-14 sm:py-16 border-t border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 text-center lg:text-left mb-10">
+          <div className="space-y-4">
+            <div className="inline-flex items-center justify-center gap-3 text-brand-red">
+              <span className="h-px w-8 bg-current" />
+              <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Blog Terbaru</span>
+              <span className="h-px w-8 bg-current" />
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#373f50] tracking-tight leading-tight">
+              Insight & Tips <span className="text-brand-red">Lanyard</span>
+            </h2>
+            <p className="text-sm sm:text-base font-normal text-gray-500 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+              Baca panduan terbaru seputar desain, bahan, dan kebutuhan branding untuk lanyard custom.
+            </p>
+          </div>
+
+          <Link
+            href="/blog"
+            className="inline-flex items-center justify-center self-center lg:self-auto rounded-xl border border-gray-200 bg-white px-5 py-3 text-xs font-extrabold text-[#373f50] hover:border-brand-red hover:text-brand-red transition-colors"
+          >
+            <span>Lihat Semua Artikel</span>
+            <Icon icon="lucide:arrow-right" className="ml-2 h-4 w-4" />
+          </Link>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-7 lg:gap-8">
           {posts.map((post) => {
             const formattedDate = new Date(post.createdAt).toLocaleDateString("id-ID", {
@@ -128,7 +152,7 @@ function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
                 key={post.id}
                 className="group flex h-full flex-col"
               >
-                <Link href={`/blog/${post.slug}`} className="block relative aspect-[16/9] overflow-hidden bg-gray-50 rounded-md shrink-0">
+                <Link href={`/blog/${post.slug}`} className="block relative aspect-[16/9] overflow-hidden bg-gray-50 rounded-[10px] shrink-0">
                   {post.featuredImage ? (
                     <Image
                       src={post.featuredImage}
