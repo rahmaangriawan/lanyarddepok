@@ -7,6 +7,7 @@ import { Metadata } from "next";
 import { Icon } from "@iconify/react";
 import { getProducts } from "@/lib/products-server";
 import ProductActions from "./ProductActions";
+import ProductDescription from "./ProductDescription";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -220,9 +221,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   {/* Description */}
                   <div className="space-y-2">
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider select-none">Deskripsi Produk</h3>
-                    <p className="text-sm sm:text-base text-gray-600 font-normal leading-relaxed">
-                      {product.description}
-                    </p>
+                    <ProductDescription description={product.description} />
                   </div>
 
                   {/* Specs & Accessories details */}
