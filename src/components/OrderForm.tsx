@@ -149,11 +149,11 @@ export default function OrderForm() {
     // Phone validation
     if (!phone.trim()) {
       errors.phone = "Nomor telepon / WhatsApp wajib diisi";
+    } else if (!/^\d+$/.test(phone.trim())) {
+      errors.phone = "Nomor telepon hanya boleh berisi angka";
     } else {
-      const cleanPhone = phone.replace(/[\s\-\(\)\+]/g, "");
-      if (!/^\d+$/.test(cleanPhone)) {
-        errors.phone = "Nomor telepon hanya boleh berisi angka dan karakter +, -, ()";
-      } else if (cleanPhone.length < 8 || cleanPhone.length > 15) {
+      const cleanPhone = phone.trim();
+      if (cleanPhone.length < 8 || cleanPhone.length > 15) {
         errors.phone = "Nomor telepon harus berkisar antara 8 hingga 15 digit";
       }
     }
@@ -352,9 +352,12 @@ export default function OrderForm() {
                 <input
                   id="inquiryPhone"
                   type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={15}
                   value={phone}
                   onChange={(e) => {
-                    setPhone(e.target.value);
+                    setPhone(e.target.value.replace(/\D/g, ""));
                     if (fieldErrors.phone) setFieldErrors((prev) => ({ ...prev, phone: undefined }));
                   }}
                   placeholder="Contoh: 0812XXXXXXXX..."
