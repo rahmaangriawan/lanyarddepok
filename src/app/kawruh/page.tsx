@@ -124,7 +124,7 @@ export default function Dashboard() {
 
         <div
           aria-hidden="true"
-          className="absolute inset-y-4 right-6 h-[calc(100%-2rem)] w-[72%] md:w-[34%] bg-contain bg-center bg-no-repeat opacity-45 pointer-events-none"
+          className="absolute inset-y-4 right-0 h-[calc(100%-2rem)] w-[74%] bg-contain bg-right bg-no-repeat opacity-100 pointer-events-none"
           style={{
             backgroundImage:
               "url('/uploads/aset-dashboard-fb714169-9a62-4c9f-8a66-a057702f406c.webp?v=kawruh-dashboard')",
