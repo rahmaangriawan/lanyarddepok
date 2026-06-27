@@ -9,11 +9,14 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
 
-const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false }) as any;
+const ReactQuill = dynamic(() => import("react-quill-new"), {
+  ssr: false,
+}) as any;
 
 interface Category {
   id: number;
   name: string;
+  type: string;
 }
 
 interface Media {
@@ -65,14 +68,23 @@ function SidebarSection({
           <Icon icon={icon} className="h-4 w-4 text-gray-400" />
           <span>{title}</span>
         </span>
-        <Icon icon="lucide:chevron-down" className={`h-3.5 w-3.5 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} />
+        <Icon
+          icon="lucide:chevron-down"
+          className={`h-3.5 w-3.5 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+        />
       </button>
-      {open && <div className="p-4 space-y-4 bg-white animate-fade-in">{children}</div>}
+      {open && (
+        <div className="p-4 space-y-4 bg-white animate-fade-in">{children}</div>
+      )}
     </div>
   );
 }
 
-export default function ProductEditPage({ params }: { params: Promise<{ sku: string }> }) {
+export default function ProductEditPage({
+  params,
+}: {
+  params: Promise<{ sku: string }>;
+}) {
   const { sku: encodedSku } = use(params);
   const sku = decodeURIComponent(encodedSku);
 
@@ -142,7 +154,8 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
       }
 
       if (catsRes.ok) {
-        setCategories(catsData.categories || []);
+        const allCats = catsData.categories || [];
+        setCategories(allCats.filter((c: any) => c.type === "PRODUCT"));
       }
       if (mediaRes.ok) {
         setMediaList(mediaData.mediaList || []);
@@ -159,7 +172,10 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
   }, [fetchData]);
 
   // Media picker paging
-  const imagesOnly = useMemo(() => mediaList.filter((m) => m.mimetype.startsWith("image/")), [mediaList]);
+  const imagesOnly = useMemo(
+    () => mediaList.filter((m) => m.mimetype.startsWith("image/")),
+    [mediaList],
+  );
   const totalPages = Math.ceil(imagesOnly.length / 20);
   const paginatedImages = useMemo(() => {
     const start = (mediaPage - 1) * 20;
@@ -243,7 +259,7 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
         ["link", "clean"],
       ],
     }),
-    []
+    [],
   );
 
   if (loading) {
@@ -252,9 +268,13 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
         <div className="text-center space-y-2">
           <div
             className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-t-transparent"
-            style={{ borderColor: `${themeAccent} transparent ${themeAccent} transparent` }}
+            style={{
+              borderColor: `${themeAccent} transparent ${themeAccent} transparent`,
+            }}
           />
-          <p className="text-sm font-bold text-gray-900">Memuat detail produk...</p>
+          <p className="text-sm font-bold text-gray-900">
+            Memuat detail produk...
+          </p>
         </div>
       </div>
     );
@@ -278,7 +298,10 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
               Edit Pengayaan Produk
             </h1>
             <p className="text-xs text-gray-400 mt-1 font-semibold">
-              SKU: <span className="font-mono font-bold text-gray-600">{product.sku}</span>
+              SKU:{" "}
+              <span className="font-mono font-bold text-gray-600">
+                {product.sku}
+              </span>
             </p>
           </div>
         </div>
@@ -342,7 +365,11 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
                     URL Slug
                   </label>
                   <div className="bg-gray-50 border border-gray-100 p-2.5 rounded-lg text-gray-650 font-mono">
-                    {product.slug || <span className="italic text-gray-300">Tidak ada slug</span>}
+                    {product.slug || (
+                      <span className="italic text-gray-300">
+                        Tidak ada slug
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="sm:col-span-2">
@@ -350,7 +377,11 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
                     Deskripsi Singkat (Spreadsheet)
                   </label>
                   <div className="bg-gray-50 border border-gray-100 p-2.5 rounded-lg text-gray-600 leading-relaxed font-sans">
-                    {product.shortDesc || <span className="italic text-gray-300">Tidak ada deskripsi singkat</span>}
+                    {product.shortDesc || (
+                      <span className="italic text-gray-300">
+                        Tidak ada deskripsi singkat
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -364,7 +395,8 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
                 Deskripsi Lengkap & Detail (Rich Text)
               </label>
               <p className="text-[10px] text-gray-400 mt-1 font-medium">
-                Tulis deskripsi produk yang lengkap dan menarik untuk ditampilkan di halaman web detail produk.
+                Tulis deskripsi produk yang lengkap dan menarik untuk
+                ditampilkan di halaman web detail produk.
               </p>
             </div>
             <div className="prose max-w-none">
@@ -386,8 +418,12 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
             {/* Status Switch */}
             <div className="flex items-center justify-between py-1 border-b border-gray-50">
               <div className="space-y-0.5">
-                <div className="text-xs font-bold text-gray-800">Tampilkan di Web</div>
-                <div className="text-[10px] text-gray-400 font-semibold">Tampilkan produk ini di katalog publik.</div>
+                <div className="text-xs font-bold text-gray-800">
+                  Tampilkan di Web
+                </div>
+                <div className="text-[10px] text-gray-400 font-semibold">
+                  Tampilkan produk ini di katalog publik.
+                </div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -431,7 +467,11 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
             >
               {featuredImage ? (
                 <div className="w-full h-full relative group">
-                  <img src={featuredImage} alt="Featured" className="w-full h-36 object-cover" />
+                  <img
+                    src={featuredImage}
+                    alt="Featured"
+                    className="w-full h-36 object-cover"
+                  />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-all duration-200 text-white space-y-1">
                     <Icon icon="lucide:image" className="h-5 w-5" />
                     <span className="text-[10px] font-bold">Ganti Gambar</span>
@@ -443,8 +483,12 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
                     <Icon icon="lucide:image-plus" className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-[11px] font-bold text-gray-700">Pilih dari Media Library</p>
-                    <p className="text-[9px] text-gray-400 font-semibold mt-0.5">Mendukung format PNG, JPG, WEBP</p>
+                    <p className="text-[11px] font-bold text-gray-700">
+                      Pilih dari Media Library
+                    </p>
+                    <p className="text-[9px] text-gray-400 font-semibold mt-0.5">
+                      Mendukung format PNG, JPG, WEBP
+                    </p>
                   </div>
                 </div>
               )}
@@ -496,7 +540,9 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden animate-slide-down">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-150 shrink-0">
-              <h3 className="text-sm font-bold text-gray-900">Pilih Gambar dari Media Library</h3>
+              <h3 className="text-sm font-bold text-gray-900">
+                Pilih Gambar dari Media Library
+              </h3>
               <button
                 type="button"
                 onClick={() => setMediaModalOpen(false)}
@@ -509,11 +555,16 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
             {/* Drag & Drop Upload Zone */}
             <div
               onDragEnter={() => setMediaDragActive(true)}
-              onDragOver={(e) => { e.preventDefault(); setMediaDragActive(true); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setMediaDragActive(true);
+              }}
               onDragLeave={() => setMediaDragActive(false)}
               onDrop={handleMediaDrop}
               className={`mx-5 mt-3 border border-dashed rounded-lg p-3 text-center text-xs font-medium transition-all shrink-0 ${
-                mediaDragActive ? "border-brand-red bg-brand-light-50" : "border-gray-200 text-gray-400"
+                mediaDragActive
+                  ? "border-brand-red bg-brand-light-50"
+                  : "border-gray-200 text-gray-400"
               }`}
             >
               <input
@@ -524,15 +575,24 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
                 className="hidden"
                 onChange={async (e) => {
                   if (e.target.files) {
-                    for (const file of Array.from(e.target.files)) await handleMediaUpload(file);
+                    for (const file of Array.from(e.target.files))
+                      await handleMediaUpload(file);
                   }
                 }}
               />
-              <label htmlFor="modal-file-input" className="cursor-pointer text-brand-red font-bold hover:underline" style={{ color: themeAccent }}>
+              <label
+                htmlFor="modal-file-input"
+                className="cursor-pointer text-brand-red font-bold hover:underline"
+                style={{ color: themeAccent }}
+              >
                 Klik untuk unggah
               </label>{" "}
               atau seret file gambar di sini
-              {uploading && <span className="ml-2 text-gray-400 font-bold">Mengunggah...</span>}
+              {uploading && (
+                <span className="ml-2 text-gray-400 font-bold">
+                  Mengunggah...
+                </span>
+              )}
             </div>
 
             {/* Split Body */}
@@ -540,12 +600,22 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
               <div className="flex-1 flex flex-col p-5 overflow-y-auto min-h-0 justify-between">
                 {mediaLoading ? (
                   <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-7 w-7 border-4 border-t-transparent animate-spin" style={{ borderColor: `${themeAccent} transparent ${themeAccent} transparent` }} />
+                    <div
+                      className="animate-spin rounded-full h-7 w-7 border-4 border-t-transparent animate-spin"
+                      style={{
+                        borderColor: `${themeAccent} transparent ${themeAccent} transparent`,
+                      }}
+                    />
                   </div>
                 ) : imagesOnly.length === 0 ? (
                   <div className="text-center py-12 space-y-2">
-                    <Icon icon="lucide:image" className="h-10 w-10 text-gray-200 mx-auto" />
-                    <p className="text-sm text-gray-400 font-medium">Belum ada gambar di media library.</p>
+                    <Icon
+                      icon="lucide:image"
+                      className="h-10 w-10 text-gray-200 mx-auto"
+                    />
+                    <p className="text-sm text-gray-400 font-medium">
+                      Belum ada gambar di media library.
+                    </p>
                   </div>
                 ) : (
                   <>
@@ -561,19 +631,38 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
                               setMediaModalOpen(false);
                             }}
                             className={`group aspect-square bg-gray-50 rounded-lg overflow-hidden border transition-all relative cursor-pointer ${
-                              isSelected ? "border-brand-red ring-2 ring-brand-red/20" : "border-transparent hover:border-brand-red"
+                              isSelected
+                                ? "border-brand-red ring-2 ring-brand-red/20"
+                                : "border-transparent hover:border-brand-red"
                             }`}
-                            style={isSelected ? { borderColor: themeAccent, boxShadow: `0 0 0 2px ${themeAccent}33` } : undefined}
+                            style={
+                              isSelected
+                                ? {
+                                    borderColor: themeAccent,
+                                    boxShadow: `0 0 0 2px ${themeAccent}33`,
+                                  }
+                                : undefined
+                            }
                             title={m.filename}
                           >
-                            <img src={m.url} alt={m.filename} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                            <div className={`absolute inset-0 transition-colors flex items-center justify-center ${
-                              isSelected ? "bg-brand-red/10" : "bg-black/0 group-hover:bg-black/20"
-                            }`}>
+                            <img
+                              src={m.url}
+                              alt={m.filename}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                            />
+                            <div
+                              className={`absolute inset-0 transition-colors flex items-center justify-center ${
+                                isSelected
+                                  ? "bg-brand-red/10"
+                                  : "bg-black/0 group-hover:bg-black/20"
+                              }`}
+                            >
                               <Icon
                                 icon="lucide:check-circle"
                                 className={`h-6 w-6 text-white drop-shadow-md transition-opacity ${
-                                  isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                                  isSelected
+                                    ? "opacity-100"
+                                    : "opacity-0 group-hover:opacity-100"
                                 }`}
                               />
                             </div>
@@ -585,13 +674,26 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
                     {totalPages > 1 && (
                       <div className="flex items-center justify-between border-t border-gray-150 pt-4 mt-4 shrink-0">
                         <span className="text-[10px] text-gray-500 font-medium">
-                          Menampilkan <span className="font-bold text-gray-900">{(mediaPage - 1) * 20 + 1}</span> - <span className="font-bold text-gray-900">{Math.min(mediaPage * 20, imagesOnly.length)}</span> dari <span className="font-bold text-gray-900">{imagesOnly.length}</span>
+                          Menampilkan{" "}
+                          <span className="font-bold text-gray-900">
+                            {(mediaPage - 1) * 20 + 1}
+                          </span>{" "}
+                          -{" "}
+                          <span className="font-bold text-gray-900">
+                            {Math.min(mediaPage * 20, imagesOnly.length)}
+                          </span>{" "}
+                          dari{" "}
+                          <span className="font-bold text-gray-900">
+                            {imagesOnly.length}
+                          </span>
                         </span>
                         <div className="inline-flex space-x-1">
                           <button
                             type="button"
                             disabled={mediaPage === 1}
-                            onClick={() => setMediaPage((prev) => Math.max(prev - 1, 1))}
+                            onClick={() =>
+                              setMediaPage((prev) => Math.max(prev - 1, 1))
+                            }
                             className="px-2.5 py-1.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                           >
                             Sebelumnya
@@ -599,7 +701,11 @@ export default function ProductEditPage({ params }: { params: Promise<{ sku: str
                           <button
                             type="button"
                             disabled={mediaPage === totalPages}
-                            onClick={() => setMediaPage((prev) => Math.min(prev + 1, totalPages))}
+                            onClick={() =>
+                              setMediaPage((prev) =>
+                                Math.min(prev + 1, totalPages),
+                              )
+                            }
                             className="px-2.5 py-1.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                           >
                             Selanjutnya
