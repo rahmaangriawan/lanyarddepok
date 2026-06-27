@@ -67,7 +67,7 @@ export default async function RootLayout({
     >
       <head />
       <body
-        className="min-h-full flex flex-col bg-white text-[#373f50]"
+        className={`${rubik.className} min-h-full flex flex-col bg-white text-[#373f50]`}
         suppressHydrationWarning
       >
         <GoogleAnalytics measurementId={settings.measurementId} />
