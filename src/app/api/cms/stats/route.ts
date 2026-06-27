@@ -30,6 +30,7 @@ export async function GET() {
           title: true,
           slug: true,
           published: true,
+          featuredImage: true,
           createdAt: true,
         },
       }),

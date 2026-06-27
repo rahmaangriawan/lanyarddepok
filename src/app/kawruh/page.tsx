@@ -19,6 +19,7 @@ interface RecentPost {
   title: string;
   slug: string;
   published: boolean;
+  featuredImage: string | null;
   createdAt: string;
 }
 
@@ -113,7 +114,7 @@ export default function Dashboard() {
         </div>
 
         {/* Right side Metadata / Date */}
-        <div className="shrink-0 flex items-center bg-gray-50 border border-gray-150 px-4 py-2.5 rounded-2xl text-[12px] font-bold text-gray-800 shadow-xs z-10 self-start md:self-center">
+        <div className="shrink-0 flex items-center bg-gray-50 border border-gray-200 px-4 py-2.5 rounded-[5px] text-[12px] font-bold text-gray-800 shadow-xs z-10 self-start md:self-center">
           <Icon
             icon="lucide:calendar"
             className="h-4 w-4 mr-2 text-gray-400 shrink-0"
@@ -221,9 +222,16 @@ export default function Dashboard() {
                     className="p-4 hover:bg-gray-50/50 transition-colors flex items-center justify-between gap-4 group"
                   >
                     <div className="flex items-center space-x-3.5 min-w-0 flex-1">
-                      {/* Document Icon in circular gray wrapper */}
-                      <div className="bg-gray-50 h-10 w-10 rounded-xl flex items-center justify-center text-gray-400 shrink-0 transition-colors group-hover:bg-brand-light-50 group-hover:text-brand-red">
-                        <Icon icon="lucide:file-text" className="h-5 w-5" />
+                      <div className="bg-gray-50 h-10 w-10 rounded-[5px] flex items-center justify-center text-gray-400 shrink-0 overflow-hidden border border-gray-100 transition-colors group-hover:border-brand-red/20">
+                        {post.featuredImage ? (
+                          <div
+                            aria-hidden="true"
+                            className="h-full w-full bg-cover bg-center"
+                            style={{ backgroundImage: `url('${post.featuredImage}')` }}
+                          />
+                        ) : (
+                          <Icon icon="lucide:image" className="h-5 w-5" />
+                        )}
                       </div>
                       <div className="min-w-0 flex-1 space-y-1">
                         <h4 className="text-[13px] font-bold text-gray-800 group-hover:text-brand-red transition-colors truncate">
