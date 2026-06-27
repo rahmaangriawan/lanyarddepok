@@ -79,6 +79,13 @@ export default function ProductsPage() {
   const [notConfigured, setNotConfigured] = useState(false);
   const [error, setError] = useState("");
 
+  // Bulk Edit States
+  const [selectedSkus, setSelectedSkus] = useState<Set<string>>(new Set());
+  const [isBulkSaving, setIsBulkSaving] = useState(false);
+  const [bulkModalOpen, setBulkModalOpen] = useState(false);
+  const [bulkCategoryId, setBulkCategoryId] = useState("");
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -88,10 +95,69 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
-  // Reset page when filter changes
+  // Reset page and selection when filter changes
   useEffect(() => {
     setCurrentPage(1);
+    setSelectedSkus(new Set());
   }, [searchQuery, filterStatus, filterCategory]);
+
+  const handleBulkChangeCategory = async () => {
+    try {
+      setIsBulkSaving(true);
+      const res = await fetch("/api/cms/products/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          skus: Array.from(selectedSkus),
+          action: "CHANGE_CATEGORY",
+          newCategoryId: bulkCategoryId ? Number(bulkCategoryId) : null,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success(`${data.count} kategori produk berhasil diperbarui.`);
+        setSelectedSkus(new Set());
+        setBulkModalOpen(false);
+        setBulkCategoryId("");
+        fetchAll();
+      } else {
+        toast.error(data.error || "Gagal memperbarui kategori masal.");
+      }
+    } catch (err) {
+      toast.error("Kesalahan jaringan saat memperbarui kategori masal.");
+    } finally {
+      setIsBulkSaving(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      setIsBulkSaving(true);
+      const res = await fetch("/api/cms/products/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          skus: Array.from(selectedSkus),
+          action: "DELETE",
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success(`${data.count} produk berhasil dihapus secara permanen.`);
+        setSelectedSkus(new Set());
+        setShowBulkDeleteConfirm(false);
+        fetchAll();
+      } else {
+        toast.error(data.error || "Gagal menghapus produk masal.");
+      }
+    } catch (err) {
+      toast.error("Kesalahan jaringan saat menghapus produk masal.");
+    } finally {
+      setIsBulkSaving(false);
+    }
+  };
 
   // Theme support
   const [themeAccent, setThemeAccent] = useState("#ec2028"); // default red
@@ -263,44 +329,82 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* Search & Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-xs p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-        <div className="relative flex-1 min-w-0">
-          <Icon
-            icon="lucide:search"
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari SKU, nama produk atau spesifikasi..."
-            className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 placeholder:text-gray-400 focus:ring-brand-red focus:border-brand-red"
-          />
+      {/* Search & Filters & Bulk Actions */}
+      <div className="space-y-3">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-xs p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          <div className="relative flex-1 min-w-0">
+            <Icon
+              icon="lucide:search"
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari SKU, nama produk atau spesifikasi..."
+              className="w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 placeholder:text-gray-400 focus:ring-brand-red focus:border-brand-red"
+            />
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="bg-white border border-gray-200 text-gray-600 text-xs font-semibold rounded-lg px-3 py-2.5 focus:ring-brand-red focus:border-brand-red cursor-pointer min-w-[130px]"
+            >
+              <option value="all">Semua Status</option>
+              <option value="published">Tampil di Web</option>
+              <option value="draft">Draft (Disembunyikan)</option>
+            </select>
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="bg-white border border-gray-200 text-gray-600 text-xs font-semibold rounded-lg px-3 py-2.5 focus:ring-brand-red focus:border-brand-red cursor-pointer min-w-[140px]"
+            >
+              <option value="all">Semua Kategori</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id.toString()}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="bg-white border border-gray-200 text-gray-600 text-xs font-semibold rounded-lg px-3 py-2.5 focus:ring-brand-red focus:border-brand-red cursor-pointer min-w-[130px]"
-          >
-            <option value="all">Semua Status</option>
-            <option value="published">Tampil di Web</option>
-            <option value="draft">Draft (Disembunyikan)</option>
-          </select>
-          <select
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className="bg-white border border-gray-200 text-gray-600 text-xs font-semibold rounded-lg px-3 py-2.5 focus:ring-brand-red focus:border-brand-red cursor-pointer min-w-[140px]"
-          >
-            <option value="all">Semua Kategori</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id.toString()}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        </div>
+
+        {/* Bulk Action Toolbar */}
+        {selectedSkus.size > 0 && (
+          <div className="bg-brand-light-50 border border-red-100 rounded-xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 animate-fade-in shadow-xs">
+            <div className="flex items-center space-x-2 text-xs font-bold text-gray-800">
+              <Icon
+                icon="lucide:check-square"
+                className="h-4.5 w-4.5 text-brand-red"
+              />
+              <span>{selectedSkus.size} produk terpilih</span>
+            </div>
+            <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
+              <button
+                onClick={() => setBulkModalOpen(true)}
+                className="flex items-center space-x-1.5 px-3.5 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold hover:bg-gray-50 cursor-pointer shadow-xs transition-all text-gray-700"
+              >
+                <Icon icon="lucide:tag" className="h-4 w-4 text-gray-500" />
+                <span>Ubah Kategori (Masal)</span>
+              </button>
+              <button
+                onClick={() => setShowBulkDeleteConfirm(true)}
+                className="flex items-center space-x-1.5 px-3.5 py-2 bg-red-50 border border-red-100 rounded-lg text-xs font-bold text-brand-red hover:bg-red-100/50 cursor-pointer shadow-xs transition-all animate-pulse"
+              >
+                <Icon icon="lucide:trash-2" className="h-4 w-4" />
+                <span>Hapus Masal</span>
+              </button>
+              <div className="h-4 w-px bg-gray-200 mx-1 hidden sm:block" />
+              <button
+                onClick={() => setSelectedSkus(new Set())}
+                className="text-xs text-gray-400 font-bold hover:text-gray-600 px-2 py-2 cursor-pointer transition-colors"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Products Table */}
@@ -309,6 +413,29 @@ export default function ProductsPage() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-gray-50/40 text-gray-400 border-b border-gray-100 font-bold uppercase tracking-wider text-[9px]">
+                <th className="py-3.5 px-4 w-12 text-center">
+                  <input
+                    type="checkbox"
+                    checked={
+                      paginatedProducts.length > 0 &&
+                      paginatedProducts.every((p) => selectedSkus.has(p.sku))
+                    }
+                    onChange={(e) => {
+                      const newSelected = new Set(selectedSkus);
+                      if (e.target.checked) {
+                        paginatedProducts.forEach((p) =>
+                          newSelected.add(p.sku),
+                        );
+                      } else {
+                        paginatedProducts.forEach((p) =>
+                          newSelected.delete(p.sku),
+                        );
+                      }
+                      setSelectedSkus(newSelected);
+                    }}
+                    className="h-4 w-4 bg-gray-50 border-gray-300 text-brand-red rounded focus:ring-brand-red cursor-pointer accent-brand-red"
+                  />
+                </th>
                 <th className="py-3.5 px-5 w-24">SKU</th>
                 <th className="py-3.5 px-5 w-56">Gambar & Nama</th>
                 <th className="py-3.5 px-5">Spesifikasi Dasar (Spreadsheet)</th>
@@ -321,7 +448,7 @@ export default function ProductsPage() {
               {filteredProducts.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="py-12 text-center text-gray-400 font-medium"
                   >
                     Tidak ada produk ditemukan.
@@ -331,8 +458,24 @@ export default function ProductsPage() {
                 paginatedProducts.map((p) => (
                   <tr
                     key={p.sku}
-                    className="hover:bg-gray-50/30 transition-colors font-medium"
+                    className={`hover:bg-gray-50/30 transition-colors font-medium ${selectedSkus.has(p.sku) ? "bg-brand-light-50/40 hover:bg-brand-light-50/60" : ""}`}
                   >
+                    <td className="py-3.5 px-4 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedSkus.has(p.sku)}
+                        onChange={() => {
+                          const newSelected = new Set(selectedSkus);
+                          if (newSelected.has(p.sku)) {
+                            newSelected.delete(p.sku);
+                          } else {
+                            newSelected.add(p.sku);
+                          }
+                          setSelectedSkus(newSelected);
+                        }}
+                        className="h-4 w-4 bg-gray-50 border-gray-300 text-brand-red rounded focus:ring-brand-red cursor-pointer accent-brand-red"
+                      />
+                    </td>
                     <td className="py-3.5 px-5 font-mono text-gray-700 font-bold">
                       {p.sku}
                     </td>
@@ -530,6 +673,117 @@ export default function ProductsPage() {
           </div>
         )}
       </div>
+
+      {/* Bulk Category Action Modal */}
+      {bulkModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl border border-gray-200 max-w-sm w-full p-6 shadow-xl space-y-4">
+            <div>
+              <h3 className="text-sm font-bold text-gray-900">
+                Ubah Kategori Masal
+              </h3>
+              <p className="text-[10px] text-gray-400 font-semibold leading-relaxed mt-1">
+                Ubah kategori lokal untuk{" "}
+                <span className="font-extrabold text-brand-red">
+                  {selectedSkus.size}
+                </span>{" "}
+                produk terpilih sekaligus.
+              </p>
+            </div>
+            <div>
+              <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+                Pilih Kategori Baru
+              </label>
+              <select
+                value={bulkCategoryId}
+                onChange={(e) => setBulkCategoryId(e.target.value)}
+                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 focus:ring-brand-red focus:border-brand-red cursor-pointer"
+              >
+                <option value="">-- Tanpa Kategori (Uncategorized) --</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id.toString()}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-gray-50">
+              <button
+                type="button"
+                onClick={() => {
+                  setBulkModalOpen(false);
+                  setBulkCategoryId("");
+                }}
+                className="px-3.5 py-2 text-xs font-bold text-gray-500 hover:bg-gray-50 border border-gray-200 rounded-lg cursor-pointer transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                disabled={isBulkSaving}
+                onClick={handleBulkChangeCategory}
+                className="px-4 py-2 text-xs font-bold text-white rounded-lg flex items-center space-x-1.5 cursor-pointer shadow-xs disabled:opacity-50 transition-colors"
+                style={{ backgroundColor: themeAccent }}
+              >
+                {isBulkSaving && (
+                  <Icon
+                    icon="lucide:loader-2"
+                    className="h-3.5 w-3.5 animate-spin"
+                  />
+                )}
+                <span>Terapkan</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {showBulkDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl border border-gray-200 max-w-sm w-full p-6 shadow-xl space-y-4">
+            <div className="bg-red-50 h-10 w-10 rounded-lg flex items-center justify-center text-brand-red border border-red-100">
+              <Icon icon="lucide:alert-triangle" className="h-5 w-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-gray-900">
+                Ubah & Hapus Produk Terpilih?
+              </h3>
+              <p className="text-[10px] text-gray-400 font-semibold leading-relaxed mt-1">
+                Apakah Anda yakin ingin menghapus{" "}
+                <span className="font-extrabold text-brand-red">
+                  {selectedSkus.size}
+                </span>{" "}
+                produk terpilih secara permanen? Tindakan ini akan menghapus
+                pengayaan data lokal produk tersebut dari database.
+              </p>
+            </div>
+            <div className="flex items-center justify-end space-x-2 pt-2 border-t border-gray-50">
+              <button
+                type="button"
+                onClick={() => setShowBulkDeleteConfirm(false)}
+                className="px-3.5 py-2 text-xs font-bold text-gray-500 hover:bg-gray-50 border border-gray-200 rounded-lg cursor-pointer transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                disabled={isBulkSaving}
+                onClick={handleBulkDelete}
+                className="px-4 py-2 text-xs font-bold text-white rounded-lg flex items-center space-x-1.5 cursor-pointer shadow-xs bg-[#ec2028] disabled:opacity-50 hover:bg-[#d01820] transition-colors"
+              >
+                {isBulkSaving && (
+                  <Icon
+                    icon="lucide:loader-2"
+                    className="h-3.5 w-3.5 animate-spin"
+                  />
+                )}
+                <span>Hapus Permanen</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
