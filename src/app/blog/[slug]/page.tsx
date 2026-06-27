@@ -568,50 +568,6 @@ export default async function BlogPostPage({
               </div>
             </div>
 
-            {/* Categories Card */}
-            {categories.length > 0 && (
-              <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs space-y-4">
-                <h4 className="text-sm font-bold text-gray-800 pb-2 border-b border-gray-50 uppercase tracking-wider select-none text-[10px]">
-                  Kategori
-                </h4>
-                <div className="space-y-1 text-xs font-semibold">
-                  <Link
-                    href="/blog"
-                    className="flex justify-between items-center py-2 px-3 rounded-lg text-gray-600 hover:text-brand-red hover:bg-gray-50 transition-colors"
-                  >
-                    <span>Semua Kategori</span>
-                  </Link>
-                  {categories.map((cat) => {
-                    const isActive = post.categoryId === cat.id;
-                    return (
-                      <Link
-                        key={cat.id}
-                        href={`/blog/kategori/${cat.slug}`}
-                        className={`flex justify-between items-center py-2 px-3 rounded-lg transition-colors ${
-                          isActive
-                            ? "bg-[#FFF0F0] text-brand-red font-bold"
-                            : "text-gray-600 hover:text-brand-red hover:bg-gray-55"
-                        }`}
-                      >
-                        <span>{cat.name}</span>
-                        {isActive && (
-                          <svg
-                            className="h-3 w-3 text-brand-red shrink-0"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                          >
-                            <polyline points="9 18 15 12 9 6" />
-                          </svg>
-                        )}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
             {/* Recent Posts Sidebar Card */}
             {recentPosts.length > 0 && (
               <div className="bg-white border border-gray-100 rounded-2xl p-5 space-y-4 shadow-xs">
