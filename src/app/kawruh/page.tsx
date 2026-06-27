@@ -39,7 +39,7 @@ export default function Dashboard() {
     setThemeAccent(theme.accent);
     fetchDashboardData();
 
-    // Set current date string format: 15 Mei 2026, 10:30 AM
+    // Set current date string format: 15 Mei 2026, 22:30
     const now = new Date();
     const formatted = now.toLocaleDateString("id-ID", {
       day: "numeric",
@@ -47,10 +47,10 @@ export default function Dashboard() {
       year: "numeric",
     });
 
-    const timeFormatted = now.toLocaleTimeString("en-US", {
+    const timeFormatted = now.toLocaleTimeString("id-ID", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true,
+      hour12: false,
     });
 
     setCurrentDate(`${formatted}, ${timeFormatted}`);
@@ -121,14 +121,14 @@ export default function Dashboard() {
           <span>{currentDate}</span>
         </div>
 
-        {/* Abstract Background Design Elements matching the image */}
-        <div className="absolute right-0 top-0 h-full w-[45%] bg-gradient-to-l from-gray-50/50 to-transparent pointer-events-none" />
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none hidden lg:block">
-          <Icon
-            icon="lucide:layout-dashboard"
-            className="w-48 h-48 text-gray-900"
-          />
-        </div>
+        <div
+          aria-hidden="true"
+          className="absolute inset-y-0 right-0 h-full w-full md:w-[52%] bg-cover bg-center opacity-20 pointer-events-none"
+          style={{
+            backgroundImage:
+              "url('/uploads/aset-dashboard-fb714169-9a62-4c9f-8a66-a057702f406c.webp?v=kawruh-dashboard')",
+          }}
+        />
       </div>
 
       {/* Stats Grid - Five Column Dashboard Stats */}
