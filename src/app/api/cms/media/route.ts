@@ -32,11 +32,26 @@ function sanitizeFilenameBase(filename: string) {
 }
 
 function detectImageMime(buffer: Buffer) {
-  if (buffer.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]))) return "image/jpeg";
-  if (buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return "image/png";
-  if (buffer.subarray(0, 4).toString("ascii") === "RIFF" && buffer.subarray(8, 12).toString("ascii") === "WEBP") return "image/webp";
-  if (buffer.subarray(4, 12).toString("ascii") === "ftypavif") return "image/avif";
-  if (buffer.subarray(0, 6).toString("ascii") === "GIF87a" || buffer.subarray(0, 6).toString("ascii") === "GIF89a") return "image/gif";
+  if (buffer.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff])))
+    return "image/jpeg";
+  if (
+    buffer
+      .subarray(0, 8)
+      .equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+  )
+    return "image/png";
+  if (
+    buffer.subarray(0, 4).toString("ascii") === "RIFF" &&
+    buffer.subarray(8, 12).toString("ascii") === "WEBP"
+  )
+    return "image/webp";
+  if (buffer.subarray(4, 12).toString("ascii") === "ftypavif")
+    return "image/avif";
+  if (
+    buffer.subarray(0, 6).toString("ascii") === "GIF87a" ||
+    buffer.subarray(0, 6).toString("ascii") === "GIF89a"
+  )
+    return "image/gif";
   return null;
 }
 
@@ -103,7 +118,10 @@ export async function GET(request: Request) {
     });
   } catch (error: any) {
     console.error("Fetch Media Error:", error);
-    return NextResponse.json({ error: "Failed to fetch media files" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch media files" },
+      { status: 500 },
+    );
   }
 }
 
@@ -129,16 +147,28 @@ export async function POST(request: Request) {
     const declaredType = file.type.toLowerCase();
 
     if (originalBuffer.length > MAX_UPLOAD_BYTES) {
-      return NextResponse.json({ error: "Ukuran file maksimal 8MB." }, { status: 413 });
+      return NextResponse.json(
+        { error: "Ukuran file maksimal 8MB." },
+        { status: 413 },
+      );
     }
 
-    if (declaredType === "image/svg+xml" || path.extname(file.name).toLowerCase() === ".svg") {
-      return NextResponse.json({ error: "Upload SVG tidak diizinkan." }, { status: 400 });
+    if (
+      declaredType === "image/svg+xml" ||
+      path.extname(file.name).toLowerCase() === ".svg"
+    ) {
+      return NextResponse.json(
+        { error: "Upload SVG tidak diizinkan." },
+        { status: 400 },
+      );
     }
 
     const detectedType = detectImageMime(originalBuffer);
-    if (!detectedType || !WEBP_CONVERTIBLE_TYPES.has(detectedType) || (declaredType && declaredType !== detectedType && !(declaredType === "image/jpg" && detectedType === "image/jpeg"))) {
-      return NextResponse.json({ error: "Tipe file gambar tidak valid." }, { status: 400 });
+    if (!detectedType || !WEBP_CONVERTIBLE_TYPES.has(detectedType)) {
+      return NextResponse.json(
+        { error: "Tipe file gambar tidak valid." },
+        { status: 400 },
+      );
     }
 
     // Sanitize filename
@@ -184,6 +214,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, media });
   } catch (error: any) {
     console.error("Upload Media Error:", error);
-    return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to upload file" },
+      { status: 500 },
+    );
   }
 }

@@ -124,10 +124,12 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="space-y-5 max-w-4xl">
+    <div className="space-y-5 w-full max-w-full">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-medium text-gray-900 tracking-tight">Profil Saya</h1>
+        <h1 className="text-2xl font-medium text-gray-900 tracking-tight">
+          Profil Saya
+        </h1>
         <p className="text-xs font-normal text-gray-400 mt-1">
           Perbarui informasi akun admin Anda dan atur ulang kata sandi.
         </p>
@@ -135,15 +137,22 @@ export default function ProfilePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Card: Informasi Profil */}
-        <form onSubmit={handleUpdateProfile} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between">
+        <form
+          onSubmit={handleUpdateProfile}
+          className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between"
+        >
           <div>
             <div className="px-5 py-3.5 border-b border-gray-100 bg-gray-50/50 flex items-center space-x-2">
               <Icon icon="lucide:user" className="h-4 w-4 text-brand-red" />
-              <h3 className="text-sm font-bold text-gray-900">Ubah Data Diri</h3>
+              <h3 className="text-sm font-bold text-gray-900">
+                Ubah Data Diri
+              </h3>
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Nama Lengkap</label>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">
+                  Nama Lengkap
+                </label>
                 <input
                   type="text"
                   value={name}
@@ -154,7 +163,9 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Alamat Email</label>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">
+                  Alamat Email
+                </label>
                 <input
                   type="email"
                   value={email}
@@ -188,15 +199,25 @@ export default function ProfilePage() {
         </form>
 
         {/* Card: Reset / Ubah Password */}
-        <form onSubmit={handleUpdatePassword} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between">
+        <form
+          onSubmit={handleUpdatePassword}
+          className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col justify-between"
+        >
           <div>
             <div className="px-5 py-3.5 border-b border-gray-100 bg-gray-50/50 flex items-center space-x-2">
-              <Icon icon="lucide:key-round" className="h-4 w-4 text-brand-red" />
-              <h3 className="text-sm font-bold text-gray-900">Ubah Kata Sandi</h3>
+              <Icon
+                icon="lucide:key-round"
+                className="h-4 w-4 text-brand-red"
+              />
+              <h3 className="text-sm font-bold text-gray-900">
+                Ubah Kata Sandi
+              </h3>
             </div>
             <div className="p-5 space-y-4">
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Password Saat Ini</label>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">
+                  Password Saat Ini
+                </label>
                 <div className="relative">
                   <input
                     type={showCurrentPass ? "text" : "password"}
@@ -211,12 +232,17 @@ export default function ProfilePage() {
                     onClick={() => setShowCurrentPass(!showCurrentPass)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    <Icon icon={showCurrentPass ? "lucide:eye-off" : "lucide:eye"} className="h-4 w-4" />
+                    <Icon
+                      icon={showCurrentPass ? "lucide:eye-off" : "lucide:eye"}
+                      className="h-4 w-4"
+                    />
                   </button>
                 </div>
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Password Baru</label>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">
+                  Password Baru
+                </label>
                 <div className="relative">
                   <input
                     type={showNewPass ? "text" : "password"}
@@ -231,12 +257,17 @@ export default function ProfilePage() {
                     onClick={() => setShowNewPass(!showNewPass)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    <Icon icon={showNewPass ? "lucide:eye-off" : "lucide:eye"} className="h-4 w-4" />
+                    <Icon
+                      icon={showNewPass ? "lucide:eye-off" : "lucide:eye"}
+                      className="h-4 w-4"
+                    />
                   </button>
                 </div>
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Konfirmasi Password Baru</label>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">
+                  Konfirmasi Password Baru
+                </label>
                 <div className="relative">
                   <input
                     type={showConfirmPass ? "text" : "password"}
@@ -251,7 +282,10 @@ export default function ProfilePage() {
                     onClick={() => setShowConfirmPass(!showConfirmPass)}
                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    <Icon icon={showConfirmPass ? "lucide:eye-off" : "lucide:eye"} className="h-4 w-4" />
+                    <Icon
+                      icon={showConfirmPass ? "lucide:eye-off" : "lucide:eye"}
+                      className="h-4 w-4"
+                    />
                   </button>
                 </div>
               </div>

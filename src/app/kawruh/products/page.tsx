@@ -271,7 +271,7 @@ export default function ProductsPage() {
 
   if (notConfigured) {
     return (
-      <div className="space-y-5 max-w-4xl mx-auto py-10">
+      <div className="space-y-5 w-full py-10 max-w-full">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 text-center space-y-6">
           <div className="bg-blue-50 h-16 w-16 rounded-full flex items-center justify-center text-blue-600 mx-auto">
             <Icon icon="lucide:cpu" className="h-8 w-8" />
