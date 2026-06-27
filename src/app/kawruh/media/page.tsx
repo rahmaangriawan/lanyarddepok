@@ -202,6 +202,11 @@ export default function MediaLibraryPage() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
+  const getPreviewUrl = (media: Media) => {
+    const separator = media.url.includes("?") ? "&" : "?";
+    return `${media.url}${separator}v=${encodeURIComponent(media.createdAt || media.id)}`;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -327,7 +332,7 @@ export default function MediaLibraryPage() {
                   <div className="aspect-square bg-gray-50/50 flex items-center justify-center relative overflow-hidden border-b border-gray-100">
                     {isImage ? (
                       <img
-                        src={m.url}
+                        src={getPreviewUrl(m)}
                         alt={m.filename}
                         loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
@@ -433,7 +438,7 @@ export default function MediaLibraryPage() {
               {/* High-quality Preview */}
               <div className="aspect-video w-full bg-gray-50/50 border border-gray-200/50 rounded-xl overflow-hidden flex items-center justify-center relative p-3">
                 {selectedMedia.mimetype.startsWith("image/") ? (
-                  <img src={selectedMedia.url} alt={selectedMedia.filename} className="w-full h-full object-contain rounded-lg shadow-xs" />
+                  <img src={getPreviewUrl(selectedMedia)} alt={selectedMedia.filename} className="w-full h-full object-contain rounded-lg shadow-xs" />
                 ) : (
                   <Icon icon="lucide:file-text" className="h-16 w-16 text-gray-400" />
                 )}
