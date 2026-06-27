@@ -133,7 +133,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid - Five Column Dashboard Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5">
         <StatCard
           label="Total Produk"
           value={stats?.products || 0}
@@ -345,13 +345,13 @@ function StatCard({
   return (
     <Link
       href={linkHref}
-      className="bg-white p-5 rounded-2xl border border-gray-100 shadow-[0_4px_25px_rgba(0,0,0,0.015)] flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-md group"
+      className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-[0_4px_25px_rgba(0,0,0,0.015)] flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-md group min-h-[150px] sm:min-h-0"
     >
       <div className="space-y-4">
         {/* Icon Header Box */}
         <div className="flex items-center justify-between">
-          <div className="bg-gray-50 h-10 w-10 rounded-xl flex items-center justify-center text-[#373f50] border border-gray-100 shrink-0 transition-colors group-hover:bg-brand-light-50 group-hover:text-brand-red">
-            <Icon icon={icon} className="h-5 w-5" />
+          <div className="bg-gray-50 h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center text-[#373f50] border border-gray-100 shrink-0 transition-colors group-hover:bg-brand-light-50 group-hover:text-brand-red">
+            <Icon icon={icon} className="h-4 w-4 sm:h-5 sm:w-5" />
           </div>
           <Icon
             icon="lucide:arrow-up-right"
@@ -361,17 +361,17 @@ function StatCard({
 
         {/* Stats Figures */}
         <div className="space-y-1">
-          <h3 className="text-3xl font-black text-gray-900 tracking-tight leading-none">
+          <h3 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight leading-none">
             {value.toLocaleString()}
           </h3>
-          <span className="text-[11px] font-extrabold text-gray-500 block">
+          <span className="text-[10px] sm:text-[11px] font-extrabold text-gray-500 block leading-tight">
             {label}
           </span>
         </div>
       </div>
 
       {/* Footer Trend Indicator */}
-      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center text-[10px] font-bold text-gray-400">
+      <div className="mt-3 sm:mt-4 pt-3 border-t border-gray-100 flex flex-wrap items-center gap-y-1 text-[9px] sm:text-[10px] font-bold text-gray-400 leading-tight">
         {trendUp !== null ? (
           <span className="flex items-center text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-md mr-1.5 font-extrabold">
             <Icon icon="lucide:arrow-up" className="h-2.5 w-2.5 mr-0.5" />
