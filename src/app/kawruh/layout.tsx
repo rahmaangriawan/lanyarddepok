@@ -171,7 +171,7 @@ export default function KawruhLayout({ children }: { children: React.ReactNode }
 
         {/* Sidebar Navigation */}
         <aside
-          className={`fixed inset-y-0 left-0 w-64 bg-white flex flex-col justify-between z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 border-r border-gray-100 shadow-lg md:shadow-none ${
+          className={`fixed inset-y-0 left-0 w-64 bg-white flex flex-col justify-between z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0 border-r border-gray-100 shadow-lg md:shadow-none overflow-x-hidden ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -190,7 +190,7 @@ export default function KawruhLayout({ children }: { children: React.ReactNode }
             </div>
 
             {/* Navigation Links */}
-            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto sidebar-scroll">
+            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto overflow-x-hidden sidebar-scroll">
               {/* Top-level: Ringkasan */}
               {menuItems.map(renderItem)}
 
@@ -316,4 +316,3 @@ export default function KawruhLayout({ children }: { children: React.ReactNode }
     </ToastProvider>
   );
 }
-
