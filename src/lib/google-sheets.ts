@@ -1,7 +1,20 @@
 import crypto from "crypto";
 
+// In-memory cache to prevent layout delay and API quota exhaustion
+interface CacheEntry {
+  data: SpreadsheetProduct[];
+  timestamp: number;
+}
+
+const productsCache = new Map<string, CacheEntry>();
+const CACHE_TTL = 10 * 60 * 1000; // Cache valid for 10 minutes (600,000 ms)
+
 // Helper to generate Google OAuth JWT
-function generateGoogleJWT(clientEmail: string, privateKey: string, scopes: string[]) {
+function generateGoogleJWT(
+  clientEmail: string,
+  privateKey: string,
+  scopes: string[],
+) {
   const header = {
     alg: "RS256",
     typ: "JWT",
@@ -15,7 +28,9 @@ function generateGoogleJWT(clientEmail: string, privateKey: string, scopes: stri
     iat: now,
   };
 
-  const base64Header = Buffer.from(JSON.stringify(header)).toString("base64url");
+  const base64Header = Buffer.from(JSON.stringify(header)).toString(
+    "base64url",
+  );
   const base64Claim = Buffer.from(JSON.stringify(claim)).toString("base64url");
   const signatureInput = `${base64Header}.${base64Claim}`;
 
@@ -23,7 +38,10 @@ function generateGoogleJWT(clientEmail: string, privateKey: string, scopes: stri
   let formattedPrivateKey = privateKey.replace(/\\n/g, "\n");
   formattedPrivateKey = formattedPrivateKey.replace(/\r/g, "");
   formattedPrivateKey = formattedPrivateKey.trim();
-  if (formattedPrivateKey.startsWith('"') && formattedPrivateKey.endsWith('"')) {
+  if (
+    formattedPrivateKey.startsWith('"') &&
+    formattedPrivateKey.endsWith('"')
+  ) {
     formattedPrivateKey = formattedPrivateKey.slice(1, -1);
   }
 
@@ -35,7 +53,10 @@ function generateGoogleJWT(clientEmail: string, privateKey: string, scopes: stri
 }
 
 // Helper to retrieve OAuth Access Token
-async function getAccessToken(clientEmail: string, privateKey: string): Promise<string> {
+async function getAccessToken(
+  clientEmail: string,
+  privateKey: string,
+): Promise<string> {
   const scopes = ["https://www.googleapis.com/auth/spreadsheets.readonly"];
   const jwt = generateGoogleJWT(clientEmail, privateKey, scopes);
 
@@ -52,7 +73,9 @@ async function getAccessToken(clientEmail: string, privateKey: string): Promise<
 
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.error_description || data.error || "Failed to fetch OAuth token");
+    throw new Error(
+      data.error_description || data.error || "Failed to fetch OAuth token",
+    );
   }
 
   return data.access_token;
@@ -79,8 +102,24 @@ export async function fetchSpreadsheetProducts(
   clientEmail: string,
   privateKey: string,
   spreadsheetId: string,
-  range = "Sheet1!A1:Z10000"
+  range = "Sheet1!A1:Z10000",
 ): Promise<SpreadsheetProduct[]> {
+  const cacheKey = `${spreadsheetId}:${range}`;
+  const now = Date.now();
+  const cached = productsCache.get(cacheKey);
+
+  // Check if valid cache exists
+  if (cached && now - cached.timestamp < CACHE_TTL) {
+    console.log(
+      `[Google Sheets Cache] Hit for ${cacheKey}. Using cached data.`,
+    );
+    return cached.data;
+  }
+
+  console.log(
+    `[Google Sheets Cache] Miss/Expired for ${cacheKey}. Fetching fresh data from Google Sheets API...`,
+  );
+
   const accessToken = await getAccessToken(clientEmail, privateKey);
   const encodedRange = encodeURIComponent(range);
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodedRange}`;
@@ -94,11 +133,20 @@ export async function fetchSpreadsheetProducts(
 
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.error?.message || res.statusText || "Failed to fetch spreadsheet data");
+    throw new Error(
+      data.error?.message ||
+        res.statusText ||
+        "Failed to fetch spreadsheet data",
+    );
   }
 
   const rows: string[][] = data.values;
   if (!rows || rows.length === 0) {
+    // Cache empty results too to protect server from flooding if sheet is empty
+    productsCache.set(cacheKey, {
+      data: [],
+      timestamp: now,
+    });
     return [];
   }
 
@@ -107,22 +155,54 @@ export async function fetchSpreadsheetProducts(
 
   // Find standard column indexes
   const skuIdx = headers.findIndex((h) => h === "sku" || h === "kode");
-  const nameIdx = headers.findIndex((h) => h.includes("nama") || h.includes("title") || h === "name");
-  const specsIdx = headers.findIndex((h) => h.includes("spek") || h.includes("spesifikasi") || h.includes("specs"));
-  const accIdx = headers.findIndex((h) => h.includes("aksesoris") || h.includes("accessories") || h.includes("acc"));
-  const priceIdx = headers.findIndex((h) => h.includes("harga") || h.includes("price"));
-  const minOrderIdx = headers.findIndex((h) => h.includes("min") || h.includes("minimal") || h.includes("qty"));
-  
+  const nameIdx = headers.findIndex(
+    (h) => h.includes("nama") || h.includes("title") || h === "name",
+  );
+  const specsIdx = headers.findIndex(
+    (h) =>
+      h.includes("spek") || h.includes("spesifikasi") || h.includes("specs"),
+  );
+  const accIdx = headers.findIndex(
+    (h) =>
+      h.includes("aksesoris") || h.includes("accessories") || h.includes("acc"),
+  );
+  const priceIdx = headers.findIndex(
+    (h) => h.includes("harga") || h.includes("price"),
+  );
+  const minOrderIdx = headers.findIndex(
+    (h) => h.includes("min") || h.includes("minimal") || h.includes("qty"),
+  );
+
   // Custom columns for user's spreadsheet
   const slugIdx = headers.findIndex((h) => h.includes("slug"));
-  const shortDescIdx = headers.findIndex((h) => h.includes("singkat") || h.includes("short"));
-  const longDescIdx = headers.findIndex((h) => h.includes("lengkap") || h.includes("long") || h.includes("html"));
-  const statusIdx = headers.findIndex((h) => h === "status" || h.includes("publish") || h.includes("draft") || h.includes("draf"));
-  const sitesIdx = headers.findIndex((h) => h === "sites" || h === "site" || h.includes("situs") || h.includes("domain"));
-  const orderIdx = headers.findIndex((h) => h === "urutan" || h === "order" || h.includes("sort"));
+  const shortDescIdx = headers.findIndex(
+    (h) => h.includes("singkat") || h.includes("short"),
+  );
+  const longDescIdx = headers.findIndex(
+    (h) => h.includes("lengkap") || h.includes("long") || h.includes("html"),
+  );
+  const statusIdx = headers.findIndex(
+    (h) =>
+      h === "status" ||
+      h.includes("publish") ||
+      h.includes("draft") ||
+      h.includes("draf"),
+  );
+  const sitesIdx = headers.findIndex(
+    (h) =>
+      h === "sites" ||
+      h === "site" ||
+      h.includes("situs") ||
+      h.includes("domain"),
+  );
+  const orderIdx = headers.findIndex(
+    (h) => h === "urutan" || h === "order" || h.includes("sort"),
+  );
 
   if (skuIdx === -1) {
-    throw new Error("Kolom 'SKU' atau 'Kode' tidak ditemukan di baris pertama Spreadsheet.");
+    throw new Error(
+      "Kolom 'SKU' atau 'Kode' tidak ditemukan di baris pertama Spreadsheet.",
+    );
   }
 
   const products: SpreadsheetProduct[] = [];
@@ -136,16 +216,22 @@ export async function fetchSpreadsheetProducts(
     const sku = row[skuIdx].trim();
     if (!sku) continue;
 
-    const name = nameIdx !== -1 && row[nameIdx] ? row[nameIdx].trim() : "Produk Lanyard";
+    const name =
+      nameIdx !== -1 && row[nameIdx] ? row[nameIdx].trim() : "Produk Lanyard";
     const specs = specsIdx !== -1 && row[specsIdx] ? row[specsIdx].trim() : "";
     const accessories = accIdx !== -1 && row[accIdx] ? row[accIdx].trim() : "";
-    const basePrice = priceIdx !== -1 && row[priceIdx] ? row[priceIdx].trim() : "0";
-    const minOrder = minOrderIdx !== -1 && row[minOrderIdx] ? row[minOrderIdx].trim() : "0";
-    
+    const basePrice =
+      priceIdx !== -1 && row[priceIdx] ? row[priceIdx].trim() : "0";
+    const minOrder =
+      minOrderIdx !== -1 && row[minOrderIdx] ? row[minOrderIdx].trim() : "0";
+
     const slug = slugIdx !== -1 && row[slugIdx] ? row[slugIdx].trim() : "";
-    const shortDesc = shortDescIdx !== -1 && row[shortDescIdx] ? row[shortDescIdx].trim() : "";
-    const longDesc = longDescIdx !== -1 && row[longDescIdx] ? row[longDescIdx].trim() : "";
-    const status = statusIdx !== -1 && row[statusIdx] ? row[statusIdx].trim() : "";
+    const shortDesc =
+      shortDescIdx !== -1 && row[shortDescIdx] ? row[shortDescIdx].trim() : "";
+    const longDesc =
+      longDescIdx !== -1 && row[longDescIdx] ? row[longDescIdx].trim() : "";
+    const status =
+      statusIdx !== -1 && row[statusIdx] ? row[statusIdx].trim() : "";
     const sites = sitesIdx !== -1 && row[sitesIdx] ? row[sitesIdx].trim() : "";
     const order = orderIdx !== -1 && row[orderIdx] ? row[orderIdx].trim() : "";
 
@@ -187,6 +273,12 @@ export async function fetchSpreadsheetProducts(
 
     products.push(productObj);
   }
+
+  // Save to in-memory cache
+  productsCache.set(cacheKey, {
+    data: products,
+    timestamp: now,
+  });
 
   return products;
 }
