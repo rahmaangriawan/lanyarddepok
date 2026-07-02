@@ -285,7 +285,7 @@
 
     .featured-products-main-text h3 {
         color: #111827;
-        font-size: clamp(1.45rem, 2.2vw, 2rem);
+        font-size: clamp(1.35rem, 1.9vw, 1.75rem);
         font-weight: 800;
         line-height: 1.18;
         margin: 0 0 2.25rem;
@@ -324,7 +324,7 @@
         color: var(--color-public-muted);
         font-size: 0.875rem;
         font-weight: 700;
-        margin: 0 0 0.25rem;
+        margin: 1rem 0 0.25rem;
     }
 
     .featured-products-main-text strong {
@@ -406,6 +406,10 @@
     }
 
     .featured-products-small-copy {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        justify-content: center;
         padding-block: 1rem;
     }
 
@@ -414,15 +418,7 @@
         font-size: 1rem;
         font-weight: 800;
         line-height: 1.25;
-        margin: 0 0 0.375rem;
-    }
-
-    .featured-products-small-copy p {
-        color: var(--color-public-muted);
-        font-size: 0.8125rem;
-        font-weight: 600;
-        line-height: 1.35;
-        margin: 0 0 1.25rem;
+        margin: 0 0 0.875rem;
     }
 
     .featured-products-small-copy span {
@@ -604,9 +600,6 @@
             padding-block: 1rem;
         }
 
-        .featured-products-small-copy p {
-            margin-bottom: 0.75rem;
-        }
     }
 
     .why-choose-section {

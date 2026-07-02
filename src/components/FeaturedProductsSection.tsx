@@ -12,6 +12,8 @@ const FEATURED_PRODUCT = {
   points: ["Cetak tajam full color", "Bahan halus & kuat", "Kait besi anti karat"],
 };
 
+const MAIN_PRODUCT_IMAGE = "/uploads/lanyard-telkomsel-1782278237998.webp";
+
 const PRODUCT_LIST = [
   {
     name: "Keychain Lanyard",
@@ -52,7 +54,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
     ? {
         name: products[0].name,
         price: productPrice(products[0], FEATURED_PRODUCT.price),
-        image: products[0].featuredImage || FEATURED_PRODUCT.image,
+        image: MAIN_PRODUCT_IMAGE,
         href: `/produk/${products[0].slug}`,
         points: [
           products[0].specs,
@@ -60,7 +62,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
           products[0].minOrder ? `Min. order ${products[0].minOrder}` : "",
         ].filter(Boolean).slice(0, 3),
       }
-    : { ...FEATURED_PRODUCT, href: "/produk" };
+    : { ...FEATURED_PRODUCT, image: MAIN_PRODUCT_IMAGE, href: "/produk" };
 
   const smallProducts = products.length > 1
     ? products.slice(1, 5).map((product, index) => ({
@@ -147,7 +149,6 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
               </div>
               <div className="featured-products-small-copy">
                 <h3>{product.name}</h3>
-                <p>{product.desc}</p>
                 <span>
                   Mulai dari <strong>{product.price}</strong>
                 </span>
