@@ -104,26 +104,32 @@ jobs:
 
           echo "=== Health check ==="
           sleep 3
+          ROUTES="/ /produk /blog"
           if command -v curl >/dev/null 2>&1; then
-            if curl -fsS "http://127.0.0.1:$APP_PORT/" >/dev/null; then
-              echo "Health check passed on http://127.0.0.1:$APP_PORT/"
-            else
-              echo "Health check failed on http://127.0.0.1:$APP_PORT/"
-              echo "=== PM2 list ==="
-              pm2 list || true
-              echo "=== PM2 describe $APP_NAME ==="
-              pm2 describe "$APP_NAME" || true
-              echo "=== PM2 logs $APP_NAME ==="
-              pm2 logs "$APP_NAME" --lines 120 --nostream || true
-              exit 1
-            fi
+            for ROUTE in $ROUTES; do
+              if curl -fsS "http://127.0.0.1:$APP_PORT$ROUTE" >/dev/null; then
+                echo "Health check passed on http://127.0.0.1:$APP_PORT$ROUTE"
+              else
+                echo "Health check failed on http://127.0.0.1:$APP_PORT$ROUTE"
+                echo "=== PM2 list ==="
+                pm2 list || true
+                echo "=== PM2 describe $APP_NAME ==="
+                pm2 describe "$APP_NAME" || true
+                echo "=== PM2 logs $APP_NAME ==="
+                pm2 logs "$APP_NAME" --lines 160 --nostream || true
+                exit 1
+              fi
+            done
           else
-            node -e "fetch('http://127.0.0.1:' + process.env.APP_PORT + '/').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))" || {
-              echo "Health check failed on http://127.0.0.1:$APP_PORT/"
-              pm2 list || true
-              pm2 describe "$APP_NAME" || true
-              pm2 logs "$APP_NAME" --lines 120 --nostream || true
-              exit 1
-            }
+            for ROUTE in $ROUTES; do
+              APP_ROUTE="$ROUTE" node -e "fetch('http://127.0.0.1:' + process.env.APP_PORT + process.env.APP_ROUTE).then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))" || {
+                echo "Health check failed on http://127.0.0.1:$APP_PORT$ROUTE"
+                pm2 list || true
+                pm2 describe "$APP_NAME" || true
+                pm2 logs "$APP_NAME" --lines 160 --nostream || true
+                exit 1
+              }
+              echo "Health check passed on http://127.0.0.1:$APP_PORT$ROUTE"
+            done
           fi
           REMOTE_SCRIPT

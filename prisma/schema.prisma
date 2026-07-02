@@ -19,6 +19,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]
+
+  @@map("user")
 }
 
 model Order {
@@ -37,6 +39,7 @@ model Order {
 
   @@index([userId, createdAt])
   @@index([status, createdAt])
+  @@map("order")
 }
 
 model Inquiry {
@@ -48,6 +51,7 @@ model Inquiry {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+  @@map("inquiry")
 }
 
 model Category {
@@ -63,6 +67,7 @@ model Category {
 
   @@index([type, slug])
   @@index([type, name])
+  @@map("category")
 }
 
 model Post {
@@ -83,6 +88,7 @@ model Post {
   @@index([published, createdAt])
   @@index([categoryId, published, createdAt])
   @@index([published, slug])
+  @@map("post")
 }
 
 model Page {
@@ -98,6 +104,7 @@ model Page {
 
   @@index([published, createdAt])
   @@index([published, slug])
+  @@map("page")
 }
 
 model Media {
@@ -110,6 +117,7 @@ model Media {
   createdAt DateTime @default(now())
 
   @@index([mimetype, createdAt])
+  @@map("media")
 }
 
 model Setting {
@@ -118,6 +126,8 @@ model Setting {
   value     String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("setting")
 }
 
 model Product {
@@ -146,6 +156,7 @@ model Product {
   @@index([published, createdAt])
   @@index([categoryId, published, createdAt])
   @@index([published, sortOrder, createdAt])
+  @@map("product")
 }
 
 model Portfolio {
@@ -160,6 +171,7 @@ model Portfolio {
   updatedAt   DateTime @updatedAt
 
   @@index([createdAt])
+  @@map("portfolio")
 }
 
 model Comment {
@@ -173,6 +185,7 @@ model Comment {
   createdAt DateTime @default(now())
 
   @@index([postId, approved, createdAt])
+  @@map("comment")
 }
 
 model CityPage {
@@ -193,4 +206,5 @@ model CityPage {
   @@index([published, createdAt])
   @@index([parentId, published, createdAt])
   @@index([published, slug])
+  @@map("citypage")
 }
