@@ -11,6 +11,7 @@ import "./globals.css";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardbogor.com";
+const faviconVersion = "20260702";
 
 export const revalidate = 300; // Cache metadata SEO selama 5 menit
 
@@ -60,13 +61,14 @@ export async function generateMetadata(): Promise<Metadata> {
     }),
     icons: {
       icon: [
-        { url: "/uploads/lanyardbogor-favicon.webp", type: "image/webp" },
-        { url: "/favicon.png", sizes: "32x32", type: "image/png" },
-        { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+        { url: `/favicon.ico?v=${faviconVersion}`, sizes: "any" },
+        { url: `/favicon.png?v=${faviconVersion}`, sizes: "32x32", type: "image/png" },
+        { url: `/favicon-96x96.png?v=${faviconVersion}`, sizes: "96x96", type: "image/png" },
+        { url: `/uploads/lanyardbogor-favicon.webp?v=${faviconVersion}`, type: "image/webp" },
       ],
-      apple: "/apple-touch-icon.png",
+      apple: `/apple-touch-icon.png?v=${faviconVersion}`,
     },
-    manifest: "/site.webmanifest",
+    manifest: `/site.webmanifest?v=${faviconVersion}`,
     verification: settings.bingVerification || googleVerification
       ? {
           google: googleVerification,
