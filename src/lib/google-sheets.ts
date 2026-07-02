@@ -8,6 +8,7 @@ interface CacheEntry {
 
 const productsCache = new Map<string, CacheEntry>();
 const CACHE_TTL = 10 * 60 * 1000; // Cache valid for 10 minutes (600,000 ms)
+const DEFAULT_SPREADSHEET_RANGE = "Sheet1!A1:Z10000";
 
 // Helper to generate Google OAuth JWT
 function generateGoogleJWT(
@@ -97,12 +98,47 @@ export interface SpreadsheetProduct {
   [key: string]: string; // Fallback index signature for other columns
 }
 
+function quoteSheetName(sheetName: string) {
+  const trimmed = sheetName.trim().replace(/^'+|'+$/g, "");
+  return `'${trimmed.replace(/'/g, "''")}'`;
+}
+
+export function normalizeSpreadsheetRange(input: string) {
+  const value = input.trim();
+  if (!value) return DEFAULT_SPREADSHEET_RANGE;
+  if (value.includes("!")) return value;
+  if (/^[A-Z]+\d*:[A-Z]+\d*$/i.test(value)) return `Sheet1!${value}`;
+  return `${quoteSheetName(value)}!A1:Z10000`;
+}
+
+export function parseSpreadsheetRanges(rangeSetting?: string | null) {
+  const ranges = (rangeSetting || DEFAULT_SPREADSHEET_RANGE)
+    .split(/[\n,]+/)
+    .map((range) => normalizeSpreadsheetRange(range))
+    .filter(Boolean);
+
+  return Array.from(new Set(ranges.length > 0 ? ranges : [DEFAULT_SPREADSHEET_RANGE]));
+}
+
+function getGoogleSheetsErrorMessage(
+  errorData: { error?: { message?: string; status?: string } },
+  fallback: string,
+) {
+  const message = errorData.error?.message || fallback;
+
+  if (message === "Requested entity was not found.") {
+    return "Spreadsheet tidak ditemukan atau service account belum punya akses. Pastikan Spreadsheet ID benar dan file Google Sheet sudah di-share ke email service account.";
+  }
+
+  return message;
+}
+
 // Fetch spreadsheet values and parse rows to objects
 export async function fetchSpreadsheetProducts(
   clientEmail: string,
   privateKey: string,
   spreadsheetId: string,
-  range = "Sheet1!A1:Z10000",
+  range = DEFAULT_SPREADSHEET_RANGE,
 ): Promise<SpreadsheetProduct[]> {
   const cacheKey = `${spreadsheetId}:${range}`;
   const now = Date.now();
@@ -134,9 +170,7 @@ export async function fetchSpreadsheetProducts(
   const data = await res.json();
   if (!res.ok) {
     throw new Error(
-      data.error?.message ||
-        res.statusText ||
-        "Failed to fetch spreadsheet data",
+      `${getGoogleSheetsErrorMessage(data, res.statusText || "Failed to fetch spreadsheet data")} (range: ${range})`,
     );
   }
 
@@ -281,4 +315,44 @@ export async function fetchSpreadsheetProducts(
   });
 
   return products;
+}
+
+export async function fetchSpreadsheetProductsFromSetting(
+  clientEmail: string,
+  privateKey: string,
+  spreadsheetId: string,
+  rangeSetting?: string | null,
+): Promise<SpreadsheetProduct[]> {
+  const ranges = parseSpreadsheetRanges(rangeSetting);
+  const productBySku = new Map<string, SpreadsheetProduct>();
+  const errors: string[] = [];
+
+  for (const range of ranges) {
+    try {
+      const products = await fetchSpreadsheetProducts(
+        clientEmail,
+        privateKey,
+        spreadsheetId,
+        range,
+      );
+
+      for (const product of products) {
+        productBySku.set(product.sku.toLowerCase(), product);
+      }
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  if (errors.length > 0 && productBySku.size === 0) {
+    throw new Error(errors.join(" | "));
+  }
+
+  if (errors.length > 0) {
+    console.warn(
+      `[Google Sheets] Some ranges failed but ${productBySku.size} products were loaded: ${errors.join(" | ")}`,
+    );
+  }
+
+  return Array.from(productBySku.values());
 }

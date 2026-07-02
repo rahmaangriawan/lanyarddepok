@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { Icon } from "@iconify/react";
+import type { ReactNode } from "react";
+import { getPaginationItems } from "@/lib/pagination";
 import {
   createOpenGraphMetadata,
   organizationSchema,
@@ -10,15 +12,17 @@ import {
 } from "@/lib/seo";
 import {
   getCachedBlogCategorySummaries,
-  getCachedBlogPostsByCategoryId,
+  getCachedBlogPostsByCategoryIdPaginated,
   getCachedCategoryBySlugAndType,
   getCachedPublicAuthorName,
 } from "@/lib/public-cache";
 
 export const revalidate = 600;
+const BLOG_CATEGORY_LIMIT = 12;
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ page?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -100,19 +104,68 @@ function BlogPostImage({
   );
 }
 
-export default async function CategoryPostPage({ params }: PageProps) {
+function buildCategoryHref(slug: string, page?: number) {
+  if (!page || page <= 1) return `/blog/kategori/${slug}`;
+  return `/blog/kategori/${slug}?page=${page}`;
+}
+
+function PaginationLink({
+  children,
+  disabled,
+  href,
+  label,
+}: {
+  children: ReactNode;
+  disabled: boolean;
+  href: string;
+  label: string;
+}) {
+  if (disabled) {
+    return (
+      <span
+        aria-disabled="true"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-public-border bg-white text-gray-300"
+      >
+        {children}
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      aria-label={label}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-public-border bg-white text-gray-700 transition hover:border-public-amber hover:text-public-amber-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-public-amber"
+    >
+      {children}
+    </Link>
+  );
+}
+
+export default async function CategoryPostPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const query = await searchParams;
+  const currentPage = Math.max(1, parseInt(query?.page || "1", 10) || 1);
   const category = await getCachedCategoryBySlugAndType(slug, "BLOG");
 
   if (!category) {
     notFound();
   }
 
-  const [posts, categories, authorName] = await Promise.all([
-    getCachedBlogPostsByCategoryId(category.id),
+  const [{ posts, totalPosts }, categories, authorName] = await Promise.all([
+    getCachedBlogPostsByCategoryIdPaginated(category.id, currentPage, BLOG_CATEGORY_LIMIT),
     getCachedBlogCategorySummaries(),
     getCachedPublicAuthorName(),
   ]);
+
+  const totalPages = Math.ceil(totalPosts / BLOG_CATEGORY_LIMIT);
+  const paginationItems = getPaginationItems(currentPage, totalPages);
+  const firstItem = totalPosts === 0 ? 0 : (currentPage - 1) * BLOG_CATEGORY_LIMIT + 1;
+  const lastItem = Math.min(currentPage * BLOG_CATEGORY_LIMIT, totalPosts);
+
+  if (totalPages > 0 && currentPage > totalPages) {
+    notFound();
+  }
 
   const categoryDescription =
     category.description ||
@@ -205,7 +258,7 @@ export default async function CategoryPostPage({ params }: PageProps) {
           </p>
           <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-public-border bg-public-soft px-4 py-2 text-xs font-bold text-gray-700">
             <Icon icon="lucide:newspaper" className="h-4 w-4 text-public-amber-strong" />
-            <span>{posts.length} artikel tersedia</span>
+            <span>{totalPosts} artikel tersedia</span>
           </div>
         </div>
       </section>
@@ -237,6 +290,21 @@ export default async function CategoryPostPage({ params }: PageProps) {
             })}
           </nav>
         </div>
+
+        {totalPosts > 0 ? (
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-gray-600">
+              Menampilkan {firstItem}-{lastItem} dari {totalPosts} artikel
+            </p>
+            <Link
+              href="/blog"
+              className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-lg border border-public-border px-4 text-xs font-extrabold text-gray-700 transition hover:bg-public-soft hover:text-public-amber-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-public-amber"
+            >
+              <Icon icon="lucide:arrow-left" className="h-4 w-4" />
+              Semua Artikel
+            </Link>
+          </div>
+        ) : null}
 
         {posts.length === 0 ? (
           <div className="mx-auto max-w-md rounded-2xl border border-public-border bg-public-soft px-6 py-16 text-center">
@@ -323,6 +391,55 @@ export default async function CategoryPostPage({ params }: PageProps) {
             })}
           </div>
         )}
+
+        {totalPages > 1 ? (
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-12">
+            <PaginationLink
+              disabled={currentPage === 1}
+              href={buildCategoryHref(category.slug, currentPage - 1)}
+              label="Halaman sebelumnya"
+            >
+              <Icon icon="lucide:chevron-left" className="h-4 w-4" />
+            </PaginationLink>
+
+            {paginationItems.map((pageNumber) => {
+              if (typeof pageNumber === "string") {
+                return (
+                  <span
+                    key={pageNumber}
+                    className="inline-flex h-9 w-9 items-center justify-center text-xs font-bold text-gray-400"
+                  >
+                    ...
+                  </span>
+                );
+              }
+
+              const isCurrent = pageNumber === currentPage;
+              return (
+                <Link
+                  key={pageNumber}
+                  href={buildCategoryHref(category.slug, pageNumber)}
+                  className={`inline-flex h-9 w-9 items-center justify-center rounded-lg border text-xs font-extrabold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-public-amber ${
+                    isCurrent
+                      ? "border-public-amber bg-public-amber text-gray-950"
+                      : "border-public-border bg-white text-gray-700 hover:border-public-amber hover:text-public-amber-strong"
+                  }`}
+                  aria-current={isCurrent ? "page" : undefined}
+                >
+                  {pageNumber}
+                </Link>
+              );
+            })}
+
+            <PaginationLink
+              disabled={currentPage === totalPages}
+              href={buildCategoryHref(category.slug, currentPage + 1)}
+              label="Halaman berikutnya"
+            >
+              <Icon icon="lucide:chevron-right" className="h-4 w-4" />
+            </PaginationLink>
+          </div>
+        ) : null}
       </main>
     </div>
   );

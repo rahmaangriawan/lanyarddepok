@@ -292,6 +292,37 @@ export const getCachedBlogPostsByCategoryId = unstable_cache(
   { revalidate: 600, tags: [POSTS_CACHE_TAG, CATEGORIES_CACHE_TAG] },
 );
 
+export const getCachedBlogPostsByCategoryIdPaginated = unstable_cache(
+  async (categoryId: number, currentPage: number, limit: number) => {
+    if (shouldSkipDbDuringBuild()) {
+      return { posts: [], totalPosts: 0 };
+    }
+
+    const page = Math.max(1, currentPage);
+    const take = Math.max(1, limit);
+    const skip = (page - 1) * take;
+    const where = {
+      categoryId,
+      published: true,
+    };
+
+    const [posts, totalPosts] = await Promise.all([
+      prisma.post.findMany({
+        where,
+        select: publicPostListSelect,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take,
+      }),
+      prisma.post.count({ where }),
+    ]);
+
+    return { posts, totalPosts };
+  },
+  ["blog-posts-by-category-id-paginated"],
+  { revalidate: 600, tags: [POSTS_CACHE_TAG, CATEGORIES_CACHE_TAG] },
+);
+
 export const getCachedBlogCategorySummaries = unstable_cache(
   async () => {
     if (shouldSkipDbDuringBuild()) return [];

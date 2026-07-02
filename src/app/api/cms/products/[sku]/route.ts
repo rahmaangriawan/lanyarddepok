@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { fetchSpreadsheetProducts, SpreadsheetProduct } from "@/lib/google-sheets";
+import { fetchSpreadsheetProductsFromSetting, SpreadsheetProduct } from "@/lib/google-sheets";
 import { isSpreadsheetProductPublished } from "@/lib/product-visibility";
 import { revalidateTag } from "next/cache";
 import { PRODUCTS_CACHE_TAG } from "@/lib/products-server";
@@ -54,8 +54,12 @@ export async function GET(
         const credentials = JSON.parse(serviceAccountJson);
         const { client_email, private_key } = credentials;
         if (client_email && private_key) {
-          const range = settings.google_spreadsheet_range || "Sheet1!A1:Z10000";
-          const spreadsheetProducts = await fetchSpreadsheetProducts(client_email, private_key, spreadsheetId, range);
+          const spreadsheetProducts = await fetchSpreadsheetProductsFromSetting(
+            client_email,
+            private_key,
+            spreadsheetId,
+            settings.google_spreadsheet_range,
+          );
           baseProduct = spreadsheetProducts.find((p) => p.sku.toLowerCase() === sku.toLowerCase()) || null;
         }
       } catch (err) {

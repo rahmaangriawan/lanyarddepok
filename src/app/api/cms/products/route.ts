@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { fetchSpreadsheetProducts, SpreadsheetProduct } from "@/lib/google-sheets";
+import { fetchSpreadsheetProductsFromSetting, SpreadsheetProduct } from "@/lib/google-sheets";
 import {
   getCurrentSiteKeys,
   getSpreadsheetProductOrder,
@@ -58,8 +58,12 @@ export async function GET() {
     // 1. Fetch products from Google Sheets
     let spreadsheetProducts: SpreadsheetProduct[] = [];
     try {
-      const range = settings.google_spreadsheet_range || "Sheet1!A1:Z10000";
-      spreadsheetProducts = await fetchSpreadsheetProducts(client_email, private_key, spreadsheetId, range);
+      spreadsheetProducts = await fetchSpreadsheetProductsFromSetting(
+        client_email,
+        private_key,
+        spreadsheetId,
+        settings.google_spreadsheet_range,
+      );
     } catch (err) {
       console.error("Google Sheets Fetch Error:", err);
       return NextResponse.json({ success: false, error: `Gagal membaca Google Spreadsheet: ${getErrorMessage(err)}` });

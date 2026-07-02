@@ -909,9 +909,12 @@ export default function SettingsPage() {
                     type="text"
                     value={settings.google_spreadsheet_range}
                     onChange={(e) => handleChange("google_spreadsheet_range", e.target.value)}
-                    placeholder="Contoh: Sheet1!A1:Z200 (Default: Sheet1!A1:Z200)"
+                    placeholder="Contoh: Produk!A1:Z10000 atau Produk, Aksesoris"
                     className="bg-gray-50 border border-gray-200 text-gray-950 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5"
                   />
+                  <p className="mt-1.5 text-[11px] font-medium leading-5 text-gray-500">
+                    Bisa isi nama tab saja, full range, atau beberapa tab/range dipisah koma/baris baru.
+                  </p>
                 </div>
               </div>
             </div>
