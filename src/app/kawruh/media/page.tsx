@@ -70,6 +70,9 @@ export default function MediaLibraryPage() {
           setMediaList(list);
         }
         setHasMore(data.pagination?.hasMore || false);
+        if (data.setupRequired && data.message) {
+          toast.error(data.message);
+        }
       } else {
         toast.error(data.error || "Gagal memuat file media.");
       }

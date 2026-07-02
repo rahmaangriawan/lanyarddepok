@@ -18,6 +18,42 @@ const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
 
 export const runtime = "nodejs";
 
+let mediaTableReady = false;
+
+async function ensureMediaTable() {
+  if (mediaTableReady) return;
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS \`media\` (
+      \`id\` INTEGER NOT NULL AUTO_INCREMENT,
+      \`filename\` VARCHAR(191) NOT NULL,
+      \`filepath\` VARCHAR(191) NOT NULL,
+      \`mimetype\` VARCHAR(191) NOT NULL,
+      \`size\` INTEGER NOT NULL,
+      \`url\` VARCHAR(191) NOT NULL,
+      \`createdAt\` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+      PRIMARY KEY (\`id\`),
+      INDEX \`Media_mimetype_createdAt_idx\` (\`mimetype\`, \`createdAt\`)
+    ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+  `);
+
+  mediaTableReady = true;
+}
+
+function isMissingMediaTableError(error: unknown) {
+  if (!error || typeof error !== "object") return false;
+  const maybeError = error as { code?: string; message?: string };
+  const message = maybeError.message || "";
+
+  return (
+    maybeError.code === "P2021" ||
+    maybeError.code === "P2022" ||
+    /table .*media.* does not exist/i.test(message) ||
+    /unknown table .*media/i.test(message) ||
+    /media.*doesn't exist/i.test(message)
+  );
+}
+
 function sanitizeFilenameBase(filename: string) {
   const ext = path.extname(filename);
   const baseNameWithoutExt = path.basename(filename || "upload", ext);
@@ -61,6 +97,8 @@ export async function GET(request: Request) {
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    await ensureMediaTable();
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
@@ -116,8 +154,26 @@ export async function GET(request: Request) {
         hasMore,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Fetch Media Error:", error);
+
+    if (isMissingMediaTableError(error)) {
+      return NextResponse.json({
+        success: true,
+        mediaList: [],
+        pagination: {
+          total: 0,
+          page: 1,
+          limit: 24,
+          totalPages: 0,
+          hasMore: false,
+        },
+        setupRequired: true,
+        message:
+          "Tabel media belum tersedia di database. Jalankan migration/import schema media agar upload dan pustaka media aktif.",
+      });
+    }
+
     return NextResponse.json(
       { error: "Failed to fetch media files" },
       { status: 500 },
@@ -134,6 +190,8 @@ export async function POST(request: Request) {
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    await ensureMediaTable();
 
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
@@ -212,8 +270,19 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ success: true, media });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Upload Media Error:", error);
+
+    if (isMissingMediaTableError(error)) {
+      return NextResponse.json(
+        {
+          error:
+            "Tabel media belum tersedia di database. Jalankan migration/import schema media sebelum upload file.",
+        },
+        { status: 503 },
+      );
+    }
+
     return NextResponse.json(
       { error: "Failed to upload file" },
       { status: 500 },
