@@ -1,112 +1,170 @@
 import Link from "next/link";
+import { Icon } from "@iconify/react";
+import { Metadata } from "next";
 import { getCachedBlogCategorySummaries } from "@/lib/public-cache";
+import {
+  createOpenGraphMetadata,
+  organizationSchema,
+  SITE_URL,
+} from "@/lib/seo";
 
 export const revalidate = 600;
 
+const PAGE_TITLE = "Kategori Artikel Lanyard Bogor";
+const PAGE_DESCRIPTION =
+  "Telusuri kategori artikel seputar lanyard custom, branding, event, promosi, dan panduan cetak dari Lanyard Bogor.";
+
+export const metadata: Metadata = {
+  title: PAGE_TITLE,
+  description: PAGE_DESCRIPTION,
+  alternates: {
+    canonical: "/blog/kategori",
+  },
+  ...createOpenGraphMetadata({
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
+    path: "/blog/kategori",
+    image: "/uploads/blog-hero-lanyardbogor.webp",
+  }),
+};
+
 export default async function CategoriesPage() {
   const categories = await getCachedBlogCategorySummaries();
+  const totalPosts = categories.reduce((total, category) => total + category._count.posts, 0);
 
   const categoryListingSchema = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "CollectionPage",
-        "@id": "https://lanyardbogor.com/blog/kategori/#collectionpage",
-        "url": "https://lanyardbogor.com/blog/kategori",
-        "name": "Daftar Kategori Artikel - Lanyard Bogor",
-        "description": "Daftar kategori artikel edukasi promosi, event, dan percetakan lanyard custom.",
-        "publisher": {
-          "@type": "Organization",
-          "name": "Lanyard Bogor",
-          "logo": "https://lanyardbogor.com/uploads/lanyardbogor-logo.webp"
-        }
+        "@id": `${SITE_URL}/blog/kategori/#collectionpage`,
+        url: `${SITE_URL}/blog/kategori`,
+        name: "Daftar Kategori Artikel - Lanyard Bogor",
+        description: PAGE_DESCRIPTION,
+        publisher: organizationSchema(),
       },
       {
         "@type": "BreadcrumbList",
-        "@id": "https://lanyardbogor.com/blog/kategori/#breadcrumb",
-        "itemListElement": [
+        "@id": `${SITE_URL}/blog/kategori/#breadcrumb`,
+        itemListElement: [
           {
             "@type": "ListItem",
-            "position": 1,
-            "name": "Beranda",
-            "item": "https://lanyardbogor.com"
+            position: 1,
+            name: "Beranda",
+            item: SITE_URL,
           },
           {
             "@type": "ListItem",
-            "position": 2,
-            "name": "Blog",
-            "item": "https://lanyardbogor.com/blog"
+            position: 2,
+            name: "Blog",
+            item: `${SITE_URL}/blog`,
           },
           {
             "@type": "ListItem",
-            "position": 3,
-            "name": "Kategori",
-            "item": "https://lanyardbogor.com/blog/kategori"
-          }
-        ]
-      }
-    ]
+            position: 3,
+            name: "Kategori",
+            item: `${SITE_URL}/blog/kategori`,
+          },
+        ],
+      },
+    ],
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex min-h-screen flex-col bg-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(categoryListingSchema) }}
       />
 
-      {/* Hero Banner Section */}
-      <section className="bg-[#FDFDFD] border-b border-gray-100 pt-8 pb-12 sm:pt-12 sm:pb-16 text-center select-none">
-        <div className="max-w-4xl mx-auto px-5 space-y-4">
-          <span className="inline-block bg-[#FFF0F0] text-brand-red text-xs font-bold px-4 py-1.5 rounded-full border border-red-100 uppercase tracking-wider">
-            Kategori Artikel
-          </span>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-[#373f50] leading-tight tracking-tight">
-            Telusuri Berdasarkan <span className="text-[#e13b3d]">Kategori</span>
-          </h1>
-          <p className="text-base sm:text-lg text-gray-500 font-normal leading-relaxed max-w-2xl mx-auto">
-            Temukan panduan, tips, trik, dan informasi produk lanyard custom berkualitas berdasarkan topik pilihan Anda.
+      <section className="relative isolate overflow-hidden border-b border-public-border/70 bg-white px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+        <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full border border-public-amber/20" />
+        <div className="pointer-events-none absolute right-10 top-12 hidden grid-cols-6 gap-2 sm:grid">
+          {Array.from({ length: 24 }).map((_, index) => (
+            <span key={index} className="h-1 w-1 rounded-full bg-public-amber/50" />
+          ))}
+        </div>
+
+        <div className="relative mx-auto w-full max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+          <p className="text-xs font-extrabold uppercase tracking-normal text-public-amber-strong">
+            KATEGORI ARTIKEL
           </p>
+          <h1 className="mx-auto mt-3 max-w-3xl text-4xl font-bold leading-[1.06] tracking-normal text-gray-950 sm:text-5xl lg:text-6xl">
+            Telusuri Artikel Berdasarkan Topik
+          </h1>
+          <div className="mx-auto mt-5 h-1 w-16 rounded-full bg-public-amber" />
+          <p className="mx-auto mt-5 max-w-2xl text-sm font-medium leading-7 text-gray-600">
+            Temukan panduan, tips, trik, dan informasi produk lanyard custom berkualitas
+            berdasarkan kategori yang paling sesuai dengan kebutuhan Anda.
+          </p>
+          <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-public-border bg-public-soft px-4 py-2 text-xs font-bold text-gray-700">
+            <Icon icon="lucide:folder-open" className="h-4 w-4 text-public-amber-strong" />
+            <span>
+              {categories.length} kategori, {totalPosts} artikel
+            </span>
+          </div>
         </div>
       </section>
 
-      {/* Main Content */}
-      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <main className="mx-auto w-full max-w-7xl flex-grow px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold tracking-normal text-gray-950">Semua Kategori</h2>
+            <p className="mt-1 text-sm font-medium text-gray-600">
+              Pilih kategori untuk membaca artikel terkait.
+            </p>
+          </div>
+          <Link
+            href="/blog"
+            className="hidden min-h-10 cursor-pointer items-center gap-2 rounded-lg border border-public-border px-4 text-xs font-extrabold text-gray-700 transition hover:bg-public-soft hover:text-public-amber-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-public-amber sm:inline-flex"
+          >
+            <Icon icon="lucide:arrow-left" className="h-4 w-4" />
+            Semua Artikel
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {categories.map((cat) => (
             <Link
               key={cat.id}
               href={`/blog/kategori/${cat.slug}`}
-              className="group block p-6 bg-white border border-gray-100 hover:border-brand-red/30 rounded-2xl shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden"
+              className="group relative block overflow-hidden rounded-xl border border-public-border bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-public-amber/50 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-public-amber"
             >
-              <div className="space-y-3">
-                <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-brand-light-50 text-brand-red uppercase tracking-wider group-hover:bg-brand-red group-hover:text-white transition-colors">
-                  {cat._count.posts} Artikel
+              <div className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-public-soft transition-transform duration-300 group-hover:scale-110" />
+              <div className="relative">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-public-amber text-gray-950">
+                  <Icon icon="lucide:folder" className="h-5 w-5" />
                 </span>
-                <h3 className="text-lg font-bold text-gray-800 group-hover:text-brand-red transition-colors">
+                <div className="mt-5 flex items-start justify-between gap-4">
+                  <h3 className="text-lg font-bold leading-snug text-gray-950 transition-colors group-hover:text-public-amber-strong">
                   {cat.name}
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-500 font-normal leading-relaxed line-clamp-3">
+                  <span className="shrink-0 rounded-full bg-public-soft px-3 py-1 text-[11px] font-extrabold text-gray-700">
+                    {cat._count.posts} artikel
+                  </span>
+                </div>
+                <p className="mt-3 line-clamp-3 text-sm font-medium leading-6 text-gray-600">
                   {cat.description || `Kumpulan artikel seputar ${cat.name.toLowerCase()} dari Lanyard Bogor.`}
                 </p>
-              </div>
-              <div className="mt-4 flex items-center text-xs font-bold text-brand-red space-x-1">
-                <span>Lihat Artikel</span>
-                <svg className="h-3 w-3 group-hover:translate-x-1 transition-transform duration-250" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
+                <div className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold text-public-amber-strong">
+                  <span>Lihat Artikel</span>
+                  <Icon
+                    icon="lucide:arrow-right"
+                    className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                  />
+                </div>
               </div>
             </Link>
           ))}
 
           {categories.length === 0 && (
-            <div className="col-span-full text-center py-16 bg-gray-50 rounded-2xl border border-gray-100">
-              <p className="text-sm font-semibold text-gray-400">Belum ada kategori yang tersedia.</p>
+            <div className="col-span-full rounded-2xl border border-public-border bg-public-soft px-6 py-16 text-center">
+              <Icon icon="lucide:folder-x" className="mx-auto h-12 w-12 text-public-amber-strong" />
+              <p className="mt-4 text-sm font-bold text-gray-700">Belum ada kategori yang tersedia.</p>
             </div>
           )}
         </div>
       </main>
-
     </div>
   );
 }
