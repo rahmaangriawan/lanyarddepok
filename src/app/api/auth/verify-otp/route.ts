@@ -1,6 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { assertSameOrigin, checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/security";
+import { timingSafeEqual } from "crypto";
+
+function isEmergencyOtpValid(otp: string) {
+  const emergencyCode = process.env.AUTH_OTP_BYPASS_CODE?.trim();
+  if (!emergencyCode) return false;
+
+  const otpBuffer = Buffer.from(otp.trim());
+  const emergencyBuffer = Buffer.from(emergencyCode);
+
+  return (
+    otpBuffer.length === emergencyBuffer.length &&
+    timingSafeEqual(otpBuffer, emergencyBuffer)
+  );
+}
 
 export async function POST(request: Request) {
   try {
@@ -16,6 +30,11 @@ export async function POST(request: Request) {
 
     if (!otp || typeof otp !== "string") {
       return NextResponse.json({ error: "Kode OTP wajib diisi." }, { status: 400 });
+    }
+
+    if (isEmergencyOtpValid(otp)) {
+      console.warn("OTP emergency bypass was used. Remove AUTH_OTP_BYPASS_CODE after fixing OTP settings.");
+      return NextResponse.json({ success: true, verified: true });
     }
 
     const settings = await prisma.setting.findMany({
