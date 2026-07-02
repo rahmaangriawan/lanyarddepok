@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { revalidateTag } from "next/cache";
+import { PRODUCTS_CACHE_TAG } from "@/lib/products-server";
 
 export async function POST(request: Request) {
   try {
@@ -25,11 +27,15 @@ export async function POST(request: Request) {
         data: { categoryId: Number(newCategoryId) || null },
       });
 
+      revalidateTag(PRODUCTS_CACHE_TAG, "max");
+
       return NextResponse.json({ success: true, count: count.count });
     } else if (action === "DELETE") {
       const count = await prisma.product.deleteMany({
         where: { sku: { in: skus } },
       });
+
+      revalidateTag(PRODUCTS_CACHE_TAG, "max");
 
       return NextResponse.json({ success: true, count: count.count });
     } else {

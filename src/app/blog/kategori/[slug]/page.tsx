@@ -1,8 +1,16 @@
-import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { getPublicAuthorName } from "@/lib/public-author";
+import {
+  createOpenGraphMetadata,
+  organizationSchema,
+  SITE_URL,
+} from "@/lib/seo";
+import {
+  getCachedBlogPostsByCategoryId,
+  getCachedCategoryBySlugAndType,
+  getCachedPublicAuthorName,
+} from "@/lib/public-cache";
 
 export const revalidate = 600;
 
@@ -12,9 +20,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const category = await prisma.category.findFirst({
-    where: { slug, type: "BLOG" },
-  });
+  const category = await getCachedCategoryBySlugAndType(slug, "BLOG");
 
   if (!category) {
     return {};
@@ -22,10 +28,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `Artikel Kategori ${category.name}`,
-    description: category.description || `Kumpulan artikel edukatif, panduan dan tips seputar ${category.name.toLowerCase()} dari Lanyard Jakarta.`,
+    description: category.description || `Kumpulan artikel edukatif, panduan dan tips seputar ${category.name.toLowerCase()} dari Lanyard Bogor.`,
     alternates: {
       canonical: `/blog/kategori/${category.slug}`,
     },
+    ...createOpenGraphMetadata({
+      title: `Artikel Kategori ${category.name}`,
+      description:
+        category.description ||
+        `Kumpulan artikel edukatif, panduan dan tips seputar ${category.name.toLowerCase()} dari Lanyard Bogor.`,
+      path: `/blog/kategori/${category.slug}`,
+      image: "/uploads/blog-hero-lanyardbogor.webp",
+    }),
   };
 }
 
@@ -46,67 +60,50 @@ export default async function CategoryPostPage({ params }: PageProps) {
   const { slug } = await params;
 
   // 1. Fetch current category details
-  const category = await prisma.category.findFirst({
-    where: { slug, type: "BLOG" },
-  });
+  const category = await getCachedCategoryBySlugAndType(slug, "BLOG");
 
   if (!category) {
     notFound();
   }
 
   // 2. Fetch posts under this category & admin details
-  const [posts, adminUser] = await Promise.all([
-    prisma.post.findMany({
-      where: {
-        categoryId: category.id,
-        published: true,
-      },
-      include: { category: true },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.user.findFirst({
-      where: { role: "ADMIN" },
-      select: { name: true },
-    })
+  const [posts, authorName] = await Promise.all([
+    getCachedBlogPostsByCategoryId(category.id),
+    getCachedPublicAuthorName(),
   ]);
-  const authorName = getPublicAuthorName(adminUser?.name);
 
   const categoryPageSchema = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "CollectionPage",
-        "@id": `https://lanyardjakarta.co.id/blog/kategori/${category.slug}/#collectionpage`,
-        "url": `https://lanyardjakarta.co.id/blog/kategori/${category.slug}`,
-        "name": `Artikel Kategori ${category.name} - Lanyard Jakarta`,
-        "description": category.description || `Kumpulan artikel edukatif, panduan dan tips seputar ${category.name.toLowerCase()} dari Lanyard Jakarta.`,
-        "publisher": {
-          "@type": "Organization",
-          "name": "Lanyard Jakarta",
-          "logo": "https://lanyardjakarta.co.id/images/logo.webp"
-        }
+        "@id": `${SITE_URL}/blog/kategori/${category.slug}/#collectionpage`,
+        "url": `${SITE_URL}/blog/kategori/${category.slug}`,
+        "name": `Artikel Kategori ${category.name} - Lanyard Bogor`,
+        "description": category.description || `Kumpulan artikel edukatif, panduan dan tips seputar ${category.name.toLowerCase()} dari Lanyard Bogor.`,
+        "publisher": organizationSchema()
       },
       {
         "@type": "BreadcrumbList",
-        "@id": `https://lanyardjakarta.co.id/blog/kategori/${category.slug}/#breadcrumb`,
+        "@id": `${SITE_URL}/blog/kategori/${category.slug}/#breadcrumb`,
         "itemListElement": [
           {
             "@type": "ListItem",
             "position": 1,
             "name": "Beranda",
-            "item": "https://lanyardjakarta.co.id"
+            "item": SITE_URL
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Blog",
-            "item": "https://lanyardjakarta.co.id/blog"
+            "item": `${SITE_URL}/blog`
           },
           {
             "@type": "ListItem",
             "position": 3,
             "name": category.name,
-            "item": `https://lanyardjakarta.co.id/blog/kategori/${category.slug}`
+            "item": `${SITE_URL}/blog/kategori/${category.slug}`
           }
         ]
       }
@@ -130,7 +127,7 @@ export default async function CategoryPostPage({ params }: PageProps) {
             Artikel <span className="text-[#e13b3d]">{category.name}</span>
           </h1>
           <p className="text-base sm:text-lg text-gray-500 font-normal leading-relaxed max-w-2xl mx-auto">
-            {category.description || `Kumpulan artikel edukatif, panduan dan tips seputar ${category.name.toLowerCase()} dari Lanyard Jakarta.`}
+            {category.description || `Kumpulan artikel edukatif, panduan dan tips seputar ${category.name.toLowerCase()} dari Lanyard Bogor.`}
           </p>
         </div>
       </section>
@@ -156,7 +153,7 @@ export default async function CategoryPostPage({ params }: PageProps) {
                 dateStyle: "long",
                 timeZone: "Asia/Jakarta",
               });
-              const excerpt = post.metaDescription || getExcerpt(post.content, 110);
+              const excerpt = post.metaDescription || getExcerpt(post.title, 110);
 
               return (
                 <article

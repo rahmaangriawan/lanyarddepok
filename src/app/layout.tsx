@@ -1,51 +1,79 @@
 import type { Metadata } from "next";
-import { Rubik } from "next/font/google";
+import { Inter, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
 import { getCachedSiteChromeSettings } from "@/lib/settings-cache";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { ToastProvider } from "@/components/Toast";
 import WhatsAppFloating from "@/components/WhatsAppFloating";
 import ClientHeader from "@/components/ClientHeader";
 import ClientFooter from "@/components/ClientFooter";
+import { createOpenGraphMetadata, DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo";
 import "./globals.css";
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardbogor.com";
 
 export const revalidate = 300; // Cache metadata SEO selama 5 menit
 
-const rubik = Rubik({
-  variable: "--font-rubik",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700", "800"],
+  display: "swap",
+});
+
+const sourceSerif = Source_Serif_4({
+  variable: "--font-source-serif",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const jetBrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
   display: "swap",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getCachedSiteChromeSettings();
+  const title = settings.siteTitle || SITE_NAME;
+  const description = settings.siteDescription;
+  const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 
   return {
     title: {
-      default: settings.siteTitle,
+      default: title,
       template: `%s - ${settings.siteName}`,
     },
-    description: settings.siteDescription,
+    description,
     metadataBase: new URL(siteUrl),
     alternates: {
       canonical: "/",
     },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    ...createOpenGraphMetadata({
+      title,
+      description,
+      path: "/",
+      image: DEFAULT_OG_IMAGE,
+    }),
     icons: {
       icon: [
-        { url: "/favicon.ico" },
+        { url: "/uploads/lanyardbogor-favicon.webp", type: "image/webp" },
+        { url: "/favicon.png", sizes: "32x32", type: "image/png" },
         { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
-        { url: "/favicon.svg", type: "image/svg+xml" },
       ],
       apple: "/apple-touch-icon.png",
     },
     manifest: "/site.webmanifest",
-    verification: settings.bingVerification
+    verification: settings.bingVerification || googleVerification
       ? {
+          google: googleVerification,
           other: {
-            "msvalidate.01": [settings.bingVerification],
+            ...(settings.bingVerification
+              ? { "msvalidate.01": [settings.bingVerification] }
+              : {}),
           },
         }
       : undefined,
@@ -62,12 +90,12 @@ export default async function RootLayout({
   return (
     <html
       lang="id"
-      className={`${rubik.variable} h-full`}
+      className={`${inter.variable} ${sourceSerif.variable} ${jetBrainsMono.variable} h-full`}
       suppressHydrationWarning
     >
       <head />
       <body
-        className={`${rubik.className} min-h-full flex flex-col bg-white text-[#373f50]`}
+        className={`${inter.className} min-h-full flex flex-col bg-white text-[#373f50]`}
         suppressHydrationWarning
       >
         <GoogleAnalytics measurementId={settings.measurementId} />

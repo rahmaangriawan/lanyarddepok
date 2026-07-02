@@ -2,7 +2,7 @@ param(
   [string]$HostName = $env:DEPLOY_HOST,
   [string]$UserName = $env:DEPLOY_USER,
   [int]$Port = $(if ($env:DEPLOY_PORT) { [int]$env:DEPLOY_PORT } else { 22 }),
-  [string]$RemotePath = $(if ($env:DEPLOY_REMOTE_PATH) { $env:DEPLOY_REMOTE_PATH } else { "htdocs/jakartalanyard.com" }),
+  [string]$RemotePath = $(if ($env:DEPLOY_REMOTE_PATH) { $env:DEPLOY_REMOTE_PATH } else { "htdocs/lanyardbogor.com" }),
   [switch]$SkipBuild
 )
 
@@ -39,16 +39,16 @@ Set-Location $root
 
 if (-not $SkipBuild) {
   Run-Step "Generate Prisma client" {
-    npx prisma generate
+    pnpm exec prisma generate
   }
 
   Run-Step "Build Next.js locally" {
-    npm run build
+    pnpm build
   }
 }
 
 if (-not (Test-Path $standaloneDir)) {
-  throw "Missing .next\standalone. Run npm run build first."
+  throw "Missing .next\standalone. Run pnpm build first."
 }
 
 Run-Step "Prepare standalone archive" {

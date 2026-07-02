@@ -77,10 +77,20 @@
   align-items: center;
 }
 
-.logoloop__item img,
 .logoloop__item svg {
   height: var(--logoloop-logoHeight);
   width: auto;
+  display: block;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  -webkit-user-drag: none;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease, opacity 0.3s ease;
+  filter: grayscale(1) contrast(0.8);
+  opacity: 0.45;
+}
+
+.logoloop__image {
   display: block;
   object-fit: contain;
   image-rendering: -webkit-optimize-contrast;

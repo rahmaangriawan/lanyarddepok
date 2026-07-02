@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/db";
+import { getRequestSiteUrl } from "@/lib/seo";
 
 export async function GET(request: Request) {
-  const host = request.headers.get("host") || "jakartalanyard.com";
-  const protocol = request.headers.get("x-forwarded-proto") || "https";
-  const siteUrl = `${protocol}://${host}`;
+  const siteUrl = getRequestSiteUrl(request);
   const now = new Date().toISOString();
 
   // Fetch all published static pages from db
@@ -17,11 +16,14 @@ export async function GET(request: Request) {
     "/produk",
     "/blog",
     "/cara-pemesanan",
+    "/pembayaran",
+    "/pengiriman",
     "/faq",
     "/tentang",
     "/kontak",
     "/promo",
     "/syarat-ketentuan",
+    "/kebijakan",
   ];
 
   let urlNodes = staticUrls.map((url) => {

@@ -1,63 +1,67 @@
 #!/bin/bash
-# Load NVM and shell environments to ensure Node and PM2 are in PATH (crucial for non-interactive SSH)
+set -e
+
 if [ -d "$HOME/.nvm" ]; then
   export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 fi
 
 for profile in "$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.profile"; do
   [ -f "$profile" ] && . "$profile"
 done
 
-# Navigate to the application directory
-# Supports both jailed and absolute home directory layouts
-if [ -d "$HOME/htdocs/jakartalanyard.com" ]; then
-  cd "$HOME/htdocs/jakartalanyard.com"
-elif [ -d "/home/mantap-jakarta/htdocs/jakartalanyard.com" ]; then
-  cd "/home/mantap-jakarta/htdocs/jakartalanyard.com"
+APP_NAME="${APP_NAME:-lanyardbogor.com}"
+PORT="${PORT:-3006}"
+export PORT
+export NODE_ENV=production
+
+if [ -n "$REMOTE_PATH" ]; then
+  if [ -d "$HOME/$REMOTE_PATH" ]; then
+    cd "$HOME/$REMOTE_PATH"
+  elif [ -d "$REMOTE_PATH" ]; then
+    cd "$REMOTE_PATH"
+  fi
+elif [ -d "$HOME/htdocs/lanyardbogor.com" ]; then
+  cd "$HOME/htdocs/lanyardbogor.com"
 else
   cd "$(dirname "$0")"
 fi
 
-echo "=== Restarting Node.js App ==="
+echo "=== Restarting Lanyard Bogor ==="
 echo "Current directory: $(pwd)"
+echo "App name: $APP_NAME"
+echo "Port: $PORT"
 
-# Verify and export environment variables from .env if present
 if [ -f .env ]; then
   echo "Loading environment variables from .env..."
-  # Clean up Windows carriage returns if any
-  export $(grep -v '^#' .env | sed 's/\r$//' | xargs)
+  set -a
+  # shellcheck disable=SC1091
+  . ./.env
+  set +a
+  export PORT="${PORT:-3006}"
 fi
 
-# Set default port to 3005 if not set in .env
-export PORT=${PORT:-3005}
-export NODE_ENV=production
-
-# Check if application is managed by PM2
-if command -v pm2 &> /dev/null; then
-  echo "PM2 detected! Restarting application using PM2..."
-  # Try restarting by name (commonly the directory name or server), otherwise restart all
-  pm2 restart jakartalanyard.com || pm2 restart server || pm2 restart all
-  echo "Application restarted via PM2 successfully!"
-else
-  # Kill any existing process running server.js
-  echo "Stopping existing server.js processes..."
-  pkill -f "node server.js" || true
-  pkill -f "next-server" || true
-  pkill -f "next start" || true
-  sleep 2
-
-  # Start the server in the background
-  echo "Starting Node.js server on port $PORT..."
-  nohup node server.js > node.log 2>&1 &
-
-  # Wait a second to check if it started successfully
-  sleep 1
-  if pgrep -f "node server.js" > /dev/null; then
-    echo "Application successfully started in the background!"
-    echo "Logs are being written to node.log"
+if command -v pm2 >/dev/null 2>&1; then
+  echo "PM2 detected. Restarting $APP_NAME..."
+  if pm2 describe "$APP_NAME" >/dev/null 2>&1; then
+    pm2 restart "$APP_NAME" --update-env
   else
-    echo "WARNING: Application failed to start. Check node.log for details."
-    cat node.log | tail -n 20
+    pm2 start server.js --name "$APP_NAME" --update-env
+  fi
+  pm2 save >/dev/null 2>&1 || true
+  echo "Application restarted with PM2."
+else
+  echo "PM2 not found. Starting node server.js directly..."
+  pkill -f "node server.js" || true
+  sleep 2
+  nohup node server.js > node.log 2>&1 &
+  sleep 1
+
+  if pgrep -f "node server.js" >/dev/null; then
+    echo "Application started in background. Logs: node.log"
+  else
+    echo "WARNING: Application failed to start. Last log lines:"
+    tail -n 20 node.log || true
+    exit 1
   fi
 fi

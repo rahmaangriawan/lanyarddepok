@@ -1,10 +1,25 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Icon } from "@iconify/react";
 
 export default function WhatsAppFloating({ whatsappNumber }: { whatsappNumber: string }) {
   const pathname = usePathname();
+  const [hiddenByProductFilter, setHiddenByProductFilter] = useState(false);
+
+  useEffect(() => {
+    const syncProductFilterState = () => {
+      setHiddenByProductFilter(document.body.dataset.productFilterOpen === "true");
+    };
+
+    syncProductFilterState();
+    window.addEventListener("product-filter-visibility-change", syncProductFilterState);
+
+    return () => {
+      window.removeEventListener("product-filter-visibility-change", syncProductFilterState);
+    };
+  }, []);
 
   // Hide the floating button on admin dashboard, API routes, and login pages
   if (
@@ -16,16 +31,22 @@ export default function WhatsAppFloating({ whatsappNumber }: { whatsappNumber: s
   }
 
   // URL encode the custom lanyard message
-  const prefilledText = "Halo Lanyard Jakarta, saya ingin bertanya mengenai cetak lanyard custom premium.";
+  const prefilledText = "Halo Lanyard Bogor, saya ingin bertanya mengenai cetak lanyard custom premium.";
   const encodedText = encodeURIComponent(prefilledText);
   const waUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[80] select-none">
+    <div
+      className={`fixed bottom-6 right-6 z-[80] select-none transition duration-200 ${
+        hiddenByProductFilter ? "pointer-events-none translate-y-3 opacity-0" : "opacity-100"
+      }`}
+      aria-hidden={hiddenByProductFilter ? "true" : undefined}
+    >
       <a
         href={waUrl}
         target="_blank"
         rel="noopener noreferrer"
+        tabIndex={hiddenByProductFilter ? -1 : undefined}
         className="flex items-center justify-center w-14 h-14 bg-[#25d366] hover:bg-[#20ba5a] text-white rounded-full shadow-lg hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 group cursor-pointer"
         aria-label="Hubungi WhatsApp Kami"
       >

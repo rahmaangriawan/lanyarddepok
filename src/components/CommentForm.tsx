@@ -84,14 +84,17 @@ export default function CommentForm({ postId }: CommentFormProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-100 mt-8">
-      <h4 className="text-sm font-bold text-gray-800 mb-6 uppercase tracking-wider">
+    <div className="mt-8 rounded-2xl border border-public-border bg-white p-6 shadow-[0_12px_32px_rgba(15,23,42,0.04)] sm:p-8">
+      <h4 className="mb-2 text-xl font-extrabold text-gray-950">
         Tinggalkan Komentar
       </h4>
+      <p className="mb-6 text-sm font-medium leading-6 text-gray-600">
+        Email Anda tidak akan dipublikasikan. Kolom bertanda wajib diisi.
+      </p>
 
       {success && (
-        <div className="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start space-x-3 text-emerald-800 animate-fade-in">
-          <Icon icon="lucide:check-circle" className="h-5 w-5 shrink-0 text-emerald-600 mt-0.5" />
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-emerald-800 animate-fade-in">
+          <Icon icon="lucide:check-circle" className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
           <div className="text-xs font-semibold leading-relaxed">
             Komentar Anda berhasil dikirim! Komentar Anda akan tampil setelah diverifikasi dan disetujui oleh admin.
           </div>
@@ -99,16 +102,16 @@ export default function CommentForm({ postId }: CommentFormProps) {
       )}
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-start space-x-3 text-red-800 animate-fade-in">
-          <Icon icon="lucide:alert-triangle" className="h-5 w-5 shrink-0 text-red-600 mt-0.5" />
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-public-border bg-public-soft p-4 text-gray-800 animate-fade-in">
+          <Icon icon="lucide:alert-triangle" className="mt-0.5 h-5 w-5 shrink-0 text-public-amber-strong" />
           <div className="text-xs font-semibold leading-relaxed">{error}</div>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="commentName" className="block mb-2 text-xs font-bold text-gray-900 uppercase tracking-wider">
+            <label htmlFor="commentName" className="mb-2 block text-xs font-extrabold text-gray-900">
               Nama Lengkap
             </label>
             <input
@@ -120,12 +123,12 @@ export default function CommentForm({ postId }: CommentFormProps) {
                 if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: undefined }));
               }}
               placeholder="Masukkan nama Anda..."
-              className={`bg-white border text-gray-900 text-sm rounded-xl focus:ring-brand-red focus:border-brand-red block w-full p-3 transition-all outline-none ${
-                fieldErrors.name ? "border-red-500" : "border-gray-200"
+              className={`block w-full rounded-xl border bg-white p-3 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-public-amber focus:ring-2 focus:ring-public-amber/20 ${
+                fieldErrors.name ? "border-public-amber" : "border-gray-200"
               }`}
             />
             {fieldErrors.name && (
-              <p className="mt-1 text-xs font-semibold text-red-500 flex items-center space-x-1">
+              <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-public-amber-strong">
                 <Icon icon="lucide:alert-circle" className="h-3 w-3 shrink-0" />
                 <span>{fieldErrors.name}</span>
               </p>
@@ -133,7 +136,7 @@ export default function CommentForm({ postId }: CommentFormProps) {
           </div>
 
           <div>
-            <label htmlFor="commentEmail" className="block mb-2 text-xs font-bold text-gray-900 uppercase tracking-wider">
+            <label htmlFor="commentEmail" className="mb-2 block text-xs font-extrabold text-gray-900">
               Alamat Email
             </label>
             <input
@@ -145,12 +148,12 @@ export default function CommentForm({ postId }: CommentFormProps) {
                 if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }));
               }}
               placeholder="nama@email.com..."
-              className={`bg-white border text-gray-900 text-sm rounded-xl focus:ring-brand-red focus:border-brand-red block w-full p-3 transition-all outline-none ${
-                fieldErrors.email ? "border-red-500" : "border-gray-200"
+              className={`block w-full rounded-xl border bg-white p-3 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-public-amber focus:ring-2 focus:ring-public-amber/20 ${
+                fieldErrors.email ? "border-public-amber" : "border-gray-200"
               }`}
             />
             {fieldErrors.email && (
-              <p className="mt-1 text-xs font-semibold text-red-500 flex items-center space-x-1">
+              <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-public-amber-strong">
                 <Icon icon="lucide:alert-circle" className="h-3 w-3 shrink-0" />
                 <span>{fieldErrors.email}</span>
               </p>
@@ -159,7 +162,7 @@ export default function CommentForm({ postId }: CommentFormProps) {
         </div>
 
         <div>
-          <label htmlFor="commentContent" className="block mb-2 text-xs font-bold text-gray-900 uppercase tracking-wider">
+          <label htmlFor="commentContent" className="mb-2 block text-xs font-extrabold text-gray-900">
             Isi Komentar
           </label>
           <textarea
@@ -171,12 +174,12 @@ export default function CommentForm({ postId }: CommentFormProps) {
               if (fieldErrors.content) setFieldErrors((prev) => ({ ...prev, content: undefined }));
             }}
             placeholder="Tulis pendapat atau pertanyaan Anda di sini..."
-            className={`bg-white border text-gray-900 text-sm rounded-xl focus:ring-brand-red focus:border-brand-red block w-full p-3 transition-all outline-none resize-none ${
-              fieldErrors.content ? "border-red-500" : "border-gray-200"
+            className={`block w-full resize-none rounded-xl border bg-white p-3 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-public-amber focus:ring-2 focus:ring-public-amber/20 ${
+              fieldErrors.content ? "border-public-amber" : "border-gray-200"
             }`}
           />
           {fieldErrors.content && (
-            <p className="mt-1 text-xs font-semibold text-red-500 flex items-center space-x-1">
+            <p className="mt-1 flex items-center gap-1 text-xs font-semibold text-public-amber-strong">
               <Icon icon="lucide:alert-circle" className="h-3 w-3 shrink-0" />
               <span>{fieldErrors.content}</span>
             </p>
@@ -186,7 +189,7 @@ export default function CommentForm({ postId }: CommentFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex items-center justify-center bg-[#e13b3d] hover:bg-[#c82a2c] text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-xl shadow-xs transition-all select-none cursor-pointer disabled:opacity-50"
+          className="inline-flex min-h-11 cursor-pointer select-none items-center justify-center rounded-xl bg-public-amber px-6 py-3 text-xs font-extrabold text-gray-950 transition-all hover:bg-public-amber-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-public-amber disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
         >
           {loading ? (
             <>

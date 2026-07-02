@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { assertSameOrigin } from "@/lib/security";
 import { normalizeCmsHtml } from "@/lib/sanitize-html";
+import { POSTS_CACHE_TAG } from "@/lib/public-cache";
 
 export async function GET() {
   try {
@@ -81,6 +82,7 @@ export async function POST(request: Request) {
     revalidatePath("/");
     revalidatePath("/blog");
     revalidatePath(`/blog/${post.slug}`);
+    revalidateTag(POSTS_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, post });
   } catch (error: any) {

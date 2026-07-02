@@ -1,10 +1,15 @@
-import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
 import { Icon } from "@iconify/react";
 import { shouldSkipDbDuringBuild } from "@/lib/build-env";
 import { getProducts } from "@/lib/products-server";
+import {
+  absoluteImageUrl,
+  createOpenGraphMetadata,
+  organizationSchema,
+  SITE_URL,
+} from "@/lib/seo";
 import ProductActions from "./ProductActions";
 import ProductDescription from "./ProductDescription";
 
@@ -42,6 +47,12 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     alternates: {
       canonical: `/produk/${product.slug}`,
     },
+    ...createOpenGraphMetadata({
+      title: product.metaTitle || product.name,
+      description: product.metaDescription || product.description,
+      path: `/produk/${product.slug}`,
+      image: product.featuredImage,
+    }),
   };
 }
 
@@ -54,11 +65,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
-  const pageUrl = `${siteUrl}/produk/${product.slug}`;
+  const pageUrl = `${SITE_URL}/produk/${product.slug}`;
   const categoryName = product.category?.name || "Lanyard Custom";
   const categoryHref = product.category?.slug ? `/produk/kategori/${product.category.slug}` : "/produk";
-  const categoryUrl = `${siteUrl}${categoryHref}`;
+  const categoryUrl = `${SITE_URL}${categoryHref}`;
+  const productImageUrl = absoluteImageUrl(
+    product.featuredImage || "/uploads/aset-lanyard-4-1782114161098.webp",
+  );
 
   // Structured Data (JSON-LD Product Schema)
   const jsonLd = {
@@ -68,9 +81,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         "@type": "Product",
         "@id": `${pageUrl}/#product`,
         "name": product.name,
-        "image": product.featuredImage ? `${siteUrl}${product.featuredImage}` : `${siteUrl}/uploads/aset-lanyard-4-1782114161098.webp`,
+        "image": productImageUrl,
         "description": product.description,
         "sku": product.sku,
+        "brand": organizationSchema(),
         "offers": {
           "@type": "Offer",
           "url": pageUrl,
@@ -123,7 +137,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             "@type": "ListItem",
             "position": 1,
             "name": "Beranda",
-            "item": siteUrl
+            "item": SITE_URL
           },
           {
             "@type": "ListItem",

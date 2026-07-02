@@ -13,6 +13,9 @@ const CONTENT_TYPES: Record<string, string> = {
   ".webp": "image/webp",
 };
 
+const ALLOWED_EXTENSIONS = new Set(Object.keys(CONTENT_TYPES));
+const UPLOAD_ROOT = path.resolve("public", "uploads");
+
 function getUploadPath(parts: string[]) {
   const isSafePath = parts.every(
     (part) =>
@@ -27,12 +30,14 @@ function getUploadPath(parts: string[]) {
     return null;
   }
 
-  return path.join(
-    /*turbopackIgnore: true*/ process.cwd(),
-    "public",
-    "uploads",
-    ...parts,
-  );
+  const resolvedPath = path.resolve(UPLOAD_ROOT, ...parts);
+  const relativePath = path.relative(UPLOAD_ROOT, resolvedPath);
+
+  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+    return null;
+  }
+
+  return resolvedPath;
 }
 
 export async function GET(
@@ -41,8 +46,9 @@ export async function GET(
 ) {
   const { path: requestedPath } = await params;
   const filePath = getUploadPath(requestedPath);
+  const extension = filePath ? path.extname(filePath).toLowerCase() : "";
 
-  if (!filePath) {
+  if (!filePath || !ALLOWED_EXTENSIONS.has(extension)) {
     return new Response("Not Found", { status: 404 });
   }
 
@@ -54,15 +60,15 @@ export async function GET(
     }
 
     const file = await readFile(filePath);
-    const contentType =
-      CONTENT_TYPES[path.extname(filePath).toLowerCase()] ||
-      "application/octet-stream";
+    const contentType = CONTENT_TYPES[extension];
 
     return new Response(new Uint8Array(file), {
       headers: {
         "Cache-Control": "public, max-age=31536000, immutable",
+        "Content-Disposition": "inline",
         "Content-Length": fileStat.size.toString(),
         "Content-Type": contentType,
+        "X-Content-Type-Options": "nosniff",
       },
     });
   } catch {

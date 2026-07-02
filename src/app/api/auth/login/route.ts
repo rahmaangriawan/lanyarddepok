@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { comparePassword, signToken } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { AUTH_COOKIE_NAME, authCookieOptions } from "@/lib/auth-cookie";
 import { assertSameOrigin, checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/security";
 
 export async function POST(request: Request) {
@@ -59,13 +60,7 @@ export async function POST(request: Request) {
 
     // Set cookie
     const cookieStore = await cookies();
-    cookieStore.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: "/",
-    });
+    cookieStore.set(AUTH_COOKIE_NAME, token, authCookieOptions());
 
     return NextResponse.json({
       success: true,

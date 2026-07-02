@@ -1,7 +1,17 @@
-import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
+import {
+  absoluteImageUrl,
+  createOpenGraphMetadata,
+  organizationSchema,
+  SITE_URL,
+} from "@/lib/seo";
+import {
+  getCachedCityPageChain,
+  getCachedPageBySlug,
+  getCachedRootCityPageBySlug,
+} from "@/lib/public-cache";
 
 export const revalidate = 600;
 
@@ -9,42 +19,12 @@ interface PageProps {
   params: Promise<{ slug: string[] }>;
 }
 
-// Traverses parents to check visibility and build URL chain
-async function getCityPageChain(leafSlug: string) {
-  const leaf = await prisma.cityPage.findUnique({
-    where: { slug: leafSlug, published: true },
-  });
-
-  if (!leaf) return null;
-
-  const chain = [leaf];
-  let current = leaf;
-  const maxDepth = 10;
-  let depth = 0;
-
-  while (current.parentId && depth < maxDepth) {
-    const parent = await prisma.cityPage.findUnique({
-      where: { id: current.parentId, published: true },
-    });
-
-    if (!parent) return null; // Parent must be published and exist
-
-    chain.unshift(parent);
-    current = parent;
-    depth++;
-  }
-
-  return chain;
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
 
   if (slug.length === 1) {
     // 1. Try static Custom Page
-    const page = await prisma.page.findFirst({
-      where: { slug: slug[0], published: true },
-    });
+    const page = await getCachedPageBySlug(slug[0]);
 
     if (page) {
       return {
@@ -53,13 +33,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         alternates: {
           canonical: `/${page.slug}`,
         },
+        ...createOpenGraphMetadata({
+          title: page.metaTitle || page.title,
+          description: page.metaDescription || page.title,
+          path: `/${page.slug}`,
+        }),
       };
     }
 
     // 2. Try root City Page
-    const city = await prisma.cityPage.findFirst({
-      where: { slug: slug[0], parentId: null, published: true },
-    });
+    const city = await getCachedRootCityPageBySlug(slug[0]);
 
     if (city) {
       return {
@@ -68,12 +51,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         alternates: {
           canonical: `/${city.slug}`,
         },
+        ...createOpenGraphMetadata({
+          title: city.metaTitle || city.title,
+          description: city.metaDescription || city.title,
+          path: `/${city.slug}`,
+          image: city.featuredImage,
+        }),
       };
     }
   } else {
     // Hierarchical City Page
     const leafSlug = slug[slug.length - 1];
-    const chain = await getCityPageChain(leafSlug);
+    const chain = await getCachedCityPageChain(leafSlug);
 
     if (chain) {
       // Validate that chain matches path segments exactly
@@ -91,6 +80,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           alternates: {
             canonical: `/${path}`,
           },
+          ...createOpenGraphMetadata({
+            title: leaf.metaTitle || leaf.title,
+            description: leaf.metaDescription || leaf.title,
+            path: `/${path}`,
+            image: leaf.featuredImage,
+          }),
         };
       }
     }
@@ -104,13 +99,10 @@ export default async function CatchAllPage({ params }: PageProps) {
 
   // ─── 1. SINGLE SEGMENT CASE: Page or Root City Page ───
   if (slug.length === 1) {
-    const page = await prisma.page.findFirst({
-      where: { slug: slug[0], published: true },
-    });
+    const page = await getCachedPageBySlug(slug[0]);
 
     if (page) {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
-      const pageUrl = `${siteUrl}/${page.slug}`;
+      const pageUrl = `${SITE_URL}/${page.slug}`;
 
       const jsonLd = {
         "@context": "https://schema.org",
@@ -121,14 +113,7 @@ export default async function CatchAllPage({ params }: PageProps) {
             "url": pageUrl,
             "name": page.title,
             "description": page.metaDescription || page.title,
-            "publisher": {
-              "@type": "Organization",
-              "name": "Lanyard Jakarta",
-              "logo": {
-                "@type": "ImageObject",
-                "url": `${siteUrl}/images/logo.webp`,
-              },
-            },
+            "publisher": organizationSchema(),
           },
           {
             "@type": "BreadcrumbList",
@@ -138,7 +123,7 @@ export default async function CatchAllPage({ params }: PageProps) {
                 "@type": "ListItem",
                 "position": 1,
                 "name": "Beranda",
-                "item": siteUrl,
+                "item": SITE_URL,
               },
               {
                 "@type": "ListItem",
@@ -191,7 +176,7 @@ export default async function CatchAllPage({ params }: PageProps) {
 
   // ─── 2. HIERARCHICAL SEGMENTS CASE: City Page ───
   const leafSlug = slug[slug.length - 1];
-  const chain = await getCityPageChain(leafSlug);
+  const chain = await getCachedCityPageChain(leafSlug);
 
   if (!chain) {
     notFound();
@@ -208,7 +193,6 @@ export default async function CatchAllPage({ params }: PageProps) {
   }
 
   const leafCity = chain[chain.length - 1];
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
 
   // Build JSON-LD Breadcrumbs dynamically from nested parent chain
   let accumulatedPath = "";
@@ -218,11 +202,11 @@ export default async function CatchAllPage({ params }: PageProps) {
       "@type": "ListItem",
       "position": index + 2, // 1 is Beranda
       "name": node.title,
-      "item": `${siteUrl}${accumulatedPath}`,
+      "item": `${SITE_URL}${accumulatedPath}`,
     };
   });
 
-  const pageUrl = `${siteUrl}${accumulatedPath}`;
+  const pageUrl = `${SITE_URL}${accumulatedPath}`;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -233,14 +217,8 @@ export default async function CatchAllPage({ params }: PageProps) {
         "url": pageUrl,
         "name": leafCity.title,
         "description": leafCity.metaDescription || leafCity.title,
-        "publisher": {
-          "@type": "Organization",
-          "name": "Lanyard Jakarta",
-          "logo": {
-            "@type": "ImageObject",
-            "url": `${siteUrl}/images/logo.webp`,
-          },
-        },
+        "publisher": organizationSchema(),
+        "image": leafCity.featuredImage ? absoluteImageUrl(leafCity.featuredImage) : undefined,
       },
       {
         "@type": "BreadcrumbList",
@@ -250,7 +228,7 @@ export default async function CatchAllPage({ params }: PageProps) {
             "@type": "ListItem",
             "position": 1,
             "name": "Beranda",
-            "item": siteUrl,
+            "item": SITE_URL,
           },
           ...breadcrumbElements,
         ],

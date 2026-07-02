@@ -1,5 +1,5 @@
 /**
- * SEO Utility Functions for Lanyard Jakarta Blog Content
+ * SEO Utility Functions for Lanyard Bogor Blog Content
  */
 
 interface LinkMapping {
@@ -65,7 +65,7 @@ export function injectAutoLinks(
             replacedCount < maxLimit
           ) {
             replacedText += text.substring(lastIndex, match.index);
-            replacedText += `<a href="${item.url}" class="text-brand-red font-bold hover:underline">${match[1]}</a>`;
+            replacedText += `<a href="${item.url}" class="text-public-amber-strong font-bold hover:underline">${match[1]}</a>`;
             lastIndex = regex.lastIndex;
             replacedCount++;
           }
@@ -156,9 +156,9 @@ export function injectRelatedReading(
     ) {
       const post = relatedPosts[insertedCount];
       const relatedBlock = `
-<div class="my-6 p-5 bg-brand-light-50 border-l-4 border-brand-red rounded-r-2xl">
-  <span class="text-[10px] font-extrabold text-brand-red uppercase tracking-wider block mb-1">Baca Juga</span>
-  <a href="/blog/${post.slug}" class="text-sm sm:text-base font-bold text-[#373f50] hover:text-brand-red hover:underline transition-colors block">
+<div class="my-6 p-5 bg-public-soft border-l-4 border-public-amber rounded-r-2xl">
+  <span class="text-[10px] font-extrabold text-public-amber-strong uppercase tracking-wider block mb-1">Baca Juga</span>
+  <a href="/blog/${post.slug}" class="text-sm sm:text-base font-bold text-[#373f50] hover:text-public-amber-strong hover:underline transition-colors block">
     ${post.title}
   </a>
 </div>`;
@@ -271,12 +271,12 @@ export function injectTableOfContents(htmlContent: string): string {
     subheadings.forEach((sub, idx) => {
       const letter = String.fromCharCode(65 + idx); // A, B, C...
       subHtml += `
-      <a href="#${sub.id}" class="flex items-center justify-between p-3.5 bg-brand-light-50 hover:bg-brand-light-100 rounded-xl transition-all duration-200 group/sub">
+      <a href="#${sub.id}" class="flex items-center justify-between p-3.5 bg-public-soft hover:bg-public-soft/80 rounded-xl transition-all duration-200 group/sub">
         <div class="flex items-center space-x-3.5">
-          <span class="text-brand-red font-bold text-xs sm:text-sm shrink-0">${letter}.</span>
-          <span class="text-[#4a5568] group-hover/sub:text-brand-red font-medium text-xs sm:text-sm transition-colors duration-200">${sub.text}</span>
+          <span class="text-public-amber-strong font-bold text-xs sm:text-sm shrink-0">${letter}.</span>
+          <span class="text-[#4a5568] group-hover/sub:text-public-amber-strong font-medium text-xs sm:text-sm transition-colors duration-200">${sub.text}</span>
         </div>
-        <svg class="h-3.5 w-3.5 text-gray-400 group-hover/sub:text-brand-red transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <svg class="h-3.5 w-3.5 text-gray-400 group-hover/sub:text-public-amber-strong transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
         </svg>
       </a>`;
@@ -290,7 +290,7 @@ export function injectTableOfContents(htmlContent: string): string {
 <details class="toc-container my-8 p-6 sm:p-7 bg-white border border-gray-100 rounded-3xl shadow-xs max-w-2xl select-none group" open>
   <summary class="flex items-center justify-between cursor-pointer list-none [&::-webkit-details-marker]:hidden focus:outline-none">
     <div class="flex items-center space-x-3.5">
-      <div class="h-10 w-10 rounded-xl bg-brand-light-50 flex items-center justify-center text-brand-red shrink-0 border border-brand-light-100">
+      <div class="h-10 w-10 rounded-xl bg-public-soft flex items-center justify-center text-public-amber-strong shrink-0 border border-public-border">
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
@@ -314,20 +314,20 @@ export function injectTableOfContents(htmlContent: string): string {
     // Chevron Down for elements with children, Chevron Right for flat elements
     const chevronIcon = hasSub
       ? `
-      <svg class="h-4 w-4 text-gray-400 group-hover:text-brand-red transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <svg class="h-4 w-4 text-gray-400 group-hover:text-public-amber-strong transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
       </svg>`
       : `
-      <svg class="h-4 w-4 text-gray-400 group-hover:text-brand-red transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <svg class="h-4 w-4 text-gray-400 group-hover:text-public-amber-strong transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
       </svg>`;
 
     tocHtml += `
       <li class="py-4">
-        <a href="#${h2.id}" class="flex items-center justify-between hover:text-brand-red transition-all duration-200 group">
+        <a href="#${h2.id}" class="flex items-center justify-between hover:text-public-amber-strong transition-all duration-200 group">
           <div class="flex items-center space-x-4">
-            <span class="text-brand-red font-bold text-sm sm:text-base tracking-wide shrink-0">${h2Num}.</span>
-            <span class="text-[#373f50] group-hover:text-brand-red font-semibold text-sm sm:text-base transition-colors duration-200">${h2.text}</span>
+            <span class="text-public-amber-strong font-bold text-sm sm:text-base tracking-wide shrink-0">${h2Num}.</span>
+            <span class="text-[#373f50] group-hover:text-public-amber-strong font-semibold text-sm sm:text-base transition-colors duration-200">${h2.text}</span>
           </div>
           ${chevronIcon}
         </a>

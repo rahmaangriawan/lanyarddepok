@@ -1,34 +1,53 @@
-import { getSessionUser } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import Image from "next/image";
+import Link from "next/link";
+import { Metadata } from "next";
+import { Icon } from "@iconify/react";
 import { notFound } from "next/navigation";
 import CommentForm from "@/components/CommentForm";
-import Link from "next/link";
+import ShareButtons from "@/components/ShareButtons";
+import { getSessionUser } from "@/lib/auth";
+import { prisma } from "@/lib/db";
 import { getAltFromFilename } from "@/lib/html-formatter";
 import {
   injectAutoLinks,
   injectRelatedReading,
   parseFaqs,
-  injectTableOfContents,
 } from "@/lib/seo-utils";
-import ShareButtons from "@/components/ShareButtons";
-import { Metadata } from "next";
-import { getPublicAuthorName } from "@/lib/public-author";
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
+import { getCachedSettingsMap } from "@/lib/settings-cache";
+import {
+  absoluteImageUrl,
+  createOpenGraphMetadata,
+  organizationSchema,
+  SITE_URL,
+} from "@/lib/seo";
+import {
+  getCachedApprovedComments,
+  getCachedPostBySlug,
+  getCachedPublicAuthorName,
+  getCachedRecentPosts,
+  getCachedRelatedPosts,
+} from "@/lib/public-cache";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+type TocItem = {
+  depth: 2 | 3;
+  id: string;
+  text: string;
+};
+
 export const revalidate = 600;
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params;
-    const post = await prisma.post.findFirst({
-      where: { slug, published: true },
-    });
+    const post = await getCachedPostBySlug(slug);
 
     if (!post) {
       return {};
@@ -40,6 +59,13 @@ export async function generateMetadata({
       alternates: {
         canonical: `/blog/${post.slug}`,
       },
+      ...createOpenGraphMetadata({
+        title: post.metaTitle || post.title,
+        description: post.metaDescription || post.title.substring(0, 150),
+        path: `/blog/${post.slug}`,
+        image: post.featuredImage,
+        type: "article",
+      }),
     };
   } catch (err: any) {
     console.warn(
@@ -57,7 +83,6 @@ export default async function BlogPostPage({
   const { slug } = await params;
   const resolvedSearchParams = await searchParams;
 
-  // Check if preview-ID is passed in URL query keys
   let previewId: number | null = null;
   for (const key of Object.keys(resolvedSearchParams)) {
     const match = key.match(/^preview-(\d+)$/);
@@ -80,65 +105,31 @@ export default async function BlogPostPage({
       include: { category: true },
     });
   } else {
-    post = await prisma.post.findFirst({
-      where: { slug, published: true },
-      include: { category: true },
-    });
+    post = await getCachedPostBySlug(slug);
   }
 
   if (!post) {
     notFound();
   }
 
-  // 1. Fetch Auto-Link Mappings & Limit from settings
-  const autoLinksSetting = await prisma.setting.findUnique({
-    where: { key: "seo_auto_links" },
-  });
+  const settings = await getCachedSettingsMap([
+    "seo_auto_links",
+    "seo_auto_links_limit",
+  ]);
   let autoLinks = [];
-  if (autoLinksSetting?.value) {
+  if (settings.seo_auto_links) {
     try {
-      autoLinks = JSON.parse(autoLinksSetting.value);
+      autoLinks = JSON.parse(settings.seo_auto_links);
     } catch (e) {
       console.error("Failed to parse seo_auto_links settings", e);
     }
   }
 
-  const autoLinksLimitSetting = await prisma.setting.findUnique({
-    where: { key: "seo_auto_links_limit" },
-  });
-  const autoLinksLimit = autoLinksLimitSetting?.value
-    ? parseInt(autoLinksLimitSetting.value, 10)
+  const autoLinksLimit = settings.seo_auto_links_limit
+    ? parseInt(settings.seo_auto_links_limit, 10)
     : 2;
 
-  // 2. Fetch Related Posts (up to 3 posts in the same category)
-  let relatedPosts: any[] = [];
-  if (post.categoryId) {
-    relatedPosts = await prisma.post.findMany({
-      where: {
-        categoryId: post.categoryId,
-        id: { not: post.id },
-        published: true,
-      },
-      take: 3,
-      orderBy: { createdAt: "desc" },
-    });
-  }
-
-  // Fallback to latest posts if same-category posts are less than 3
-  if (relatedPosts.length < 3) {
-    const excludeIds = [post.id, ...relatedPosts.map((rp: any) => rp.id)];
-    const extraPosts = await prisma.post.findMany({
-      where: {
-        id: { notIn: excludeIds },
-        published: true,
-      },
-      take: 3 - relatedPosts.length,
-      orderBy: { createdAt: "desc" },
-    });
-    relatedPosts = [...relatedPosts, ...extraPosts];
-  }
-
-  // 3. Inject auto-links (Type 1) and related reading links (Type 2) & parse FAQs
+  const relatedPosts = await getCachedRelatedPosts(post.id, post.categoryId);
   const cleanContent = post.content
     .replace(/&nbsp;/gi, " ")
     .replace(/\u00a0/g, " ")
@@ -155,60 +146,21 @@ export default async function BlogPostPage({
       return `<div class="w-full overflow-x-auto my-6"><table class="w-full border-collapse" ${attrs}>${body}</table></div>`;
     },
   );
-  const contentWithToc = sanitizeCmsHtml(
-    injectTableOfContents(contentWithWrappedTables),
-  );
+  const articleContent = sanitizeCmsHtml(addHeadingIds(contentWithWrappedTables));
+  const tocItems = extractTocItems(articleContent);
+  const [articleIntroContent, articleMainContent] =
+    splitArticleBeforeFirstH2(articleContent);
   const faqs = parseFaqs(cleanContent);
+  const authorName = await getCachedPublicAuthorName();
+  const approvedComments = await getCachedApprovedComments(post.id);
+  const recentPosts = await getCachedRecentPosts(post.id);
 
-  // 4. Fetch admin details for Author Box
-  const adminUser = await prisma.user.findFirst({
-    where: { role: "ADMIN" },
-    select: { name: true },
-  });
-  const authorName = getPublicAuthorName(adminUser?.name);
+  const publishedAt = new Date(post.createdAt);
+  const modifiedAt = new Date(post.updatedAt);
 
-  // 5. Fetch approved comments
-  const approvedComments = await prisma.comment.findMany({
-    where: {
-      postId: post.id,
-      approved: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  // 6. Fetch 3 recent posts for the sidebar
-  const recentPosts = await prisma.post.findMany({
-    where: {
-      published: true,
-      id: { not: post.id },
-    },
-    take: 3,
-    orderBy: { createdAt: "desc" },
-  });
-
-  // 7. Fetch all categories for sidebar
-  const categories = await prisma.category.findMany({
-    where: { type: "BLOG" },
-    take: 8,
-    orderBy: { name: "asc" },
-  });
-
-  // Calculate dynamic reading time
-  const wordCount = post.content.replace(/<[^>]*>/g, "").split(/\s+/).length;
-  const readingTime = Math.max(1, Math.ceil(wordCount / 220));
-
-  // 8. Generate JSON-LD Schemas using @graph structure
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
-  const postUrl = `${siteUrl}/blog/${post.slug}`;
-  const authorUrl = `${siteUrl}/blog/author/admin`;
-  const featuredImageFullUrl = post.featuredImage
-    ? post.featuredImage.startsWith("http")
-      ? post.featuredImage
-      : `${siteUrl}${post.featuredImage}`
-    : `${siteUrl}/images/logo.webp`;
+  const postUrl = `${SITE_URL}/blog/${post.slug}`;
+  const authorUrl = `${SITE_URL}/blog/author/admin`;
+  const featuredImageFullUrl = absoluteImageUrl(post.featuredImage);
 
   const graphList: any[] = [
     {
@@ -217,8 +169,8 @@ export default async function BlogPostPage({
       url: postUrl,
       headline: post.title,
       image: [featuredImageFullUrl],
-      datePublished: post.createdAt.toISOString(),
-      dateModified: post.updatedAt.toISOString(),
+      datePublished: publishedAt.toISOString(),
+      dateModified: modifiedAt.toISOString(),
       description: post.metaDescription || post.title.substring(0, 150),
       author: {
         "@type": "Person",
@@ -226,12 +178,7 @@ export default async function BlogPostPage({
         url: authorUrl,
       },
       publisher: {
-        "@type": "Organization",
-        name: "Lanyard Jakarta",
-        logo: {
-          "@type": "ImageObject",
-          url: `${siteUrl}/images/logo.webp`,
-        },
+        ...organizationSchema(),
       },
     },
     {
@@ -242,13 +189,13 @@ export default async function BlogPostPage({
           "@type": "ListItem",
           position: 1,
           name: "Beranda",
-          item: siteUrl,
+          item: SITE_URL,
         },
         {
           "@type": "ListItem",
           position: 2,
           name: "Blog",
-          item: `${siteUrl}/blog`,
+          item: `${SITE_URL}/blog`,
         },
         {
           "@type": "ListItem",
@@ -280,244 +227,139 @@ export default async function BlogPostPage({
     "@graph": graphList,
   };
 
-  const formattedDate = new Date(post.createdAt).toLocaleDateString("id-ID", {
+  const formattedDate = publishedAt.toLocaleDateString("id-ID", {
     day: "numeric",
     month: "long",
     year: "numeric",
     timeZone: "Asia/Jakarta",
   });
+  const imageAlt = post.featuredImage
+    ? getAltFromFilename(post.featuredImage)
+    : post.title;
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      {/* Inject JSON-LD Schema */}
+    <div className="min-h-screen bg-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(combinedSchema) }}
       />
 
       {previewId && (
-        <div className="bg-amber-50 border-b border-amber-200 py-3 px-5 text-center text-xs text-amber-800 font-bold flex items-center justify-center space-x-2">
-          <span>
-            Mode Pratinjau: Halaman draf ini hanya dapat dilihat oleh
-            Administrator.
-          </span>
+        <div className="border-b border-public-border bg-public-soft px-5 py-3 text-center text-xs font-bold text-gray-800">
+          Mode pratinjau: halaman draf ini hanya dapat dilihat oleh Administrator.
         </div>
       )}
 
-      {/* Main Container */}
-      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10">
-        {/* Breadcrumb */}
-        <div className="flex items-center space-x-2 text-[11px] font-semibold text-gray-400 mb-6 select-none">
-          <Link href="/" className="hover:text-brand-red transition-colors">
+      <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <nav
+          aria-label="Breadcrumb"
+          className="mb-8 flex min-w-0 flex-wrap items-center gap-2 text-xs font-semibold text-gray-500"
+        >
+          <Link href="/" className="transition hover:text-public-amber-strong">
             Beranda
           </Link>
-          <span>&rsaquo;</span>
-          <Link href="/blog" className="hover:text-brand-red transition-colors">
-            Artikel
+          <Icon icon="lucide:chevron-right" className="h-3.5 w-3.5 text-gray-300" />
+          <Link href="/blog" className="transition hover:text-public-amber-strong">
+            Blog
           </Link>
-          <span>&rsaquo;</span>
-          <span className="text-brand-red truncate max-w-[200px]">
-            Detail Artikel
+          <Icon icon="lucide:chevron-right" className="h-3.5 w-3.5 text-gray-300" />
+          <span className="max-w-[220px] truncate text-gray-900 sm:max-w-md">
+            {post.title}
           </span>
-        </div>
+        </nav>
 
-        {/* 2 Column Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-          {/* LEFT COLUMN: Main Content */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* Category & Title */}
-            <div className="space-y-4">
-              {post.category && (
-                <Link
-                  href={`/blog/kategori/${post.category.slug}`}
-                  className="inline-block px-3.5 py-1.5 rounded-full text-[10px] font-bold bg-[#FFF0F0] text-brand-red uppercase tracking-wider select-none hover:bg-brand-red hover:text-white transition-colors"
-                >
-                  {post.category.name}
-                </Link>
-              )}
-              <h1 className="text-2xl sm:text-3.5xl font-bold text-[#1a202c] leading-tight pt-1">
-                {post.title}
-              </h1>
-
-              {/* Metadata */}
-              <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-xs font-medium text-gray-400 pt-1">
-                <span className="flex items-center space-x-1.5">
-                  <svg
-                    className="h-3.5 w-3.5 text-gray-300"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
+          <article className="min-w-0 lg:col-span-8">
+            <header className="space-y-6">
+              <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-gray-500">
+                {post.category && (
+                  <Link
+                    href={`/blog/kategori/${post.category.slug}`}
+                    className="inline-flex min-h-8 items-center rounded-lg border border-public-border bg-public-soft px-3 text-[11px] font-extrabold text-public-amber-strong transition hover:border-public-amber"
                   >
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
-                  <span>{formattedDate}</span>
-                </span>
-                <span className="text-gray-200">•</span>
-                <span className="flex items-center space-x-1.5">
-                  <svg
-                    className="h-3.5 w-3.5 text-gray-300"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
-                  <span>{authorName}</span>
-                </span>
-                <span className="text-gray-200">•</span>
-                <span className="flex items-center space-x-1.5">
-                  <svg
-                    className="h-3.5 w-3.5 text-gray-300"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                  <span>{readingTime} menit baca</span>
-                </span>
+                    {post.category.name}
+                  </Link>
+                )}
+                <span>{formattedDate}</span>
               </div>
-            </div>
 
-            {/* Featured Image */}
-            {post.featuredImage && (
-              <div className="rounded-2xl overflow-hidden shadow-xs w-full bg-gray-50 border border-gray-100 flex items-center justify-center">
-                <img
-                  src={post.featuredImage}
-                  alt={getAltFromFilename(post.featuredImage)}
-                  className="w-full h-auto aspect-auto max-h-[720px] object-contain rounded-2xl"
+              <div className="max-w-3xl space-y-4">
+                <h1 className="text-4xl font-bold leading-[1.08] tracking-normal text-gray-950 sm:text-5xl lg:text-6xl">
+                  {post.title}
+                </h1>
+              </div>
+
+              <div className="flex flex-col gap-5 border-y border-public-border py-5 sm:flex-row sm:items-center sm:justify-between">
+                <Link
+                  href="/blog/author/admin"
+                  className="group flex items-center gap-3"
+                >
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-public-soft text-lg font-extrabold text-public-amber-strong ring-1 ring-public-border">
+                    {authorName.charAt(0)}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-extrabold text-gray-950 group-hover:text-public-amber-strong">
+                      {authorName}
+                    </span>
+                    <span className="block text-xs font-semibold text-gray-500">
+                      Penulis handal dari masa depan
+                    </span>
+                  </span>
+                </Link>
+                <ShareButtons
+                  title={post.title}
+                  slug={post.slug}
+                  shareUrl={postUrl}
                 />
               </div>
-            )}
 
-            {/* Content body */}
-            <div className="py-2 blog-post-content w-full overflow-hidden">
+              {post.featuredImage && (
+                <FeaturedPostImage src={post.featuredImage} alt={imageAlt} />
+              )}
+            </header>
+
+            <div className="blog-post-content mt-8 w-full overflow-hidden">
               <div
-                className="ql-editor !p-0 !min-h-0 text-[#4a5568] leading-relaxed text-sm sm:text-base font-normal break-words"
-                dangerouslySetInnerHTML={{ __html: contentWithToc }}
+                className="ql-editor !min-h-0 !p-0 break-words text-base leading-relaxed text-gray-700"
+                dangerouslySetInnerHTML={{ __html: articleIntroContent }}
               />
+              <InlineToc tocItems={tocItems} />
+              {articleMainContent && (
+                <div
+                  className="ql-editor !min-h-0 !p-0 break-words text-base leading-relaxed text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: articleMainContent }}
+                />
+              )}
             </div>
 
-            {/* Share Post */}
-            <ShareButtons
-              title={post.title}
-              slug={post.slug}
-              shareUrl={postUrl}
-            />
+            <AuthorBox authorName={authorName} />
 
-            {/* Author Box */}
-            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-5 my-8 shadow-xs">
-              <Link
-                href="/blog/author/admin"
-                className="h-16 w-16 rounded-full bg-brand-light-200 flex items-center justify-center text-brand-red font-bold text-2xl shrink-0 border border-brand-light-100 uppercase hover:bg-brand-light-100 transition-colors select-none"
-              >
-                {authorName.charAt(0)}
-              </Link>
-              <div className="flex-grow text-center sm:text-left space-y-2">
-                <span className="text-[10px] font-bold text-brand-red uppercase tracking-wider block">
-                  Penulis Utama
-                </span>
-                <h4 className="text-base font-bold text-[#1a202c]">
-                  <Link
-                    href="/blog/author/admin"
-                    className="hover:text-brand-red transition-colors"
-                  >
-                    {authorName}
-                  </Link>
-                </h4>
-                <p className="text-xs font-normal text-gray-500 leading-relaxed">
-                  Tim ahli media promosi Lanyard Jakarta. Berkomitmen menyajikan
-                  ulasan ulasan produk, tips cetak gantungan tali lanyard custom
-                  tebal, serta panduan branding event untuk kesuksesan promosi
-                  instansi Anda.
-                </p>
-                <div className="flex items-center justify-center sm:justify-start space-x-3 pt-2 text-gray-400">
-                  <a
-                    href="/"
-                    className="hover:text-brand-red transition-colors"
-                  >
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="2" y1="12" x2="22" y2="12" />
-                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                    </svg>
-                  </a>
-                  <a
-                    href="mailto:info@lanyardjakarta.co.id"
-                    className="hover:text-brand-red transition-colors"
-                  >
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                      <polyline points="22,6 12,13 2,6" />
-                    </svg>
-                  </a>
-                  <a
-                    href="https://wa.me/6282210200700"
-                    target="_blank"
-                    className="hover:text-brand-red transition-colors"
-                  >
-                    <svg
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Approved Comments List */}
-            <div className="mt-10 pt-6 border-t border-gray-100">
-              <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center space-x-2 select-none">
-                <span>Komentar ({approvedComments.length})</span>
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-red" />
-              </h3>
+            <section className="mt-10 border-t border-public-border pt-8">
+              <h2 className="text-2xl font-extrabold text-gray-950">
+                Komentar ({approvedComments.length})
+              </h2>
 
               {approvedComments.length === 0 ? (
-                <div className="bg-gray-50 border border-gray-100 rounded-2xl p-6 text-center text-gray-500 font-semibold text-xs leading-relaxed">
-                  Belum ada komentar. Jadilah yang pertama memberikan tanggapan!
+                <div className="mt-5 rounded-2xl border border-public-border bg-public-soft/50 p-6 text-sm font-semibold leading-6 text-gray-600">
+                  Belum ada komentar. Jadilah yang pertama memberikan tanggapan.
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="mt-5 space-y-4">
                   {approvedComments.map((comment: any) => (
-                    <div
+                    <article
                       key={comment.id}
-                      className="border border-gray-100 rounded-2xl p-5 bg-white space-y-2 animate-fade-in shadow-xs"
+                      className="rounded-2xl border border-public-border bg-white p-5 shadow-[0_10px_28px_rgba(15,23,42,0.04)]"
                     >
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-center space-x-3">
-                          <div className="h-8 w-8 rounded-full bg-brand-light-100 text-brand-red font-bold text-xs flex items-center justify-center border border-red-50 uppercase select-none">
-                            {comment.name.charAt(0)}
-                          </div>
-                          <div>
-                            <h5 className="text-xs font-bold text-gray-900 leading-none">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-public-soft text-sm font-extrabold text-public-amber-strong">
+                          {comment.name.charAt(0)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                            <h3 className="text-sm font-extrabold text-gray-950">
                               {comment.name}
-                            </h5>
-                            <span className="text-[10px] font-semibold text-gray-400">
+                            </h3>
+                            <span className="text-xs font-semibold text-gray-500">
                               {new Date(comment.createdAt).toLocaleDateString(
                                 "id-ID",
                                 {
@@ -527,174 +369,366 @@ export default async function BlogPostPage({
                               )}
                             </span>
                           </div>
+                          <p className="mt-2 text-sm font-medium leading-6 text-gray-600">
+                            {comment.content}
+                          </p>
                         </div>
                       </div>
-                      <p className="text-xs font-semibold text-gray-650 leading-relaxed pl-11">
-                        {comment.content}
-                      </p>
-                    </div>
+                    </article>
                   ))}
                 </div>
               )}
 
-              {/* Comments Submission Form */}
               <CommentForm postId={post.id} />
+            </section>
+
+            <PostNavigation recentPosts={recentPosts} currentSlug={post.slug} />
+          </article>
+
+          <aside className="hidden lg:col-span-4 lg:block">
+            <div className="sticky top-24 space-y-6">
+              <PopularPosts posts={recentPosts} />
+              <SidebarCta />
             </div>
-          </div>
-
-          {/* RIGHT COLUMN: Sidebar (Sticky on Desktop) */}
-          <div className="lg:col-span-4 lg:sticky lg:top-24 self-start space-y-6 w-full">
-            {/* Search Box */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs">
-              <div className="relative w-full">
-                <input
-                  type="text"
-                  placeholder="Cari artikel..."
-                  className="w-full bg-gray-50 border border-gray-200 text-xs font-semibold rounded-lg focus:ring-brand-red focus:border-brand-red pl-3 pr-9 py-2.5 outline-none"
-                />
-                <svg
-                  className="absolute right-3 top-3 h-4 w-4 text-gray-400 pointer-events-none"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.602 10.602Z"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            {/* Recent Posts Sidebar Card */}
-            {recentPosts.length > 0 && (
-              <div className="bg-white border border-gray-100 rounded-2xl p-5 space-y-4 shadow-xs">
-                <h4 className="text-sm font-bold text-gray-800 pb-2 border-b border-gray-50 uppercase tracking-wider select-none text-[10px]">
-                  Artikel Terbaru
-                </h4>
-                <div className="space-y-4">
-                  {recentPosts.map((rPost) => (
-                    <Link
-                      key={rPost.id}
-                      href={`/blog/${rPost.slug}`}
-                      className="group flex space-x-3 items-start"
-                    >
-                      {rPost.featuredImage ? (
-                        <div className="h-12 w-12 rounded-lg overflow-hidden bg-gray-100 shrink-0 border border-gray-50">
-                          <img
-                            src={rPost.featuredImage}
-                            alt={rPost.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        </div>
-                      ) : (
-                        <div className="h-12 w-12 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center text-gray-400 shrink-0 border border-gray-100">
-                          <svg
-                            className="h-5 w-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            viewBox="0 0 24 24"
-                          >
-                            <rect
-                              width="18"
-                              height="18"
-                              x="3"
-                              y="3"
-                              rx="2"
-                              ry="2"
-                            />
-                            <circle cx="9" cy="9" r="2" />
-                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                          </svg>
-                        </div>
-                      )}
-                      <div className="space-y-0.5 min-w-0 flex-grow">
-                        <h5 className="text-xs font-semibold text-gray-850 leading-snug line-clamp-2 group-hover:text-brand-red transition-colors">
-                          {rPost.title}
-                        </h5>
-                        <span className="text-[9px] text-gray-400 font-bold block pt-0.5">
-                          {new Date(rPost.createdAt).toLocaleDateString(
-                            "id-ID",
-                            {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                              timeZone: "Asia/Jakarta",
-                            },
-                          )}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-                <div className="pt-3 border-t border-gray-50">
-                  <Link
-                    href="/blog"
-                    className="text-xs font-bold text-brand-red hover:underline inline-flex items-center space-x-1"
-                  >
-                    <span>Lihat semua artikel</span>
-                    <svg
-                      className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                      />
-                    </svg>
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {/* Quick Helper CTA Card */}
-            <div className="bg-[#FFF5F5] rounded-2xl p-6 shadow-xs relative overflow-hidden flex flex-col justify-between min-h-[160px] select-none border border-red-50/50">
-              <div className="space-y-1.5 z-10">
-                <h4 className="text-sm font-bold text-gray-800">
-                  Butuh Bantuan?
-                </h4>
-                <p className="text-xs font-medium text-gray-500 leading-relaxed max-w-[180px]">
-                  Tim kami siap membantu Anda menemukan solusi terbaik.
-                </p>
-              </div>
-              <div className="pt-4 z-10">
-                <a
-                  href="https://wa.me/6282210200700"
-                  target="_blank"
-                  className="inline-flex items-center justify-center bg-[#e13b3d] hover:bg-[#c82a2c] text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-xs transition-colors cursor-pointer"
-                >
-                  <svg
-                    className="mr-1.5 h-4 w-4 fill-white"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                  </svg>
-                  <span>Hubungi Kami</span>
-                </a>
-              </div>
-
-              {/* Soft visual icon indicator */}
-              <div className="absolute right-0 bottom-0 opacity-8 pointer-events-none translate-x-4 translate-y-4">
-                <svg
-                  className="h-28 w-28 text-brand-red"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 2C6.477 2 2 6.477 2 12c0 1.88.52 3.638 1.417 5.154L2 22l4.898-1.39C8.384 21.49 10.134 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+          </aside>
         </div>
       </main>
     </div>
+  );
+}
+
+function extractTocItems(html: string): TocItem[] {
+  const headingRegex = /<h([23])([^>]*)>([\s\S]*?)<\/h[23]>/gi;
+  const items: TocItem[] = [];
+  let match;
+
+  while ((match = headingRegex.exec(html)) !== null) {
+    const depth = Number(match[1]) as 2 | 3;
+    const attrs = match[2];
+    const id = attrs.match(/\sid=["']([^"']+)["']/i)?.[1];
+    const text = stripHtml(match[3]);
+
+    if (id && text) {
+      items.push({ depth, id, text });
+    }
+  }
+
+  return items.slice(0, 8);
+}
+
+function splitArticleBeforeFirstH2(html: string): [string, string] {
+  const firstH2Match = html.match(/<h2[\s>]/i);
+
+  if (!firstH2Match || firstH2Match.index === undefined) {
+    return [html, ""];
+  }
+
+  return [html.slice(0, firstH2Match.index), html.slice(firstH2Match.index)];
+}
+
+function addHeadingIds(html: string) {
+  const usedIds = new Set<string>();
+
+  return html.replace(/<h([23])([^>]*)>([\s\S]*?)<\/h[23]>/gi, (match, level, attrs, content) => {
+    if (/\sid=["'][^"']+["']/i.test(attrs)) {
+      return match;
+    }
+
+    const text = stripHtml(content).replace(/^(?:\d+\.|[A-Za-z]\.)\s*/, "");
+    let baseId = text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    if (!baseId) {
+      baseId = `heading-${usedIds.size + 1}`;
+    }
+
+    let id = baseId;
+    let counter = 1;
+    while (usedIds.has(id)) {
+      id = `${baseId}-${counter}`;
+      counter++;
+    }
+    usedIds.add(id);
+
+    return `<h${level}${attrs} id="${id}">${content}</h${level}>`;
+  });
+}
+
+function stripHtml(value: string) {
+  return value
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function FeaturedPostImage({ alt, src }: { alt: string; src: string }) {
+  const isLocal = src.startsWith("/");
+
+  return (
+    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-public-border bg-public-soft">
+      {isLocal ? (
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          priority
+          fetchPriority="high"
+          sizes="(max-width: 1024px) 100vw, 820px"
+          className="object-cover"
+        />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={alt}
+          loading="eager"
+          fetchPriority="high"
+          className="h-full w-full object-cover"
+        />
+      )}
+    </div>
+  );
+}
+
+function SidebarPostImage({ alt, src }: { alt: string; src: string }) {
+  const isLocal = src.startsWith("/");
+
+  if (!src) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-public-soft text-public-amber-strong">
+        <Icon icon="lucide:image" className="h-5 w-5" />
+      </div>
+    );
+  }
+
+  if (isLocal) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes="96px"
+        className="object-cover transition duration-300 group-hover:scale-105"
+      />
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+    />
+  );
+}
+
+function InlineToc({ tocItems }: { tocItems: TocItem[] }) {
+  if (tocItems.length === 0) {
+    return null;
+  }
+
+  return (
+    <details className="my-7 rounded-xl border border-public-border bg-public-soft/50 p-4">
+      <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between gap-4 [&::-webkit-details-marker]:hidden">
+        <span className="flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-public-amber text-gray-950">
+            <Icon icon="lucide:list" className="h-4 w-4" />
+          </span>
+          <span className="text-sm font-extrabold text-gray-950">Daftar Isi</span>
+        </span>
+        <Icon icon="lucide:chevron-down" className="h-4 w-4 text-gray-500" />
+      </summary>
+      <nav className="mt-3 grid gap-1 border-t border-public-border pt-3" aria-label="Daftar isi artikel">
+        {tocItems.map((item) => (
+          <a
+            key={item.id}
+            href={`#${item.id}`}
+            className={`block rounded-lg px-3 py-1.5 text-sm font-semibold leading-5 text-gray-600 transition hover:bg-white hover:text-public-amber-strong ${
+              item.depth === 3 ? "ml-4" : ""
+            }`}
+          >
+            {item.text}
+          </a>
+        ))}
+      </nav>
+    </details>
+  );
+}
+
+function PopularPosts({ posts }: { posts: any[] }) {
+  if (posts.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="rounded-2xl border border-public-border bg-white p-6 shadow-[0_12px_32px_rgba(15,23,42,0.04)]">
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-public-soft text-public-amber-strong">
+          <Icon icon="lucide:flame" className="h-5 w-5" />
+        </span>
+        <h2 className="text-lg font-extrabold text-gray-950">Artikel Populer</h2>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        {posts.slice(0, 4).map((item) => (
+          <Link
+            key={item.id}
+            href={`/blog/${item.slug}`}
+            className="group grid grid-cols-[76px_minmax(0,1fr)] gap-3"
+          >
+            <span className="relative aspect-square overflow-hidden rounded-xl border border-public-border bg-public-soft">
+              <SidebarPostImage src={item.featuredImage || ""} alt={item.title} />
+            </span>
+            <span className="min-w-0">
+              <span className="line-clamp-3 text-sm font-medium leading-snug text-gray-950 transition group-hover:text-public-amber-strong">
+                {item.title}
+              </span>
+              <span className="mt-1 block text-xs font-semibold text-gray-500">
+                {new Date(item.createdAt).toLocaleDateString("id-ID", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                  timeZone: "Asia/Jakarta",
+                })}
+              </span>
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SidebarCta() {
+  return (
+    <section className="rounded-2xl border border-public-border bg-public-soft p-6">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-public-amber-strong ring-1 ring-public-border">
+        <Icon icon="lucide:heart-handshake" className="h-6 w-6" />
+      </div>
+      <h2 className="mt-5 text-xl font-extrabold text-gray-950">
+        Butuh Lanyard Custom?
+      </h2>
+      <p className="mt-3 text-sm font-medium leading-6 text-gray-600">
+        Tim kami siap membantu kebutuhan lanyard custom dengan desain rapi dan harga resmi.
+      </p>
+      <a
+        href="https://wa.me/6282210200700"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-5 inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl bg-public-amber px-5 text-sm font-extrabold text-gray-950 transition hover:bg-public-amber-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-public-amber"
+      >
+        Konsultasi Sekarang
+      </a>
+    </section>
+  );
+}
+
+function AuthorBox({ authorName }: { authorName: string }) {
+  return (
+    <section className="mt-10 rounded-2xl border border-public-border bg-white p-6 shadow-[0_12px_32px_rgba(15,23,42,0.04)] sm:p-7">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+        <Link
+          href="/blog/author/admin"
+          className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-public-soft text-3xl font-extrabold text-public-amber-strong ring-1 ring-public-border"
+        >
+          {authorName.charAt(0)}
+        </Link>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="text-xl font-extrabold text-gray-950">
+              {authorName}
+            </h2>
+            <span className="rounded-lg bg-public-soft px-2.5 py-1 text-[11px] font-extrabold text-public-amber-strong">
+              Penulis
+            </span>
+          </div>
+          <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-gray-600">
+            Tim Lanyard Bogor menulis panduan seputar lanyard custom, kebutuhan event, dan branding perusahaan.
+          </p>
+          <div className="mt-4 flex items-center gap-2 text-gray-500">
+            <a
+              href="/"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-public-border transition hover:border-public-amber hover:text-public-amber-strong"
+              aria-label="Website Lanyard Bogor"
+            >
+              <Icon icon="lucide:globe" className="h-4 w-4" />
+            </a>
+            <a
+              href="mailto:info@lanyardbogor.com"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-public-border transition hover:border-public-amber hover:text-public-amber-strong"
+              aria-label="Email Lanyard Bogor"
+            >
+              <Icon icon="lucide:mail" className="h-4 w-4" />
+            </a>
+            <a
+              href="https://wa.me/6282210200700"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-public-border transition hover:border-public-amber hover:text-public-amber-strong"
+              aria-label="WhatsApp Lanyard Bogor"
+            >
+              <Icon icon="lucide:message-circle" className="h-4 w-4" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PostNavigation({
+  currentSlug,
+  recentPosts,
+}: {
+  currentSlug: string;
+  recentPosts: any[];
+}) {
+  const candidates = recentPosts.filter((item) => item.slug !== currentSlug);
+  const previous = candidates[0];
+  const next = candidates[1];
+
+  if (!previous && !next) {
+    return null;
+  }
+
+  return (
+    <nav className="mt-10 grid gap-4 border-t border-public-border pt-8 sm:grid-cols-2">
+      {previous ? (
+        <Link
+          href={`/blog/${previous.slug}`}
+          className="group rounded-2xl border border-public-border bg-white p-5 transition hover:border-public-amber"
+        >
+          <span className="flex items-center gap-2 text-xs font-extrabold text-public-amber-strong">
+            <Icon icon="lucide:arrow-left" className="h-4 w-4" />
+            Artikel Sebelumnya
+          </span>
+          <span className="mt-2 line-clamp-2 block text-sm font-extrabold leading-6 text-gray-950 group-hover:text-public-amber-strong">
+            {previous.title}
+          </span>
+        </Link>
+      ) : (
+        <span />
+      )}
+
+      {next && (
+        <Link
+          href={`/blog/${next.slug}`}
+          className="group rounded-2xl border border-public-border bg-white p-5 text-left transition hover:border-public-amber sm:text-right"
+        >
+          <span className="flex items-center gap-2 text-xs font-extrabold text-public-amber-strong sm:justify-end">
+            Artikel Selanjutnya
+            <Icon icon="lucide:arrow-right" className="h-4 w-4" />
+          </span>
+          <span className="mt-2 line-clamp-2 block text-sm font-extrabold leading-6 text-gray-950 group-hover:text-public-amber-strong">
+            {next.title}
+          </span>
+        </Link>
+      )}
+    </nav>
   );
 }

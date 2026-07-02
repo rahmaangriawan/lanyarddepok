@@ -13,7 +13,27 @@ async function getProductsFromDb(): Promise<UnifiedProduct[]> {
   try {
     const products = await prisma.product.findMany({
       where: { published: true },
-      include: {
+      select: {
+        id: true,
+        sku: true,
+        name: true,
+        slug: true,
+        specs: true,
+        accessories: true,
+        basePrice: true,
+        minOrder: true,
+        shortDescription: true,
+        sheetStatus: true,
+        sites: true,
+        sortOrder: true,
+        featuredImage: true,
+        categoryId: true,
+        description: true,
+        published: true,
+        metaTitle: true,
+        metaDescription: true,
+        createdAt: true,
+        updatedAt: true,
         category: {
           select: { id: true, name: true, slug: true },
         },
@@ -51,7 +71,8 @@ async function getProductsFromDb(): Promise<UnifiedProduct[]> {
       category: product.category,
     }));
   } catch (error) {
-    console.error("Error in products-server getProducts:", error);
+    const message = error instanceof Error ? error.message.split("\n")[0] : String(error);
+    console.warn(`Products DB fetch failed; using fallback products. ${message}`);
     return DEFAULT_PRODUCTS;
   }
 }

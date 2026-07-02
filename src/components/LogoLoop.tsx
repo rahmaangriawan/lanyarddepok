@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState, memo } from 'react';
-import Image from 'next/image';
 import './LogoLoop.css';
 
 export interface LogoItem {
@@ -315,13 +314,16 @@ export const LogoLoop = memo(
             {item.node}
           </span>
         ) : (
-          <Image
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={item.src!}
             width={typeof item.width === 'number' ? item.width : parseInt(item.width as string, 10) || 120}
             height={typeof item.height === 'number' ? item.height : parseInt(item.height as string, 10) || 32}
             alt={item.alt ?? ''}
             title={item.title}
             draggable={false}
+            className="logoloop__image"
+            style={{ height: `${logoHeight}px`, width: 'auto' }}
           />
         );
         const itemAriaLabel = isNodeItem ? (item.ariaLabel ?? item.title) : (item.alt ?? item.title);
@@ -345,7 +347,7 @@ export const LogoLoop = memo(
           </li>
         );
       },
-      [renderItem]
+      [renderItem, logoHeight]
     );
 
     const logoLists = useMemo(

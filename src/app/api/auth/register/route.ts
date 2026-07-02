@@ -2,9 +2,26 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { hashPassword, signToken } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { AUTH_COOKIE_NAME, authCookieOptions } from "@/lib/auth-cookie";
+import { assertSameOrigin, checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/security";
 
 export async function POST(request: Request) {
   try {
+    if (process.env.AUTH_PUBLIC_REGISTER_ENABLED !== "true") {
+      return NextResponse.json(
+        { error: "Registration is disabled" },
+        { status: 403 }
+      );
+    }
+
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
+    const ip = getClientIp(request);
+    if (!checkRateLimit(`register:${ip}`, 5, 10 * 60 * 1000)) {
+      return rateLimitResponse("Terlalu banyak percobaan registrasi. Silakan coba lagi dalam 10 menit.");
+    }
+
     const { name, email, password } = await request.json();
 
     if (!name || !email || !password) {
@@ -14,16 +31,25 @@ export async function POST(request: Request) {
       );
     }
 
-    if (password.length < 6) {
+    if (password.length < 8) {
       return NextResponse.json(
-        { error: "Password must be at least 6 characters" },
+        { error: "Password must be at least 8 characters" },
+        { status: 400 }
+      );
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return NextResponse.json(
+        { error: "Email format is invalid" },
         { status: 400 }
       );
     }
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -39,8 +65,8 @@ export async function POST(request: Request) {
     // Create user
     const user = await prisma.user.create({
       data: {
-        name,
-        email,
+        name: String(name).trim(),
+        email: normalizedEmail,
         password: hashedPassword,
         role: "USER",
       },
@@ -56,13 +82,7 @@ export async function POST(request: Request) {
 
     // Set cookie
     const cookieStore = await cookies();
-    cookieStore.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-      path: "/",
-    });
+    cookieStore.set(AUTH_COOKIE_NAME, token, authCookieOptions());
 
     return NextResponse.json({
       success: true,

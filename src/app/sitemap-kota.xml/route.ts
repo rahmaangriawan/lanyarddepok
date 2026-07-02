@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { getRequestSiteUrl } from "@/lib/seo";
 
 interface CityPageData {
   id: number;
@@ -8,9 +9,7 @@ interface CityPageData {
 }
 
 export async function GET(request: Request) {
-  const host = request.headers.get("host") || "jakartalanyard.com";
-  const protocol = request.headers.get("x-forwarded-proto") || "https";
-  const siteUrl = `${protocol}://${host}`;
+  const siteUrl = getRequestSiteUrl(request);
 
   // Fetch all published CityPage entries from the database
   let cityPages: CityPageData[] = [];

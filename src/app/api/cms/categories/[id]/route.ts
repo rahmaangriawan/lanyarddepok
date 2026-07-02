@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { revalidateTag } from "next/cache";
+import { CATEGORIES_CACHE_TAG } from "@/lib/public-cache";
+import { PRODUCTS_CACHE_TAG } from "@/lib/products-server";
 
 export async function PUT(
   request: Request,
@@ -49,6 +52,9 @@ export async function PUT(
       },
     });
 
+    revalidateTag(CATEGORIES_CACHE_TAG, "max");
+    revalidateTag(PRODUCTS_CACHE_TAG, "max");
+
     return NextResponse.json({ success: true, category: updatedCategory });
   } catch (error: any) {
     console.error("Update Category Error:", error);
@@ -87,6 +93,9 @@ export async function DELETE(
     await prisma.category.delete({
       where: { id: categoryId },
     });
+
+    revalidateTag(CATEGORIES_CACHE_TAG, "max");
+    revalidateTag(PRODUCTS_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, message: "Category deleted successfully" });
   } catch (error: any) {

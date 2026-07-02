@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { assertSameOrigin } from "@/lib/security";
 import { normalizeCmsHtml } from "@/lib/sanitize-html";
+import { PAGES_CACHE_TAG } from "@/lib/public-cache";
 
 export async function GET() {
   try {
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
     });
 
     revalidatePath(`/${page.slug}`);
+    revalidateTag(PAGES_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, page });
   } catch (error: any) {

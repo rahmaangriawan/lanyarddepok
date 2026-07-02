@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/db";
+import { getRequestSiteUrl } from "@/lib/seo";
 
 export async function GET(request: Request) {
-  const host = request.headers.get("host") || "jakartalanyard.com";
-  const protocol = request.headers.get("x-forwarded-proto") || "https";
-  const siteUrl = `${protocol}://${host}`;
+  const siteUrl = getRequestSiteUrl(request);
 
   // Fetch all published posts
   const posts = await prisma.post.findMany({

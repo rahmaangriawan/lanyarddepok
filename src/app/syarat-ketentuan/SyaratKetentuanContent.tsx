@@ -1,191 +1,144 @@
 "use client";
 
 import { Icon } from "@iconify/react";
-import Image from "next/image";
-import ScrollStack, { ScrollStackItem } from "@/components/ScrollStack";
+
+const terms = [
+  {
+    number: "01",
+    icon: "lucide:package",
+    title: "Minimum Order Quantity (MOQ)",
+    description:
+      "Jumlah pemesanan minimum menyesuaikan jenis produk. Informasi MOQ tercantum di setiap halaman produk atau dapat ditanyakan ke tim kami.",
+  },
+  {
+    number: "02",
+    icon: "lucide:file-check-2",
+    title: "Desain & Approval",
+    description:
+      "Desain akan dikirimkan untuk approval sebelum produksi. Setelah desain disetujui, segala bentuk kesalahan pada desain bukan menjadi tanggung jawab kami.",
+  },
+  {
+    number: "03",
+    icon: "lucide:wallet",
+    title: "Pembayaran",
+    items: [
+      "Pembayaran dilakukan dengan sistem DP (Uang Muka) untuk memulai proses produksi.",
+      "Pelunasan dilakukan sebelum pesanan dikirim.",
+      "Pembayaran dapat melalui transfer bank atau metode lain yang disepakati.",
+    ],
+  },
+  {
+    number: "04",
+    icon: "lucide:calendar-days",
+    title: "Waktu Produksi",
+    description:
+      "Waktu produksi terhitung setelah desain disetujui dan pembayaran DP diterima. Estimasi waktu produksi dapat berbeda sesuai jumlah dan jenis pesanan.",
+  },
+  {
+    number: "05",
+    icon: "lucide:palette",
+    title: "Warna",
+    description:
+      "Warna hasil cetak dapat berbeda +-10% dari tampilan layar karena perbedaan setting monitor dan proses cetak.",
+  },
+  {
+    number: "06",
+    icon: "lucide:package-check",
+    title: "Pengiriman",
+    description:
+      "Pengiriman dilakukan setelah pelunasan. Risiko kerusakan atau kehilangan selama pengiriman menjadi tanggung jawab ekspedisi.",
+  },
+  {
+    number: "07",
+    icon: "lucide:refresh-cw",
+    title: "Retur & Komplain",
+    description:
+      "Komplain hanya berlaku jika ada kesalahan dari pihak kami dan wajib disertai bukti foto/video saat barang diterima. Komplain diterima maksimal 2x24 jam setelah barang tiba.",
+  },
+  {
+    number: "08",
+    icon: "lucide:percent",
+    title: "Pembatalan Pesanan",
+    description:
+      "Pembatalan hanya dapat dilakukan sebelum produksi dimulai. DP yang sudah dibayarkan tidak dapat dikembalikan jika pesanan dibatalkan sepihak oleh customer.",
+  },
+];
+
+const importantNotes = [
+  "Pastikan semua data, logo, dan ejaan yang dikirimkan sudah benar.",
+  "Kami tidak bertanggung jawab atas kesalahan penulisan yang dikirimkan oleh customer.",
+  "Dengan melakukan pemesanan, Anda telah menyetujui seluruh syarat dan ketentuan di atas.",
+];
 
 export default function SyaratKetentuanContent() {
   return (
-    <ScrollStack 
-      useWindowScroll={true} 
-      itemDistance={40} 
-      itemScale={0.02} 
-      baseScale={0.94} 
-      itemStackDistance={24}
-    >
-      
-      {/* ─── 01: Jumlah Minimum Pemesanan (MOQ) ─── */}
-      <ScrollStackItem>
-        <div className="flex flex-col space-y-4">
-          {/* Badge Number */}
-          <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#FFF0F0] text-brand-red text-xs font-extrabold select-none">
-            01
-          </div>
-          
-          {/* Card Layout */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8">
-            {/* Left Content Area (Icon + Text) */}
-            <div className="flex items-start space-x-5 flex-grow">
-              <div className="w-14 h-14 rounded-2xl bg-[#FFF0F0] border border-red-100 flex items-center justify-center shrink-0">
-                <Icon icon="lucide:boxes" className="w-6 h-6 text-brand-red" />
-              </div>
-              <div className="space-y-2 flex-1">
-                <h3 className="text-xl sm:text-2xl font-extrabold text-[#373f50] leading-tight">
-                  Jumlah Minimum Pemesanan (MOQ)
-                </h3>
-                <p className="text-sm sm:text-base text-gray-500 font-normal leading-relaxed">
-                  Kami melayani pemesanan tali lanyard custom dengan ketentuan minimum order yang fleksibel. Jumlah harga satuan yang tertera pada sistem kalkulator akan secara otomatis menyesuaikan dengan volume pesanan Anda (makin banyak kuantitas, harga per pcs akan semakin murah).
-                </p>
-              </div>
-            </div>
-            
-            {/* Right Image Area */}
-            <div className="w-full md:w-[220px] lg:w-[260px] h-[160px] md:h-[180px] relative shrink-0 rounded-2xl overflow-hidden shadow-xs">
-              <Image
-                src="/uploads/moq-1782195695075.webp"
-                alt="Jumlah Minimum Pemesanan MOQ Lanyard Jakarta"
-                fill
-                sizes="(max-width: 768px) 100vw, 300px"
-                className="object-cover"
-                preload
-              />
-            </div>
-          </div>
+    <section className="bg-white px-4 pb-16 pt-10 sm:px-6 lg:px-8 lg:pb-20">
+      <div className="mx-auto max-w-7xl">
+        <div className="text-center">
+          <h2 className="relative inline-flex text-2xl font-extrabold tracking-normal text-[#111827] sm:text-3xl">
+            Ketentuan Pemesanan
+            <span className="absolute -bottom-4 left-1/2 h-1 w-20 -translate-x-1/2 rounded-full bg-public-amber" />
+          </h2>
         </div>
-      </ScrollStackItem>
 
-      {/* ─── 02: Persetujuan Mockup Desain (Approval) ─── */}
-      <ScrollStackItem>
-        <div className="flex flex-col space-y-4">
-          {/* Badge Number */}
-          <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#FFF0F0] text-brand-red text-xs font-extrabold select-none">
-            02
-          </div>
-          
-          {/* Card Layout */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8">
-            {/* Left Content Area (Icon + Text) */}
-            <div className="flex items-start space-x-5 flex-grow">
-              <div className="w-14 h-14 rounded-2xl bg-[#FFF0F0] border border-red-100 flex items-center justify-center shrink-0">
-                <Icon icon="lucide:edit-3" className="w-6 h-6 text-brand-red" />
+        <div className="mt-12 grid gap-5 lg:grid-cols-2">
+          {terms.map((term) => (
+            <article
+              key={term.number}
+              className="relative flex gap-5 rounded-[18px] border border-public-border bg-white p-5 shadow-xs transition-colors hover:border-public-amber/35 sm:p-6"
+            >
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-public-amber/10 text-public-amber-strong">
+                <Icon icon={term.icon} className="h-8 w-8" />
               </div>
-              <div className="space-y-2 flex-1">
-                <h3 className="text-xl sm:text-2xl font-extrabold text-[#373f50] leading-tight">
-                  Persetujuan Mockup Desain (Approval)
-                </h3>
-                <ul className="space-y-2.5 text-sm sm:text-base text-gray-500 font-normal leading-relaxed list-disc pl-5">
-                  <li>
-                    Proses cetak baru akan dimulai setelah pelanggan menyetujui mockup desain visual (layout gambar) yang dikirimkan oleh tim desainer kami via WhatsApp atau email.
-                  </li>
-                  <li>
-                    Kami tidak bertanggung jawab atas kesalahan ejaan kata, penulisan nama, tata letak logo, atau spesifikasi aksesoris setelah pelanggan memberikan konfirmasi persetujuan cetak (mockup approved).
-                  </li>
-                </ul>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-public-amber px-1.5 text-[10px] font-extrabold leading-none text-white">
+                    {term.number}
+                  </span>
+                  <h3 className="text-sm font-extrabold leading-6 text-[#111827] sm:text-base">
+                    {term.title}
+                  </h3>
+                </div>
+                {term.items ? (
+                  <ul className="mt-3 space-y-1.5 text-sm leading-6 text-[#64748b]">
+                    {term.items.map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-public-amber" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-3 text-sm leading-6 text-[#64748b]">{term.description}</p>
+                )}
               </div>
-            </div>
-            
-            {/* Right Image Area */}
-            <div className="w-full md:w-[220px] lg:w-[260px] h-[160px] md:h-[180px] relative shrink-0 rounded-2xl overflow-hidden shadow-xs">
-              <Image
-                src="/uploads/persetujuan-mockup-1782195889939.webp"
-                alt="Persetujuan Mockup Desain Approval Lanyard Jakarta"
-                fill
-                sizes="(max-width: 768px) 100vw, 300px"
-                className="object-cover"
-              />
-            </div>
-          </div>
+            </article>
+          ))}
         </div>
-      </ScrollStackItem>
 
-      {/* ─── 03: Sistem Pembayaran ─── */}
-      <ScrollStackItem>
-        <div className="flex flex-col space-y-4">
-          {/* Badge Number */}
-          <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#FFF0F0] text-brand-red text-xs font-extrabold select-none">
-            03
-          </div>
-          
-          {/* Card Layout */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8">
-            {/* Left Content Area (Icon + Text) */}
-            <div className="flex items-start space-x-5 flex-grow">
-              <div className="w-14 h-14 rounded-2xl bg-[#FFF0F0] border border-red-100 flex items-center justify-center shrink-0">
-                <Icon icon="lucide:credit-card" className="w-6 h-6 text-brand-red" />
-              </div>
-              <div className="space-y-2 flex-1">
-                <h3 className="text-xl sm:text-2xl font-extrabold text-[#373f50] leading-tight">
-                  Sistem Pembayaran
-                </h3>
-                <ul className="space-y-2.5 text-sm sm:text-base text-gray-500 font-normal leading-relaxed list-disc pl-5">
-                  <li>
-                    Pemesanan wajib disertai dengan pembayaran Down Payment (DP) minimal sebesar 50% dari total nilai tagihan invoice sebagai tanda jadi produksi.
-                  </li>
-                  <li>
-                    Sisa pelunasan (50%) wajib dibayarkan secara penuh setelah barang dinyatakan selesai diproduksi dan siap dikirim ke alamat tujuan.
-                  </li>
-                </ul>
-              </div>
+        <div className="relative mt-7 overflow-hidden rounded-[18px] border border-public-amber/20 bg-gradient-to-br from-public-amber/8 via-white to-public-amber/5 p-6 sm:p-8">
+          <div className="relative z-10 max-w-4xl">
+            <div className="flex items-center gap-3">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-public-amber-strong shadow-xs">
+                <Icon icon="lucide:info" className="h-4.5 w-4.5" />
+              </span>
+              <h3 className="text-base font-extrabold text-[#111827]">Catatan Penting</h3>
             </div>
-            
-            {/* Right Image Area */}
-            <div className="w-full md:w-[220px] lg:w-[260px] h-[160px] md:h-[180px] relative shrink-0 rounded-2xl overflow-hidden shadow-xs">
-              <Image
-                src="/uploads/sistem-pembayaran-1782195950038.webp"
-                alt="Sistem Pembayaran DP Lanyard Jakarta"
-                fill
-                sizes="(max-width: 768px) 100vw, 300px"
-                className="object-cover"
-              />
-            </div>
+            <ul className="mt-4 space-y-2 text-sm leading-6 text-[#64748b]">
+              {importantNotes.map((note) => (
+                <li key={note} className="flex gap-2">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-public-amber" />
+                  <span>{note}</span>
+                </li>
+              ))}
+            </ul>
           </div>
+          <Icon
+            icon="lucide:clipboard-check"
+            className="absolute -right-2 bottom-2 hidden h-36 w-36 text-public-amber/20 md:block"
+          />
         </div>
-      </ScrollStackItem>
-
-      {/* ─── 04: Pengiriman & Garansi Kualitas ─── */}
-      <ScrollStackItem>
-        <div className="flex flex-col space-y-4">
-          {/* Badge Number */}
-          <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#FFF0F0] text-brand-red text-xs font-extrabold select-none">
-            04
-          </div>
-          
-          {/* Card Layout */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8">
-            {/* Left Content Area (Icon + Text) */}
-            <div className="flex items-start space-x-5 flex-grow">
-              <div className="w-14 h-14 rounded-2xl bg-[#FFF0F0] border border-red-100 flex items-center justify-center shrink-0">
-                <Icon icon="lucide:truck" className="w-6 h-6 text-brand-red" />
-              </div>
-              <div className="space-y-2 flex-1">
-                <h3 className="text-xl sm:text-2xl font-extrabold text-[#373f50] leading-tight">
-                  Pengiriman &amp; Garansi Kualitas
-                </h3>
-                <ul className="space-y-2.5 text-sm sm:text-base text-gray-500 font-normal leading-relaxed list-disc pl-5">
-                  <li>
-                    Kami mengirimkan pesanan menggunakan ekspedisi terpercaya (JNE, J&amp;T, Sicepat, Lalamove, GoSend, dsb.).
-                  </li>
-                  <li>
-                    Segala kerusakan atau cacat produksi akibat kelalaian tim kami wajib dilaporkan maksimal 3 hari sejak barang diterima untuk mendapatkan fasilitas klaim penggantian atau perbaikan gratis.
-                  </li>
-                </ul>
-              </div>
-            </div>
-            
-            {/* Right Image Area */}
-            <div className="w-full md:w-[220px] lg:w-[260px] h-[160px] md:h-[180px] relative shrink-0 rounded-2xl overflow-hidden shadow-xs">
-              <Image
-                src="/uploads/pengiriman-dan-garansi-1782196021934.webp"
-                alt="Pengiriman dan Garansi Kualitas Lanyard Jakarta"
-                fill
-                sizes="(max-width: 768px) 100vw, 300px"
-                className="object-cover"
-              />
-            </div>
-          </div>
-        </div>
-      </ScrollStackItem>
-      
-    </ScrollStack>
+      </div>
+    </section>
   );
 }

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { revalidateTag } from "next/cache";
+import { POSTS_CACHE_TAG } from "@/lib/public-cache";
 
 export async function PATCH(
   request: Request,
@@ -34,6 +36,8 @@ export async function PATCH(
         approved: !!approved,
       },
     });
+
+    revalidateTag(POSTS_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, comment: updatedComment });
   } catch (error: any) {
@@ -69,6 +73,8 @@ export async function DELETE(
     await prisma.comment.delete({
       where: { id: commentId },
     });
+
+    revalidateTag(POSTS_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, message: "Komentar berhasil dihapus" });
   } catch (error: any) {

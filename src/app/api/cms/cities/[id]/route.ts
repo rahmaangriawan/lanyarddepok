@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { CITY_PAGES_CACHE_TAG } from "@/lib/public-cache";
 
 // Helper to check if a potential parent is a descendant of the page itself to prevent circular reference
 async function isDescendant(possibleParentId: number, targetId: number): Promise<boolean> {
@@ -110,6 +112,9 @@ export async function PUT(
       },
     });
 
+    revalidatePath(`/${updatedCity.slug}`);
+    revalidateTag(CITY_PAGES_CACHE_TAG, "max");
+
     return NextResponse.json({ success: true, city: updatedCity });
   } catch (error: any) {
     console.error("Update City Page Error:", error);
@@ -134,7 +139,10 @@ export async function DELETE(
     }
 
     // Set parentId of children to null before deleting (or Prisma handles onDelete: SetNull)
-    await prisma.cityPage.delete({ where: { id: cityId } });
+    const deletedCity = await prisma.cityPage.delete({ where: { id: cityId } });
+
+    revalidatePath(`/${deletedCity.slug}`);
+    revalidateTag(CITY_PAGES_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, message: "City page deleted successfully" });
   } catch (error: any) {

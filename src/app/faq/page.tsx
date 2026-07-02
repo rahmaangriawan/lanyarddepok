@@ -1,5 +1,5 @@
-import { Icon } from "@iconify/react";
 import { Metadata } from "next";
+import { createOpenGraphMetadata } from "@/lib/seo";
 import FaqContent from "./FaqContent";
 
 export const revalidate = 3600; // Cache page for 1 hour
@@ -7,39 +7,56 @@ export const revalidate = 3600; // Cache page for 1 hour
 export const metadata: Metadata = {
   title: "Tanya Jawab (FAQ) Pemesanan Tali Lanyard",
   description:
-    "Temukan jawaban atas pertanyaan umum seputar pemesanan tali lanyard custom premium di Lanyard Jakarta. Info MOQ, pengerjaan kilat, desain mockup, dan pengiriman.",
+    "Temukan jawaban atas pertanyaan umum seputar pemesanan tali lanyard custom premium di Lanyard Bogor. Info MOQ, pengerjaan kilat, desain mockup, dan pengiriman.",
   alternates: {
     canonical: "/faq",
   },
+  ...createOpenGraphMetadata({
+    title: "Tanya Jawab (FAQ) Pemesanan Tali Lanyard",
+    description:
+      "Temukan jawaban atas pertanyaan umum seputar pemesanan tali lanyard custom premium di Lanyard Bogor. Info MOQ, pengerjaan kilat, desain mockup, dan pengiriman.",
+    path: "/faq",
+  }),
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardbogor.com";
 
 const faqs = [
   {
-    question: "Bagaimana cara memesan tali lanyard custom di Lanyard Jakarta?",
-    answer: "Anda dapat memesan langsung melalui kalkulator instan di halaman utama website kami dengan memilih spesifikasi lebar, bahan, dan aksesoris. Alternatif lainnya, Anda bisa menghubungi tim Customer Service kami via WhatsApp untuk konsultasi desain dan penawaran langsung.",
+    question: "Berapa minimal pemesanan lanyard custom?",
+    answer:
+      "Minimal pemesanan di Lanyard Bogor adalah 50 pcs untuk semua jenis lanyard custom. Kami tetap dapat membantu kebutuhan jumlah kecil dengan harga yang menyesuaikan.",
   },
   {
-    question: "Berapa jumlah minimum pemesanan (MOQ)?",
-    answer: "Kami melayani pemesanan dengan minimum order yang sangat fleksibel mulai dari 50 pcs untuk tali lanyard sublimasi full color. Jumlah harga satuan otomatis menyesuaikan dengan volume pesanan Anda (makin banyak kuantitas, harga per pcs makin murah).",
+    question: "Apakah bisa pesan lanyard dengan desain sendiri?",
+    answer:
+      "Bisa. Anda dapat mengirimkan file logo, desain, atau referensi warna. Tim kami akan membantu menyesuaikannya ke format produksi lanyard.",
   },
   {
-    question: "Berapa lama proses pengerjaan produksi lanyard?",
-    answer: "Proses pengerjaan standar kami berkisar antara 1 hingga 3 hari kerja tergantung pada kuantitas pesanan dan antrean produksi. Kami juga menyediakan opsi pengerjaan kilat (express) untuk event darurat atau kebutuhan mendesak.",
+    question: "Berapa lama proses produksi lanyard?",
+    answer:
+      "Proses produksi standar berkisar 1 hingga 3 hari kerja tergantung kuantitas, spesifikasi, dan antrean produksi. Opsi express dapat dikonsultasikan untuk kebutuhan mendesak.",
   },
   {
-    question: "Apakah saya bisa mendapatkan mockup desain sebelum naik cetak?",
-    answer: "Ya! Kami memberikan layanan jasa desain mockup visual secara GRATIS (maksimal 3x revisi) setelah Anda mengirimkan file logo resmi beserta preferensi warna instansi Anda. Produksi cetak baru dimulai setelah Anda menyetujui mockup desain tersebut.",
+    question: "Apakah ada biaya desain?",
+    answer:
+      "Kami menyediakan bantuan mockup desain gratis maksimal 3x revisi setelah Anda mengirimkan logo resmi dan arahan desain.",
   },
   {
-    question: "Bagaimana sistem pembayaran di Lanyard Jakarta?",
-    answer: "Kami menerapkan sistem Down Payment (DP) sebesar 50% dari total nilai tagihan invoice sebagai tanda jadi produksi. Sisa pelunasan sebesar 50% dibayarkan secara penuh setelah pesanan selesai diproduksi dan siap dikirim ke alamat tujuan.",
+    question: "Bagaimana sistem pembayaran di Lanyard Bogor?",
+    answer:
+      "Sistem pembayaran menggunakan DP 50% sebagai tanda jadi produksi, lalu pelunasan 50% setelah pesanan selesai dan siap dikirim.",
   },
   {
-    question: "Apakah ada garansi jika hasil cetak cacat atau rusak?",
-    answer: "Ya, kami memberikan garansi kualitas 100%. Segala kerusakan atau cacat produksi akibat kelalaian tim kami wajib dilaporkan maksimal 3 hari setelah barang Anda terima untuk mendapatkan fasilitas klaim cetak ulang atau penggantian gratis.",
-  }
+    question: "Apakah pesanan bisa dikirim ke luar Bogor?",
+    answer:
+      "Bisa. Kami melayani pengiriman ke berbagai kota di Indonesia melalui jasa ekspedisi yang disesuaikan dengan alamat dan kebutuhan pengiriman Anda.",
+  },
+  {
+    question: "Apakah ada garansi untuk produk?",
+    answer:
+      "Ada. Jika terjadi cacat produksi dari pihak kami, laporan maksimal 3 hari setelah barang diterima akan kami bantu proses klaim atau penggantian sesuai ketentuan.",
+  },
 ];
 
 const jsonLd = {
@@ -49,15 +66,15 @@ const jsonLd = {
       "@type": "WebPage",
       "@id": `${siteUrl}/faq/#webpage`,
       url: `${siteUrl}/faq`,
-      name: "Tanya Jawab (FAQ) Pemesanan Tali Lanyard - Lanyard Jakarta",
+      name: "Tanya Jawab (FAQ) Pemesanan Tali Lanyard - Lanyard Bogor",
       description:
-        "Temukan jawaban atas pertanyaan umum seputar pemesanan tali lanyard custom premium di Lanyard Jakarta. Info MOQ, pengerjaan kilat, desain mockup, dan pengiriman.",
+        "Temukan jawaban atas pertanyaan umum seputar pemesanan tali lanyard custom premium di Lanyard Bogor. Info MOQ, pengerjaan kilat, desain mockup, dan pengiriman.",
       publisher: {
         "@type": "Organization",
-        name: "Lanyard Jakarta",
+        name: "Lanyard Bogor",
         logo: {
           "@type": "ImageObject",
-          url: `${siteUrl}/images/logo.webp`,
+          url: `${siteUrl}/uploads/lanyardbogor-logo.webp`,
         },
       },
     },
@@ -78,7 +95,12 @@ const jsonLd = {
       "@id": `${siteUrl}/faq/#breadcrumb`,
       itemListElement: [
         { "@type": "ListItem", position: 1, name: "Beranda", item: siteUrl },
-        { "@type": "ListItem", position: 2, name: "Tanya Jawab (FAQ)", item: `${siteUrl}/faq` },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Tanya Jawab (FAQ)",
+          item: `${siteUrl}/faq`,
+        },
       ],
     },
   ],
@@ -86,71 +108,47 @@ const jsonLd = {
 
 export default function FaqPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-white text-[#111827]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      <main className="overflow-hidden">
+        <section className="relative isolate overflow-hidden border-b border-public-border/60 bg-public-soft px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-28">
+          <div className="pointer-events-none absolute -left-16 bottom-0 h-56 w-56 rounded-full border border-public-amber/20" />
+          <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full border border-public-amber/20" />
+          <div className="pointer-events-none absolute left-[8%] top-28 hidden grid-cols-5 gap-3 opacity-45 sm:grid">
+            {Array.from({ length: 25 }).map((_, index) => (
+              <span
+                key={index}
+                className="h-1 w-1 rounded-full bg-public-amber"
+              />
+            ))}
+          </div>
+          <div className="pointer-events-none absolute bottom-28 right-[10%] hidden grid-cols-5 gap-3 opacity-45 md:grid">
+            {Array.from({ length: 25 }).map((_, index) => (
+              <span
+                key={index}
+                className="h-1 w-1 rounded-full bg-public-amber"
+              />
+            ))}
+          </div>
 
-      {/* ─── Hero Section ─── */}
-      <section className="relative w-full bg-white border-b border-gray-100 pt-16 pb-20 sm:pt-20 sm:pb-24 overflow-hidden">
-        {/* Background Image / Confetti Decoration */}
-        <div 
-          className="absolute inset-0 bg-[url('/uploads/aset-lanyard-7-1782202689750.webp')] bg-cover bg-center bg-no-repeat opacity-60 pointer-events-none"
-        />
-        
-        {/* Hero Content aligned to max-w-7xl */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
-          <div className="max-w-4xl mx-auto space-y-4">
-            <span className="inline-block bg-[#FFF0F0] text-brand-red text-[10px] font-extrabold px-4 py-1.5 rounded-full border border-red-100 uppercase tracking-widest select-none">
-              Tanya Jawab
-            </span>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#373f50] leading-tight tracking-tight">
-              Frequently Asked Questions<br />(FAQ) Lanyard Jakarta
+          <div className="relative mx-auto max-w-4xl text-center">
+            <h1 className="text-[2.5rem] font-extrabold leading-[1.12] tracking-normal text-[#111827] sm:text-[3.5rem] lg:text-[4rem]">
+              Pertanyaan Seputar
+              <span className="block">Pemesanan Lanyard</span>
             </h1>
-            <p className="text-sm sm:text-base text-gray-500 font-medium leading-relaxed max-w-2xl mx-auto">
-              Temukan jawaban atas pertanyaan umum seputar pengerjaan tali lanyard, minimal pemesanan, sistem pengiriman, dan garansi kualitas kami.
+            <div className="mx-auto mt-8 h-1 w-20 rounded-full bg-public-amber" />
+            <p className="mx-auto mt-8 max-w-2xl text-base leading-8 text-[#475569] sm:text-lg">
+              Temukan jawaban singkat untuk pertanyaan seputar pemesanan lanyard custom di Lanyard Bogor.
             </p>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ─── FAQ Main List ─── */}
-      <main className="flex-grow py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <FaqContent />
-
-          {/* ─── Bottom CTA Box ─── */}
-          <div className="max-w-3xl mx-auto mt-12 bg-[#FFF5F5] border border-red-100 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 hover:shadow-xs transition-shadow">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-2xl bg-white border border-red-100 flex items-center justify-center shrink-0 shadow-xs">
-                <Icon icon="lucide:message-square" className="w-6 h-6 text-brand-red" />
-              </div>
-              <div className="space-y-1">
-                <h3 className="text-base font-extrabold text-[#1a202c]">
-                  Masih punya pertanyaan lain?
-                </h3>
-                <p className="text-xs text-gray-500 font-medium">
-                  Hubungi tim CS kami langsung untuk bantuan lebih lanjut.
-                </p>
-              </div>
-            </div>
-            <a
-              href="https://wa.me/6282210200700?text=Halo%20Lanyard%20Jakarta%2C%20saya%20ingin%20bertanya%20mengenai..."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto inline-flex items-center justify-center bg-[#FF4C4C] hover:bg-[#e03d3d] text-white text-sm font-bold px-6 py-3 rounded-xl shadow-md shadow-red-200 transition-all duration-300 hover:-translate-y-0.5"
-            >
-              <Icon icon="lucide:phone" className="mr-2 h-4.5 w-4.5" />
-              Hubungi CS WhatsApp
-            </a>
-          </div>
-
-        </div>
+        <FaqContent />
       </main>
-
     </div>
   );
 }

@@ -69,7 +69,7 @@ export default function LanyardPreviewer() {
             {/* Badge */}
             <div className="mb-6 inline-flex items-center gap-3 text-[#e13b3d]">
               <span className="h-px w-8 bg-current" />
-              <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Kenapa Memilih Kami?</span>
+              <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Preview Lanyard Custom</span>
               <span className="h-px w-8 bg-current" />
             </div>
             

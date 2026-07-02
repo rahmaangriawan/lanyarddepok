@@ -1,58 +1,47 @@
-import { prisma } from "@/lib/db";
 import Link from "next/link";
-import { shouldSkipDbDuringBuild } from "@/lib/build-env";
+import { getCachedBlogCategorySummaries } from "@/lib/public-cache";
 
 export const revalidate = 600;
 
 export default async function CategoriesPage() {
-  const categories = shouldSkipDbDuringBuild()
-    ? []
-    : await prisma.category.findMany({
-        where: { type: "BLOG" },
-        include: {
-          _count: {
-            select: { posts: { where: { published: true } } }
-          }
-        },
-        orderBy: { name: "asc" }
-      });
+  const categories = await getCachedBlogCategorySummaries();
 
   const categoryListingSchema = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "CollectionPage",
-        "@id": "https://lanyardjakarta.co.id/blog/kategori/#collectionpage",
-        "url": "https://lanyardjakarta.co.id/blog/kategori",
-        "name": "Daftar Kategori Artikel - Lanyard Jakarta",
+        "@id": "https://lanyardbogor.com/blog/kategori/#collectionpage",
+        "url": "https://lanyardbogor.com/blog/kategori",
+        "name": "Daftar Kategori Artikel - Lanyard Bogor",
         "description": "Daftar kategori artikel edukasi promosi, event, dan percetakan lanyard custom.",
         "publisher": {
           "@type": "Organization",
-          "name": "Lanyard Jakarta",
-          "logo": "https://lanyardjakarta.co.id/images/logo.webp"
+          "name": "Lanyard Bogor",
+          "logo": "https://lanyardbogor.com/uploads/lanyardbogor-logo.webp"
         }
       },
       {
         "@type": "BreadcrumbList",
-        "@id": "https://lanyardjakarta.co.id/blog/kategori/#breadcrumb",
+        "@id": "https://lanyardbogor.com/blog/kategori/#breadcrumb",
         "itemListElement": [
           {
             "@type": "ListItem",
             "position": 1,
             "name": "Beranda",
-            "item": "https://lanyardjakarta.co.id"
+            "item": "https://lanyardbogor.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Blog",
-            "item": "https://lanyardjakarta.co.id/blog"
+            "item": "https://lanyardbogor.com/blog"
           },
           {
             "@type": "ListItem",
             "position": 3,
             "name": "Kategori",
-            "item": "https://lanyardjakarta.co.id/blog/kategori"
+            "item": "https://lanyardbogor.com/blog/kategori"
           }
         ]
       }
@@ -98,7 +87,7 @@ export default async function CategoriesPage() {
                   {cat.name}
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-500 font-normal leading-relaxed line-clamp-3">
-                  {cat.description || `Kumpulan artikel seputar ${cat.name.toLowerCase()} dari Lanyard Jakarta.`}
+                  {cat.description || `Kumpulan artikel seputar ${cat.name.toLowerCase()} dari Lanyard Bogor.`}
                 </p>
               </div>
               <div className="mt-4 flex items-center text-xs font-bold text-brand-red space-x-1">

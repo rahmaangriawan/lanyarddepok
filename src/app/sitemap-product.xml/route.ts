@@ -1,11 +1,10 @@
 import { prisma } from "@/lib/db";
+import { getRequestSiteUrl } from "@/lib/seo";
 import { getProducts } from "@/lib/products-server";
 import { UnifiedProduct } from "@/lib/products-service";
 
 export async function GET(request: Request) {
-  const host = request.headers.get("host") || "jakartalanyard.com";
-  const protocol = request.headers.get("x-forwarded-proto") || "https";
-  const siteUrl = `${protocol}://${host}`;
+  const siteUrl = getRequestSiteUrl(request);
 
   // Fetch all published/active products using the unified service
   let products: UnifiedProduct[] = [];

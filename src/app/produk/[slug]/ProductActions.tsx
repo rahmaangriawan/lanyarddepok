@@ -49,7 +49,7 @@ export default function ProductActions({ product }: ProductActionsProps) {
     window.dispatchEvent(new Event("wishlist-updated"));
   };
 
-  const waMessage = `Halo Lanyard Jakarta, saya tertarik dengan produk *${product.name}* (SKU: ${product.sku}). Bisa tolong berikan informasi lebih lanjut mengenai harga dan pemesanannya?`;
+  const waMessage = `Halo Lanyard Bogor, saya tertarik dengan produk *${product.name}* (SKU: ${product.sku}). Bisa tolong berikan informasi lebih lanjut mengenai harga dan pemesanannya?`;
   const waUrl = `https://wa.me/6282210200700?text=${encodeURIComponent(waMessage)}`;
 
   return (

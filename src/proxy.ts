@@ -1,5 +1,6 @@
 import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
+import { AUTH_COOKIE_NAME } from "@/lib/auth-cookie";
 import { getJwtSecret } from "@/lib/jwt-secret";
 
 async function verifyAdminToken(token: string) {
@@ -15,7 +16,7 @@ async function verifyAdminToken(token: string) {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("token")?.value;
+  const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   const isAdmin = token ? await verifyAdminToken(token) : false;
 
   if (!isAdmin) {

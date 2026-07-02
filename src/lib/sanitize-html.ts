@@ -34,7 +34,7 @@ const ALLOWED_TAGS = new Set([
   "ul",
 ]);
 
-const GLOBAL_ATTRS = new Set(["class"]);
+const GLOBAL_ATTRS = new Set(["class", "id"]);
 const TAG_ATTRS = new Map<string, Set<string>>([
   ["a", new Set(["href", "target", "rel", "title", "class"])],
   ["img", new Set(["src", "alt", "title", "width", "height", "class"])],

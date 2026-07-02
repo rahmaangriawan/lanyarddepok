@@ -48,7 +48,7 @@ export default function LanyardBranding() {
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
         }`}>
           <span className="h-px w-8 bg-current" />
-          <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Lanyard Jakarta Branding</span>
+          <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Lanyard Bogor Branding</span>
           <span className="h-px w-8 bg-current" />
         </div>
 
@@ -60,7 +60,7 @@ export default function LanyardBranding() {
         <p className={`text-gray-500 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto transition-all duration-1000 delay-[500ms] ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
         }`}>
-          Lanyard Jakarta bukan sekadar penyangga kartu identitas. Kami merancang media promosi bergerak yang melambangkan profesionalisme, mempererat kesatuan tim, dan menyampaikan nilai-nilai brand Anda secara elegan di setiap kesempatan.
+          Lanyard Bogor bukan sekadar penyangga kartu identitas. Kami merancang media promosi bergerak yang melambangkan profesionalisme, mempererat kesatuan tim, dan menyampaikan nilai-nilai brand Anda secara elegan di setiap kesempatan.
         </p>
 
         {/* Horizontal Highlights Fade Up */}

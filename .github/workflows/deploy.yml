@@ -1,4 +1,4 @@
-name: Build and Deploy Standalone Next.js to CloudPanel
+name: Deploy Lanyard Bogor
 
 on:
   push:
@@ -6,35 +6,47 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  APP_NAME: lanyardbogor.com
+  REMOTE_PATH: htdocs/lanyardbogor.com
+  APP_PORT: "3006"
+
 jobs:
-  build-and-deploy:
-    name: Build & Deploy via SSH
+  deploy:
+    name: Build and deploy to CloudPanel
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.32.1
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
+          cache: "pnpm"
 
-      - name: Install Dependencies
-        run: npm ci
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Generate Prisma Client
-        run: npx prisma generate
-
-      - name: Build Next.js Site
-        run: npm run build
+      - name: Generate Prisma client
+        run: pnpm exec prisma generate
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          SKIP_DB_DURING_BUILD: "true"
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          DATABASE_URL: mysql://skip:skip@127.0.0.1:3306/skip
 
-      - name: Zip Standalone Assets
+      - name: Build Next.js app
+        run: pnpm build
+        env:
+          DATABASE_URL: mysql://skip:skip@127.0.0.1:3306/skip
+          SKIP_DB_DURING_BUILD: "true"
+          JWT_SECRET: build-only-placeholder
+
+      - name: Package standalone build
         run: |
           cp restart.sh .next/standalone/restart.sh
           cp -r public .next/standalone/public
@@ -45,59 +57,48 @@ jobs:
             -x ".env" "*.map" "scratch/*" "scratch/**" ".git/*" ".github/*"
           cd ../..
 
-      - name: Install sshpass
-        run: sudo apt-get update && sudo apt-get install -y sshpass
+      - name: Install SSH tooling
+        run: sudo apt-get update && sudo apt-get install -y sshpass unzip
 
-      - name: Deploy via SSH Streaming
+      - name: Upload package
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
         run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "cd htdocs/jakartalanyard.com && cat > deploy.zip" < deploy.zip
+          sshpass -p "$SSH_PASSWORD" scp \
+            -o StrictHostKeyChecking=no \
+            -P "$SSH_PORT" \
+            deploy.zip \
+            "$SSH_USER@$SSH_HOST:deploy-lanyardbogor.zip"
 
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} bash -s << 'ENDSSH'
-            set -euo pipefail
-            APP_NAME="jakartalanyard"
+      - name: Extract and restart
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh \
+            -o StrictHostKeyChecking=no \
+            -p "$SSH_PORT" \
+            "$SSH_USER@$SSH_HOST" \
+            "APP_NAME='$APP_NAME' APP_PORT='$APP_PORT' REMOTE_PATH='$REMOTE_PATH' bash -s" <<'REMOTE_SCRIPT'
+          set -e
 
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            for f in "$HOME/.bash_profile" "$HOME/.bashrc" "$HOME/.profile"; do [ -f "$f" ] && . "$f"; done
+          if [ -d "$HOME/$REMOTE_PATH" ]; then
+            APP_DIR="$HOME/$REMOTE_PATH"
+          else
+            APP_DIR="$REMOTE_PATH"
+          fi
 
-            NVM_NODE_VER=$(ls "$HOME/.nvm/versions/node" 2>/dev/null | sort -V | tail -n1)
-            if [ -n "$NVM_NODE_VER" ]; then
-              export PATH="$HOME/.nvm/versions/node/$NVM_NODE_VER/bin:$PATH"
-            fi
-            export PATH="/usr/local/bin:/usr/bin:$PATH"
+          mkdir -p "$APP_DIR"
+          cd "$APP_DIR"
 
-            cd "$HOME/htdocs/jakartalanyard.com"
-            unzip -oq deploy.zip
-            rm -f deploy.zip
+          unzip -oq "$HOME/deploy-lanyardbogor.zip"
+          rm -f "$HOME/deploy-lanyardbogor.zip"
+          chmod +x restart.sh 2>/dev/null || true
 
-            if [ -f .env ]; then
-              set -a
-              . ./.env
-              set +a
-            fi
-            export PORT="${PORT:-3005}"
-            export NODE_ENV=production
-
-            if command -v pm2 >/dev/null 2>&1; then
-              echo "Restarting $APP_NAME on port $PORT"
-              fuser -k "$PORT/tcp" 2>/dev/null || true
-              sleep 2
-              pm2 restart "$APP_NAME" --update-env 2>&1 || pm2 start server.js --name "$APP_NAME"
-              pm2 save 2>/dev/null || true
-              sleep 5
-              pm2 list 2>/dev/null || true
-              pm2 logs "$APP_NAME" --lines 40 --nostream 2>&1 || true
-            else
-              echo "PM2 not found, starting with nohup"
-              pkill -f "node server.js" 2>/dev/null || true
-              pkill -f "next-server" 2>/dev/null || true
-              sleep 2
-              nohup node server.js > node.log 2>&1 &
-              sleep 5
-            fi
-
-            curl -fsS "http://127.0.0.1:$PORT/" >/dev/null
-            curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null
-            echo "Deploy health checks passed."
-          ENDSSH
+          PORT="$APP_PORT" APP_NAME="$APP_NAME" ./restart.sh
+          REMOTE_SCRIPT

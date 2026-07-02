@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
@@ -8,20 +8,15 @@ import LogoLoop from "@/components/LogoLoop";
 
 import dynamic from "next/dynamic";
 
-import LanyardPreviewer from "@/components/LanyardPreviewer";
-import LanyardProducts from "@/components/LanyardProducts";
-import LanyardBranding from "@/components/LanyardBranding";
-import Testimonials from "@/components/Testimonials";
+import AnimatedTestimonialsSection from "@/components/AnimatedTestimonialsSection";
+import HomepageFaqSection from "@/components/HomepageFaqSection";
+import HomeHero from "@/components/HomeHero";
+import FeaturedProductsSection from "@/components/FeaturedProductsSection";
+import WhyChooseLanyardBogor from "@/components/WhyChooseLanyardBogor";
+import ProductBenefitsStrip from "@/components/ProductBenefitsStrip";
+import LanyardRadialGallerySection from "@/components/LanyardRadialGallerySection";
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
-
-const LanyardPortfolio = dynamic(() => import("@/components/LanyardPortfolio"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-[450px] sm:h-[550px] md:h-[600px] flex items-center justify-center bg-gray-50/50 rounded-2xl select-none">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#e13b3d]"></div>
-    </div>
-  ),
-});
+import type { UnifiedProduct } from "@/lib/products-service";
 
 const OrderForm = dynamic(() => import("@/components/OrderForm"), {
   ssr: false,
@@ -49,18 +44,18 @@ const HOMEPAGE_SCHEMA = {
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://lanyardjakarta.co.id/#organization",
-      "name": "Lanyard Jakarta",
-      "url": "https://lanyardjakarta.co.id",
-      "logo": "https://lanyardjakarta.co.id/images/logo.webp",
-      "image": "https://lanyardjakarta.co.id/images/logo.webp",
-      "description": "Produsen cetak tali lanyard custom premium cepat dan murah di Jakarta.",
+      "@id": "https://lanyardbogor.com/#organization",
+      "name": "Lanyard Bogor",
+      "url": "https://lanyardbogor.com",
+      "logo": "https://lanyardbogor.com/uploads/lanyardbogor-logo.webp",
+      "image": "https://lanyardbogor.com/uploads/lanyardbogor-logo.webp",
+      "description": "Produsen cetak tali lanyard custom premium cepat dan murah di Bogor.",
       "telephone": "+6282210200700",
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "Jakarta",
-        "addressLocality": "Jakarta",
-        "addressRegion": "DKI Jakarta",
+        "streetAddress": "Bogor",
+        "addressLocality": "Bogor",
+        "addressRegion": "Bogor",
         "postalCode": "10000",
         "addressCountry": "ID"
       },
@@ -72,23 +67,35 @@ const HOMEPAGE_SCHEMA = {
         "availableLanguage": ["id", "en"]
       },
       "sameAs": [
-        "https://www.facebook.com/lanyardjakarta",
-        "https://www.instagram.com/lanyardjakarta"
+        "https://www.facebook.com/lanyardbogor",
+        "https://www.instagram.com/lanyardbogor"
       ]
     },
     {
       "@type": "WebSite",
-      "@id": "https://lanyardjakarta.co.id/#website",
-      "url": "https://lanyardjakarta.co.id",
-      "name": "Lanyard Jakarta",
+      "@id": "https://lanyardbogor.com/#website",
+      "url": "https://lanyardbogor.com",
+      "name": "Lanyard Bogor",
       "publisher": {
-        "@id": "https://lanyardjakarta.co.id/#organization"
+        "@id": "https://lanyardbogor.com/#organization"
       },
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://lanyardjakarta.co.id/?s={search_term_string}",
+        "target": "https://lanyardbogor.com/blog?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://lanyardbogor.com/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Beranda",
+          "item": "https://lanyardbogor.com"
+        }
+      ]
     }
   ]
 };
@@ -98,98 +105,58 @@ export type HomepagePost = {
   title: string;
   slug: string;
   featuredImage: string | null;
-  categoryName: string | null;
-  createdAt: string;
-  excerpt: string;
 };
 
 type HomeClientProps = {
   latestPosts?: HomepagePost[];
+  homepageProducts?: UnifiedProduct[];
 };
 
 function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
   if (posts.length === 0) return null;
 
   return (
-    <section className="bg-white py-14 sm:py-16 border-t border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 text-center lg:text-left mb-10">
-          <div className="space-y-4">
-            <div className="inline-flex items-center justify-center gap-3 text-brand-red">
-              <span className="h-px w-8 bg-current" />
-              <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Blog Terbaru</span>
-              <span className="h-px w-8 bg-current" />
-            </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#373f50] tracking-tight leading-tight">
-              Insight & Tips <span className="text-brand-red">Lanyard</span>
+    <section className="homepage-blog-section">
+      <div className="homepage-blog-container">
+        <div className="homepage-blog-grid">
+          <div className="homepage-blog-intro">
+            <p className="homepage-blog-kicker">Blog Terbaru</p>
+            <h2>
+              <span>Artikel &amp; Insight</span>
+              <span>Terbaru</span>
             </h2>
-            <p className="text-sm sm:text-base font-normal text-gray-500 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+            <p>
               Baca panduan terbaru seputar desain, bahan, dan kebutuhan branding untuk lanyard custom.
             </p>
+            <Link href="/blog" className="homepage-blog-browse">
+              <span>Lihat Semua</span>
+              <Icon icon="lucide:arrow-right" />
+            </Link>
           </div>
 
-          <Link
-            href="/blog"
-            className="inline-flex items-center justify-center self-center lg:self-auto rounded-xl border border-gray-200 bg-white px-5 py-3 text-xs font-extrabold text-[#373f50] hover:border-brand-red hover:text-brand-red transition-colors"
-          >
-            <span>Lihat Semua Artikel</span>
-            <Icon icon="lucide:arrow-right" className="ml-2 h-4 w-4" />
-          </Link>
-        </div>
-
-        <div className="flex snap-x snap-mandatory gap-6 overflow-x-auto pr-4 pb-3 md:grid md:grid-cols-3 md:gap-7 md:overflow-visible md:pr-0 md:pb-0 lg:gap-8">
-          {posts.map((post) => {
-            const formattedDate = new Date(post.createdAt).toLocaleDateString("id-ID", {
-              day: "2-digit",
-              month: "long",
-              year: "numeric",
-              timeZone: "Asia/Jakarta",
-            });
-
+          {posts.slice(0, 5).map((post) => {
             return (
-              <article
-                key={post.id}
-                className="group flex h-full w-[84%] min-w-[84%] snap-start flex-col md:w-auto md:min-w-0"
-              >
-                <Link href={`/blog/${post.slug}`} className="block relative aspect-[16/9] overflow-hidden bg-gray-50 rounded-[10px] shrink-0">
+              <article key={post.id} className="homepage-blog-card">
+                <Link href={`/blog/${post.slug}`} className="homepage-blog-media" aria-label={post.title}>
                   {post.featuredImage ? (
                     <Image
                       src={post.featuredImage}
                       alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="homepage-blog-image"
                       width={520}
                       height={292}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-100">
-                      <Icon icon="lucide:image" className="h-12 w-12" />
+                    <div className="homepage-blog-placeholder">
+                      <Icon icon="lucide:image" className="h-10 w-10" />
                     </div>
                   )}
-                  <span className="absolute top-4 right-4 bg-white/80 backdrop-blur-xs text-[#373f50] text-sm font-medium px-4 py-1 rounded-full">
-                    {post.categoryName || "Artikel"}
-                  </span>
                 </Link>
 
-                <div className="flex flex-1 flex-col justify-between pt-5 px-4 sm:px-5">
-                  <Link href={`/blog/${post.slug}`} className="block">
-                    <h3 className="text-[#111827] text-lg sm:text-xl font-medium leading-snug tracking-normal group-hover:text-brand-red transition-colors line-clamp-2">
-                      {post.title}
-                    </h3>
+                <div className="homepage-blog-content">
+                  <Link href={`/blog/${post.slug}`} className="homepage-blog-title-link">
+                    <h3>{post.title}</h3>
                   </Link>
-
-                  <div className="mt-6 flex items-center justify-between gap-4 text-xs font-normal text-gray-500">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Icon icon="lucide:calendar-days" className="h-3.5 w-3.5 shrink-0 text-gray-400" />
-                      <span className="truncate">{formattedDate}</span>
-                    </div>
-                    <Link
-                      href={`/blog/${post.slug}`}
-                      className="inline-flex shrink-0 items-center gap-2 text-xs font-normal text-gray-500 hover:text-brand-red transition-colors"
-                    >
-                      <span>Read more</span>
-                      <Icon icon="lucide:chevron-right" className="h-3.5 w-3.5" />
-                    </Link>
-                  </div>
                 </div>
               </article>
             );
@@ -200,7 +167,7 @@ function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
   );
 }
 
-export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
+export default function HomeClient({ latestPosts = [], homepageProducts = [] }: HomeClientProps) {
 
   // Preview states
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -257,7 +224,7 @@ export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
       }
 
       setPreviewError("Konten pratinjau tidak ditemukan atau Anda tidak memiliki akses admin.");
-    } catch (err) {
+    } catch {
       setPreviewError("Gagal memuat pratinjau konten.");
     } finally {
       setPreviewLoading(false);
@@ -354,87 +321,22 @@ export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
 
       <main className="flex-grow">
         
-        {/* Modern 2-Column Hero Section */}
-        <section id="hero" className="relative bg-[#FDFDFD] overflow-hidden flex flex-col lg:flex-row items-stretch min-h-[calc(100vh-72px)] lg:h-[calc(100vh-176px)] select-none">
-          {/* Left Column - Content */}
-          <div className="w-full lg:w-1/2 flex items-center justify-end py-12 lg:py-0 px-4 sm:px-6 lg:px-8 z-10">
-            <div className="max-w-[540px] w-full lg:pr-6 space-y-6 text-center lg:text-left">
-              
-              {/* Title */}
-              <h1 className="text-4xl sm:text-5xl font-extrabold text-[#373f50] leading-[1.15] tracking-tight">
-                Cetak <span className="text-[#e13b3d]">Lanyard Jakarta</span> Premium & Custom Tanpa Batas
-              </h1>
+        <HomeHero />
 
-              {/* Description */}
-              <p className="text-base sm:text-lg text-gray-500 font-normal leading-relaxed">
-                Spesialis pembuatan tali gantungan ID card custom berkualitas tinggi untuk perkantoran, instansi pemerintah, dan berbagai event besar. Hasil cetak detail presisi dengan bahan premium yang nyaman dipakai sepanjang hari.
-              </p>
+        <FeaturedProductsSection products={homepageProducts} />
 
-              {/* 3 Key Advantages */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-center justify-center lg:justify-start space-x-3">
-                  <div className="bg-[#ffe3e3] p-1.5 rounded-full text-[#e13b3d] shrink-0">
-                    <Icon icon="lucide:check" className="h-4 w-4" />
-                  </div>
-                  <span className="text-sm sm:text-base font-bold text-[#373f50]">Kualitas Cetak Premium & Tahan Lama</span>
-                </div>
-                <div className="flex items-center justify-center lg:justify-start space-x-3">
-                  <div className="bg-[#ffe3e3] p-1.5 rounded-full text-[#e13b3d] shrink-0">
-                    <Icon icon="lucide:check" className="h-4 w-4" />
-                  </div>
-                  <span className="text-sm sm:text-base font-bold text-[#373f50]">Proses Cepat & Tepat Waktu</span>
-                </div>
-                <div className="flex items-center justify-center lg:justify-start space-x-3">
-                  <div className="bg-[#ffe3e3] p-1.5 rounded-full text-[#e13b3d] shrink-0">
-                    <Icon icon="lucide:check" className="h-4 w-4" />
-                  </div>
-                  <span className="text-sm sm:text-base font-bold text-[#373f50]">Minimal Order Fleksibel & Terjangkau</span>
-                </div>
-              </div>
+        <ProductBenefitsStrip />
 
-              {/* 2 CTA Buttons */}
-              <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 pt-2">
-                <Link
-                  href="https://wa.me/6282210200700"
-                  target="_blank"
-                  className="inline-flex w-full sm:w-auto items-center justify-center bg-[#e13b3d] hover:bg-[#c82a2c] text-white text-sm sm:text-base font-bold px-6 py-3.5 rounded-xl shadow-lg shadow-[#e13b3d]/20 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-xl cursor-pointer"
-                >
-                  <Icon icon="lucide:phone" className="mr-2 h-5 w-5" />
-                  <span>Pesan via WhatsApp</span>
-                </Link>
-                <Link
-                  href="/produk"
-                  className="inline-flex w-full sm:w-auto items-center justify-center bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-sm sm:text-base font-bold px-6 py-3.5 rounded-xl shadow-sm transition-all duration-300 transform hover:-translate-y-0.5"
-                >
-                  <span>Lihat Katalog</span>
-                  <Icon icon="lucide:shopping-bag" className="ml-2 h-5 w-5 text-gray-400" />
-                </Link>
-              </div>
-
-            </div>
-          </div>
-
-          {/* Right Column - Image (Stretching and flush to screen edge) */}
-          <div className="w-full lg:w-1/2 relative min-h-[350px] lg:min-h-0 bg-gray-100 overflow-hidden">
-            <Image
-              src="/uploads/lanyard-jakarta-hero-1782129081107.webp"
-              alt="Lanyard Jakarta Premium"
-              className="absolute inset-0 w-full h-full object-cover object-bottom pointer-events-none"
-              draggable="false"
-              preload
-              width={964}
-              height={1254}
-            />
-          </div>
-        </section>
+        <WhyChooseLanyardBogor />
 
         {/* Brand Logo Loop Section */}
-        <section className="bg-white py-6 border-b border-gray-100/60 select-none">
+        <section className="bg-white pt-6 pb-[60px] border-b border-gray-100/60 select-none">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="w-full overflow-hidden">
               <LogoLoop
                 logos={PARTNER_LOGOS}
                 speed={40}
+                direction="right"
                 logoHeight={32}
                 gap={48}
                 fadeOut
@@ -446,26 +348,17 @@ export default function HomeClient({ latestPosts = [] }: HomeClientProps) {
           </div>
         </section>
 
-        {/* Live Preview / Customizer Section */}
-        <LanyardPreviewer />
+        <LanyardRadialGallerySection />
 
-        {/* Dynamic Pricing / Order Section */}
-        <LanyardProducts />
+        <AnimatedTestimonialsSection />
 
-        {/* Portfolio Section */}
-        <LanyardPortfolio />
-
-        {/* Branding Section */}
-        <LanyardBranding />
-
-        {/* Testimonials Section */}
-        <Testimonials />
-
-        {/* Inquiry Form / Contact Section */}
-        <OrderForm />
+        <HomepageFaqSection />
 
         {/* Latest Blog Section */}
         <LatestBlogSection posts={latestPosts} />
+
+        {/* Inquiry Form / Contact Section */}
+        <OrderForm />
       </main>
 
     </div>

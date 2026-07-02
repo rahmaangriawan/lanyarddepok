@@ -4,7 +4,7 @@ export async function GET() {
   return NextResponse.json(
     {
       ok: true,
-      app: "lanyardjakarta",
+      app: "lanyardbogor",
       env: process.env.NODE_ENV || "development",
       time: new Date().toISOString(),
     },

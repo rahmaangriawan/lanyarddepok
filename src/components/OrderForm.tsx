@@ -216,56 +216,54 @@ export default function OrderForm() {
   };
 
   return (
-    <div id="contact" className="bg-white py-20 scroll-mt-16 border-t border-gray-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+    <div id="contact" className="contact-section">
+      <div className="contact-section-container">
+        <div className="contact-section-grid">
           {/* Contact Details */}
-          <div className="lg:col-span-5 space-y-6 text-center lg:text-left">
+          <div className="contact-section-copy">
             <div>
-              <div className="inline-flex items-center gap-3 text-brand-red">
-                <span className="h-px w-8 bg-current" />
-                <span className="text-xs font-extrabold uppercase tracking-[0.18em]">Hubungi Kami</span>
-                <span className="h-px w-8 bg-current" />
+              <div className="contact-section-kicker">
+                <strong>Hubungi Kami</strong>
               </div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#373f50] mt-4 tracking-tight leading-tight">
+              <h2 className="contact-section-title">
                 Ada Pertanyaan?<br />
-                Hubungi <span className="text-[#e13b3d]">Kami</span>
+                Hubungi <span>Kami</span>
               </h2>
-              <p className="text-sm sm:text-base font-normal text-gray-500 mt-4 leading-relaxed">
+              <p className="contact-section-description">
                 Butuh bantuan mengenai spesifikasi desain, penawaran harga khusus instansi
                 pemerintah/perusahaan skala besar, atau info stok aksesoris? Kirimkan pesan Anda langsung
                 di samping.
               </p>
             </div>
 
-            <hr className="border-gray-200 my-6" />
+            <hr className="contact-section-divider" />
 
-            <div className="space-y-6 text-left">
+            <div className="contact-section-info-list">
               {/* Alamat Produksi */}
-              <div className="flex items-start space-x-4">
-                <div className="bg-[#FFF0F0] p-3 rounded-xl text-brand-red shrink-0 flex items-center justify-center">
+              <div className="contact-section-info-item">
+                <div className="contact-section-info-icon">
                   <Icon icon="lucide:map-pin" className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Alamat Produksi</h3>
-                  <p className="text-xs font-semibold text-gray-500 leading-relaxed mt-1">
-                    DKI Jakarta, Indonesia
+                  <h3>Alamat Produksi</h3>
+                  <p>
+                    Bogor, Indonesia
                   </p>
                 </div>
               </div>
 
               {/* WhatsApp HotLine */}
-              <div className="flex items-start space-x-4">
-                <div className="bg-[#FFF0F0] p-3 rounded-xl text-brand-red shrink-0 flex items-center justify-center">
+              <div className="contact-section-info-item">
+                <div className="contact-section-info-icon">
                   <Icon icon="lucide:phone" className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">WhatsApp HotLine</h3>
+                  <h3>WhatsApp HotLine</h3>
                   <a
                     href="https://wa.me/6282210200700"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-extrabold text-brand-red hover:underline block mt-1"
+                    className="contact-section-info-link contact-section-info-link-strong"
                   >
                     +62 822-1020-0700
                   </a>
@@ -273,17 +271,17 @@ export default function OrderForm() {
               </div>
 
               {/* Email Support */}
-              <div className="flex items-start space-x-4">
-                <div className="bg-[#FFF0F0] p-3 rounded-xl text-brand-red shrink-0 flex items-center justify-center">
+              <div className="contact-section-info-item">
+                <div className="contact-section-info-icon">
                   <Icon icon="lucide:mail" className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Email Support</h3>
+                  <h3>Email Support</h3>
                   <a
-                    href="mailto:info@lanyardjakarta.co.id"
-                    className="text-xs font-semibold text-gray-500 hover:text-brand-red block mt-1"
+                    href="mailto:info@lanyardbogor.com"
+                    className="contact-section-info-link"
                   >
-                    info@lanyardjakarta.co.id
+                    info@lanyardbogor.com
                   </a>
                 </div>
               </div>
@@ -291,11 +289,11 @@ export default function OrderForm() {
           </div>
 
           {/* Form */}
-          <div className="lg:col-span-7 bg-[#F8F9FA] p-6 sm:p-10 rounded-2xl shadow-sm">
-            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="contact-section-form-panel">
+            <form onSubmit={handleSubmit} className="contact-section-form" noValidate>
+              <div className="contact-section-form-grid">
                 <div>
-                  <label htmlFor="inquiryName" className="block mb-2 text-xs font-bold text-gray-900 uppercase tracking-wider">
+                  <label htmlFor="inquiryName" className="contact-section-label">
                     Nama Lengkap
                   </label>
                   <input
@@ -307,8 +305,8 @@ export default function OrderForm() {
                       if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: undefined }));
                     }}
                     placeholder="Masukkan nama Anda..."
-                    className={`bg-white border text-gray-900 text-sm rounded-xl focus:ring-brand-red focus:border-brand-red block w-full p-3.5 transition-all outline-none ${
-                      fieldErrors.name ? "border-red-500" : "border-gray-200"
+                    className={`contact-section-input ${
+                      fieldErrors.name ? "contact-section-input-error" : ""
                     }`}
                   />
                   {fieldErrors.name && (
@@ -320,7 +318,7 @@ export default function OrderForm() {
                 </div>
 
                 <div>
-                  <label htmlFor="inquiryEmail" className="block mb-2 text-xs font-bold text-gray-900 uppercase tracking-wider">
+                  <label htmlFor="inquiryEmail" className="contact-section-label">
                     Alamat Email
                   </label>
                   <input
@@ -332,8 +330,8 @@ export default function OrderForm() {
                       if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }));
                     }}
                     placeholder="nama@email.com..."
-                    className={`bg-white border text-gray-900 text-sm rounded-xl focus:ring-brand-red focus:border-brand-red block w-full p-3.5 transition-all outline-none ${
-                      fieldErrors.email ? "border-red-500" : "border-gray-200"
+                    className={`contact-section-input ${
+                      fieldErrors.email ? "contact-section-input-error" : ""
                     }`}
                   />
                   {fieldErrors.email && (
@@ -346,7 +344,7 @@ export default function OrderForm() {
               </div>
 
               <div>
-                <label htmlFor="inquiryPhone" className="block mb-2 text-xs font-bold text-gray-900 uppercase tracking-wider">
+                <label htmlFor="inquiryPhone" className="contact-section-label">
                   Nomor Telepon / WhatsApp (Aktif)
                 </label>
                 <input
@@ -361,8 +359,8 @@ export default function OrderForm() {
                     if (fieldErrors.phone) setFieldErrors((prev) => ({ ...prev, phone: undefined }));
                   }}
                   placeholder="Contoh: 0812XXXXXXXX..."
-                  className={`bg-white border text-gray-900 text-sm rounded-xl focus:ring-brand-red focus:border-brand-red block w-full p-3.5 transition-all outline-none ${
-                    fieldErrors.phone ? "border-red-500" : "border-gray-200"
+                  className={`contact-section-input ${
+                    fieldErrors.phone ? "contact-section-input-error" : ""
                   }`}
                 />
                 {fieldErrors.phone && (
@@ -374,7 +372,7 @@ export default function OrderForm() {
               </div>
 
               <div>
-                <label htmlFor="inquiryMessage" className="block mb-2 text-xs font-bold text-gray-900 uppercase tracking-wider">
+                <label htmlFor="inquiryMessage" className="contact-section-label">
                   Pesan Anda
                 </label>
                 <textarea
@@ -386,8 +384,8 @@ export default function OrderForm() {
                     if (fieldErrors.message) setFieldErrors((prev) => ({ ...prev, message: undefined }));
                   }}
                   placeholder="Ketik detail pertanyaan Anda..."
-                  className={`bg-white border text-gray-900 text-sm rounded-xl focus:ring-brand-red focus:border-brand-red block w-full p-3.5 transition-all outline-none resize-y placeholder-gray-400 ${
-                    fieldErrors.message ? "border-red-500" : "border-gray-200"
+                  className={`contact-section-input contact-section-textarea ${
+                    fieldErrors.message ? "contact-section-input-error" : ""
                   }`}
                 />
                 {fieldErrors.message && (
@@ -411,7 +409,7 @@ export default function OrderForm() {
                 <div className="flex p-4 text-xs font-semibold text-green-800 rounded-xl bg-green-50 border border-green-150" role="alert">
                   <Icon icon="lucide:check-circle-2" className="flex-shrink-0 inline w-4.5 h-4.5 mr-2.5 mt-0.5" />
                   <div>
-                    <span className="font-bold">Pesan Terkirim!</span> Tim Lanyard Jakarta akan segera menghubungi Anda melalui nomor telepon / WhatsApp yang dicantumkan. Terima kasih.
+                    <span className="font-bold">Pesan Terkirim!</span> Tim Lanyard Bogor akan segera menghubungi Anda melalui nomor telepon / WhatsApp yang dicantumkan. Terima kasih.
                   </div>
                 </div>
               )}
@@ -419,7 +417,7 @@ export default function OrderForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full text-white bg-brand-red hover:bg-[#D9383D] active:bg-[#C22F34] focus:ring-4 focus:ring-red-200 font-bold rounded-xl text-[13px] px-6 py-4 text-center disabled:opacity-50 cursor-pointer uppercase flex items-center justify-center space-x-2.5 tracking-wider transition-all"
+                className="contact-section-submit"
               >
                 <Icon icon="lucide:send" className="h-4.5 w-4.5 transition-transform group-hover:translate-x-1" />
                 <span>{loading ? "Mengirim..." : "Kirim Pertanyaan"}</span>

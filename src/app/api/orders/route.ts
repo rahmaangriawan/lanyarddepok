@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { assertSameOrigin } from "@/lib/security";
+import { assertSameOrigin, checkRateLimit, getClientIp, rateLimitResponse } from "@/lib/security";
 
 // GET: Fetch order history (single user orders, or all orders if role is ADMIN)
 export async function GET() {
@@ -40,6 +40,11 @@ export async function POST(request: Request) {
   try {
     const csrfError = assertSameOrigin(request);
     if (csrfError) return csrfError;
+
+    const ip = getClientIp(request);
+    if (!checkRateLimit(`order:${ip}`, 10, 10 * 60 * 1000)) {
+      return rateLimitResponse("Terlalu banyak membuat pesanan. Silakan coba lagi dalam 10 menit.");
+    }
 
     const user = await getSessionUser();
     

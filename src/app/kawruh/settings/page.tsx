@@ -264,15 +264,15 @@ export default function SettingsPage() {
             <div className="p-5 space-y-4">
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Nama Situs</label>
-                <input type="text" value={settings.site_title} onChange={(e) => handleChange("site_title", e.target.value)} placeholder="Lanyard Jakarta" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <input type="text" value={settings.site_title} onChange={(e) => handleChange("site_title", e.target.value)} placeholder="Lanyard Bogor" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Deskripsi Situs</label>
-                <textarea rows={3} value={settings.site_description} onChange={(e) => handleChange("site_description", e.target.value)} placeholder="Cetak lanyard custom terbaik di Jakarta..." className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <textarea rows={3} value={settings.site_description} onChange={(e) => handleChange("site_description", e.target.value)} placeholder="Cetak lanyard custom terbaik di Bogor..." className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Teks Footer</label>
-                <input type="text" value={settings.footer_text} onChange={(e) => handleChange("footer_text", e.target.value)} placeholder="© 2026 Lanyard Jakarta. All rights reserved." className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <input type="text" value={settings.footer_text} onChange={(e) => handleChange("footer_text", e.target.value)} placeholder="© 2026 Lanyard Bogor. All rights reserved." className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
               </div>
             </div>
           </div>
@@ -303,11 +303,11 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Email</label>
-                <input type="email" value={settings.contact_email} onChange={(e) => handleChange("contact_email", e.target.value)} placeholder="cs@jakartalanyard.com" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <input type="email" value={settings.contact_email} onChange={(e) => handleChange("contact_email", e.target.value)} placeholder="cs@lanyardbogor.com" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Alamat</label>
-                <input type="text" value={settings.contact_address} onChange={(e) => handleChange("contact_address", e.target.value)} placeholder="Jl. Contoh No. 123, Jakarta" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <input type="text" value={settings.contact_address} onChange={(e) => handleChange("contact_address", e.target.value)} placeholder="Jl. Contoh No. 123, Bogor" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
               </div>
             </div>
           </div>
@@ -333,16 +333,16 @@ export default function SettingsPage() {
                   <Icon icon="lucide:info" className="h-4 w-4 text-amber-600" />
                   <span>Tentang Site Title</span>
                 </div>
-                <p>Site Title akan otomatis ditambahkan sebagai suffix di semua halaman. Contoh: <strong>&quot;Cara Pemesanan - Lanyard Jakarta&quot;</strong>. Meta Title di bawah digunakan khusus untuk halaman utama (homepage).</p>
+                <p>Site Title akan otomatis ditambahkan sebagai suffix di semua halaman. Contoh: <strong>&quot;Cara Pemesanan - Lanyard Bogor&quot;</strong>. Meta Title di bawah digunakan khusus untuk halaman utama (homepage).</p>
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Site Title (Nama Situs)</label>
-                <input type="text" value={settings.site_title} onChange={(e) => handleChange("site_title", e.target.value)} placeholder="Lanyard Jakarta" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
-                <p className="text-[10px] text-gray-400 font-semibold mt-1">Digunakan sebagai suffix judul di semua halaman (contoh: &quot;Nama Halaman - {settings.site_title || 'Lanyard Jakarta'}&quot;).</p>
+                <input type="text" value={settings.site_title} onChange={(e) => handleChange("site_title", e.target.value)} placeholder="Lanyard Bogor" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <p className="text-[10px] text-gray-400 font-semibold mt-1">Digunakan sebagai suffix judul di semua halaman (contoh: &quot;Nama Halaman - {settings.site_title || 'Lanyard Bogor'}&quot;).</p>
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Meta Title (Homepage)</label>
-                <input type="text" value={settings.seo_meta_title} onChange={(e) => handleChange("seo_meta_title", e.target.value)} placeholder="Lanyard Jakarta | Cetak Lanyard Custom Online" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <input type="text" value={settings.seo_meta_title} onChange={(e) => handleChange("seo_meta_title", e.target.value)} placeholder="Lanyard Bogor | Cetak Lanyard Custom Online" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
                 <p className="text-[10px] text-gray-400 font-semibold mt-1">Judul khusus untuk halaman utama. Rekomendasi: 50–60 karakter. Saat ini: {settings.seo_meta_title.length} karakter.</p>
               </div>
               <div>
@@ -467,15 +467,15 @@ export default function SettingsPage() {
             <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Instagram</label>
-                <input type="text" value={settings.social_instagram} onChange={(e) => handleChange("social_instagram", e.target.value)} placeholder="https://instagram.com/lanyardjakarta" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <input type="text" value={settings.social_instagram} onChange={(e) => handleChange("social_instagram", e.target.value)} placeholder="https://instagram.com/lanyardbogor" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Facebook</label>
-                <input type="text" value={settings.social_facebook} onChange={(e) => handleChange("social_facebook", e.target.value)} placeholder="https://facebook.com/lanyardjakarta" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <input type="text" value={settings.social_facebook} onChange={(e) => handleChange("social_facebook", e.target.value)} placeholder="https://facebook.com/lanyardbogor" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">TikTok</label>
-                <input type="text" value={settings.social_tiktok} onChange={(e) => handleChange("social_tiktok", e.target.value)} placeholder="https://tiktok.com/@lanyardjakarta" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <input type="text" value={settings.social_tiktok} onChange={(e) => handleChange("social_tiktok", e.target.value)} placeholder="https://tiktok.com/@lanyardbogor" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
               </div>
             </div>
           </div>
@@ -889,7 +889,7 @@ export default function SettingsPage() {
                     type="text"
                     value={settings.google_search_console_site_url}
                     onChange={(e) => handleChange("google_search_console_site_url", e.target.value)}
-                    placeholder="Contoh: https://lanyardjakarta.com"
+                    placeholder="Contoh: https://lanyardbogor.com"
                     className="bg-gray-50 border border-gray-200 text-gray-950 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5"
                   />
                 </div>

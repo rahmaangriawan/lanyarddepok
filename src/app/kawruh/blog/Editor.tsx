@@ -333,7 +333,7 @@ export default function BlogEditor({ editId }: { editId?: number }) {
           setError("Gagal memuat detail postingan.");
         }
       } else {
-        // Create mode: set initial date/time in Jakarta timezone
+        // Create mode: set initial date/time in Bogor timezone
         const now = new Date();
         const dateStr = now.toLocaleDateString("sv-SE", {
           timeZone: "Asia/Jakarta",
@@ -1014,7 +1014,7 @@ export default function BlogEditor({ editId }: { editId?: number }) {
 
     // 7. Internal link
     const hasInternalLink =
-      /<a\s+(?:[^>]*?\s+)?href=["'](?:\/|https?:\/\/(?:www\.)?(?:lanyardjakarta\.co\.id|jakartalanyard\.com))/i.test(
+      /<a\s+(?:[^>]*?\s+)?href=["'](?:\/|https?:\/\/(?:www\.)?(?:lanyardbogor\.co\.id|bogorlanyard\.com))/i.test(
         content,
       );
 
@@ -1079,7 +1079,7 @@ export default function BlogEditor({ editId }: { editId?: number }) {
         id: "hasInternalLink",
         label: "Internal link",
         passed: hasInternalLink,
-        tip: "Tambahkan tautan (link) internal ke halaman lain dalam situs lanyardjakarta.co.id.",
+        tip: "Tambahkan tautan (link) internal ke halaman lain dalam situs lanyardbogor.com.",
       },
       {
         id: "hasFeaturedImage",
@@ -1254,7 +1254,7 @@ export default function BlogEditor({ editId }: { editId?: number }) {
                 </div>
                 {(title || slug) && (
                   <p className="text-[10px] text-gray-400 font-medium mt-1">
-                    URL artikel: jakartalanyard.com/blog/
+                    URL artikel: lanyardbogor.com/blog/
                     <span className="text-gray-500">
                       {autoSlug || "contoh-artikel-blog"}
                     </span>
@@ -1766,7 +1766,7 @@ export default function BlogEditor({ editId }: { editId?: number }) {
                   </label>
                   <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 space-y-1">
                     <p className="text-[10px] text-green-700 font-medium truncate">
-                      jakartalanyard.com &rsaquo; blog &rsaquo;{" "}
+                      lanyardbogor.com &rsaquo; blog &rsaquo;{" "}
                       {autoSlug || "contoh-artikel-blog"}
                     </p>
                     <p className="text-sm font-bold text-blue-700 leading-tight truncate">

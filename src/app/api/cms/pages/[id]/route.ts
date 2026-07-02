@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { assertSameOrigin } from "@/lib/security";
 import { normalizeCmsHtml } from "@/lib/sanitize-html";
+import { PAGES_CACHE_TAG } from "@/lib/public-cache";
 
 export async function GET(
   request: Request,
@@ -83,6 +84,7 @@ export async function PUT(
     });
 
     revalidatePath(`/${updatedPage.slug}`);
+    revalidateTag(PAGES_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, page: updatedPage });
   } catch (error: any) {
@@ -112,6 +114,7 @@ export async function DELETE(
 
     const deletedPage = await prisma.page.delete({ where: { id: pageId } });
     revalidatePath(`/${deletedPage.slug}`);
+    revalidateTag(PAGES_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, message: "Page deleted successfully" });
   } catch (error: any) {

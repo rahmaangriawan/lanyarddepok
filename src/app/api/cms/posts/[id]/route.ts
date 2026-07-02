@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { assertSameOrigin } from "@/lib/security";
 import { normalizeCmsHtml } from "@/lib/sanitize-html";
+import { POSTS_CACHE_TAG } from "@/lib/public-cache";
 
 export async function GET(
   request: Request,
@@ -106,6 +107,7 @@ export async function PUT(
     revalidatePath("/");
     revalidatePath("/blog");
     revalidatePath(`/blog/${updatedPost.slug}`);
+    revalidateTag(POSTS_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, post: updatedPost });
   } catch (error: any) {
@@ -140,6 +142,7 @@ export async function DELETE(
     revalidatePath("/");
     revalidatePath("/blog");
     revalidatePath(`/blog/${deletedPost.slug}`);
+    revalidateTag(POSTS_CACHE_TAG, "max");
 
     return NextResponse.json({ success: true, message: "Post deleted successfully" });
   } catch (error: any) {

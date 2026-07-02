@@ -137,6 +137,7 @@ export default function LanyardPortfolio() {
           <Link
             href="https://wa.me/6282210200700"
             target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center justify-center bg-white border border-[#e13b3d] text-[#e13b3d] hover:bg-[#ffe3e3]/20 text-xs sm:text-sm font-extrabold px-6 py-3.5 rounded-full transition-all duration-300 transform hover:-translate-y-0.5"
           >
             <span>Lihat Portofolio Lainnya</span>

@@ -106,7 +106,7 @@ export default function Dashboard() {
             Selamat Datang di Kawruh CMS
           </h1>
           <p className="text-sm font-medium text-gray-400 max-w-xl leading-relaxed">
-            Pusat kendali untuk mengelola seluruh konten situs Lanyard Jakarta.
+            Pusat kendali untuk mengelola seluruh konten situs Lanyard Bogor.
             <br />
             Pantau statistik dan kelola halaman, produk, dan blog dalam satu
             tempat.

@@ -1,89 +1,86 @@
-import { Icon } from "@iconify/react";
 import { Metadata } from "next";
+import { getProducts } from "@/lib/products-server";
+import { createOpenGraphMetadata, organizationSchema, SITE_URL } from "@/lib/seo";
 import ProdukListing from "./ProdukListing";
 
-export const metadata: Metadata = {
-  title: "Katalog Produk Tali Lanyard Custom",
-  description:
-    "Jelajahi berbagai pilihan cetak tali gantungan lanyard custom premium kualitas terbaik di Lanyard Jakarta. Lanyard sublimasi, rajut woven, bundling holder, harga murah.",
-  alternates: {
-    canonical: "/produk",
-  },
-};
+interface PageProps {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
+const PRODUCTS_TITLE = "Katalog Produk Tali Lanyard Custom";
+const PRODUCTS_DESCRIPTION =
+  "Jelajahi berbagai pilihan cetak tali gantungan lanyard custom premium kualitas terbaik di Lanyard Bogor. Lanyard sublimasi, rajut woven, bundling holder, harga murah.";
+
+export async function generateMetadata({
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const params = searchParams ? await searchParams : {};
+  const hasListingQuery = Object.values(params).some((value) => {
+    if (Array.isArray(value)) return value.some(Boolean);
+    return Boolean(value);
+  });
+
+  return {
+    title: PRODUCTS_TITLE,
+    description: PRODUCTS_DESCRIPTION,
+    alternates: {
+      canonical: "/produk",
+    },
+    robots: hasListingQuery
+      ? {
+          index: false,
+          follow: true,
+        }
+      : {
+          index: true,
+          follow: true,
+        },
+    ...createOpenGraphMetadata({
+      title: PRODUCTS_TITLE,
+      description: PRODUCTS_DESCRIPTION,
+      path: "/produk",
+      image: "/uploads/aset-lanyard-4-1782114161098.webp",
+    }),
+  };
+}
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "WebPage",
-      "@id": `${siteUrl}/produk/#webpage`,
-      url: `${siteUrl}/produk`,
-      name: "Katalog Produk Tali Lanyard Custom - Lanyard Jakarta",
-      description:
-        "Jelajahi berbagai pilihan cetak tali gantungan lanyard custom premium kualitas terbaik di Lanyard Jakarta. Lanyard sublimasi, rajut woven, bundling holder, harga murah.",
-      publisher: {
-        "@type": "Organization",
-        name: "Lanyard Jakarta",
-        logo: {
-          "@type": "ImageObject",
-          url: `${siteUrl}/images/logo.webp`,
-        },
-      },
+      "@id": `${SITE_URL}/produk/#webpage`,
+      url: `${SITE_URL}/produk`,
+      name: "Katalog Produk Tali Lanyard Custom - Lanyard Bogor",
+      description: PRODUCTS_DESCRIPTION,
+      publisher: organizationSchema(),
     },
     {
       "@type": "BreadcrumbList",
-      "@id": `${siteUrl}/produk/#breadcrumb`,
+      "@id": `${SITE_URL}/produk/#breadcrumb`,
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Beranda", item: siteUrl },
-        { "@type": "ListItem", position: 2, name: "Katalog Produk", item: `${siteUrl}/produk` },
+        { "@type": "ListItem", position: 1, name: "Beranda", item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: "Katalog Produk", item: `${SITE_URL}/produk` },
       ],
     },
   ],
 };
 
-export default function ProdukListingPage() {
+export default async function ProdukListingPage() {
+  const products = await getProducts();
+
   return (
-    <div className="flex flex-col min-h-screen bg-[#FAFAFA]">
+    <div className="flex min-h-screen flex-col bg-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-
-      {/* ─── Hero Section ─── */}
-      <section className="relative w-full bg-white border-b border-gray-100 pt-16 pb-20 sm:pt-20 sm:pb-24 overflow-hidden">
-        {/* Background Image / Confetti Decoration */}
-        <div 
-          className="absolute inset-0 bg-[url('/uploads/aset-lanyard-7-1782202689750.webp')] bg-cover bg-center bg-no-repeat opacity-60 pointer-events-none"
-        />
-        
-        {/* Hero Content aligned to max-w-7xl */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
-          <div className="max-w-4xl mx-auto space-y-4">
-            <span className="inline-block bg-[#FFF0F0] text-brand-red text-[10px] font-extrabold px-4 py-1.5 rounded-full border border-red-100 uppercase tracking-widest select-none">
-              Katalog Lanyard
-            </span>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#373f50] leading-tight tracking-tight">
-              Pilihan Produk Lanyard<br />Custom Terbaik
-            </h1>
-            <p className="text-sm sm:text-base text-gray-500 font-medium leading-relaxed max-w-2xl mx-auto">
-              Temukan berbagai jenis tali gantungan lanyard berkualitas tinggi untuk menunjang kebutuhan identitas instansi, kepanitiaan event, maupun promosi branding corporate Anda.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Main Content Listing ─── */}
-      <main className="flex-grow py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <ProdukListing />
-
+      <main className="flex-grow py-8 sm:py-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <ProdukListing initialProducts={products} />
         </div>
       </main>
-
     </div>
   );
 }

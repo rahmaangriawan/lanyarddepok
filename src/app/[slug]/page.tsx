@@ -1,7 +1,8 @@
-import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
+import { getCachedPageBySlug } from "@/lib/public-cache";
+import { createOpenGraphMetadata, organizationSchema, SITE_URL } from "@/lib/seo";
 
 export const revalidate = 600;
 
@@ -11,9 +12,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const page = await prisma.page.findFirst({
-    where: { slug, published: true },
-  });
+  const page = await getCachedPageBySlug(slug);
 
   if (!page) {
     return {};
@@ -25,22 +24,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: `/${page.slug}`,
     },
+    ...createOpenGraphMetadata({
+      title: page.metaTitle || page.title,
+      description: page.metaDescription || page.title,
+      path: `/${page.slug}`,
+    }),
   };
 }
 
 export default async function CustomPage({ params }: PageProps) {
   const { slug } = await params;
 
-  const page = await prisma.page.findFirst({
-    where: { slug, published: true },
-  });
+  const page = await getCachedPageBySlug(slug);
 
   if (!page) {
     notFound();
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardjakarta.co.id";
-  const pageUrl = `${siteUrl}/${page.slug}`;
+  const pageUrl = `${SITE_URL}/${page.slug}`;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -51,14 +52,7 @@ export default async function CustomPage({ params }: PageProps) {
         "url": pageUrl,
         "name": page.title,
         "description": page.metaDescription || page.title,
-        "publisher": {
-          "@type": "Organization",
-          "name": "Lanyard Jakarta",
-          "logo": {
-            "@type": "ImageObject",
-            "url": `${siteUrl}/images/logo.webp`
-          }
-        }
+        "publisher": organizationSchema()
       },
       {
         "@type": "BreadcrumbList",
@@ -68,7 +62,7 @@ export default async function CustomPage({ params }: PageProps) {
             "@type": "ListItem",
             "position": 1,
             "name": "Beranda",
-            "item": siteUrl
+            "item": SITE_URL
           },
           {
             "@type": "ListItem",

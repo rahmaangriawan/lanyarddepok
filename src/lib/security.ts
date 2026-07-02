@@ -5,6 +5,21 @@ type RateLimitBucket = {
 };
 
 const buckets = new Map<string, RateLimitBucket>();
+let lastBucketCleanup = 0;
+const BUCKET_CLEANUP_INTERVAL_MS = 60_000;
+
+function cleanupRateLimitBuckets(now: number) {
+  if (now - lastBucketCleanup < BUCKET_CLEANUP_INTERVAL_MS) return;
+
+  for (const [key, bucket] of buckets.entries()) {
+    const latest = bucket.timestamps.at(-1) || 0;
+    if (now - latest > BUCKET_CLEANUP_INTERVAL_MS * 10) {
+      buckets.delete(key);
+    }
+  }
+
+  lastBucketCleanup = now;
+}
 
 export function getClientIp(request: Request) {
   return (
@@ -17,6 +32,8 @@ export function getClientIp(request: Request) {
 
 export function checkRateLimit(key: string, limit: number, windowMs: number) {
   const now = Date.now();
+  cleanupRateLimitBuckets(now);
+
   const bucket = buckets.get(key) || { timestamps: [] };
   bucket.timestamps = bucket.timestamps.filter((time) => now - time < windowMs);
 
@@ -70,29 +87,15 @@ export function isSameOriginRequest(request: Request) {
     ].filter(Boolean),
   );
 
-  // Menambahkan log di console server agar membantu debug jika masih gagal
   const origin = request.headers.get("origin");
   const referer = request.headers.get("referer");
-
-  console.log(
-    "CSRF Debug - Target:",
-    url.hostname,
-    "| Hostnames Diisi:",
-    Array.from(allowedHostnames),
-  );
-  console.log(
-    "CSRF Debug - Request Origin:",
-    origin,
-    "| Request Referer:",
-    referer,
-  );
 
   if (origin) {
     const originHostname = getHostname(origin);
     const isValid = allowedHostnames.has(originHostname);
     if (!isValid) {
       console.warn(
-        `CSRF Blocked - Origin Hostname '${originHostname}' tidak terdaftar di allowedHostnames`,
+        `CSRF blocked: origin '${originHostname}' is not allowed for '${url.hostname}'.`,
       );
     }
     return isValid;
@@ -107,7 +110,7 @@ export function isSameOriginRequest(request: Request) {
     const isValid = allowedHostnames.has(refererHostname);
     if (!isValid) {
       console.warn(
-        `CSRF Blocked - Referer Hostname '${refererHostname}' tidak terdaftar di allowedHostnames`,
+        `CSRF blocked: referer '${refererHostname}' is not allowed for '${url.hostname}'.`,
       );
     }
     return isValid;

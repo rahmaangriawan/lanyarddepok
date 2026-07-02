@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { AUTH_COOKIE_NAME } from "@/lib/auth-cookie";
 import { getJwtSecret } from "@/lib/jwt-secret";
 
 const JWT_SECRET = getJwtSecret();
@@ -28,14 +29,14 @@ export async function verifyToken(token: string): Promise<any | null> {
       algorithms: ["HS256"],
     });
     return payload;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
 
 export async function getSessionUser() {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
   if (!token) return null;
   return verifyToken(token);
 }

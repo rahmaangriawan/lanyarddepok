@@ -37,13 +37,13 @@ export async function getCachedSiteChromeSettings() {
 
   return {
     bingVerification: settings.bing_site_verification || "",
-    siteName: settings.site_title || "Lanyard Jakarta",
+    siteName: settings.site_title || "Lanyard Bogor",
     siteTitle:
       settings.seo_meta_title ||
-      "Lanyard Jakarta | Custom Premium Lanyard Printing",
+      "Lanyard Bogor | Custom Premium Lanyard Printing",
     siteDescription:
       settings.seo_meta_description ||
-      "Cetak lanyard premium cepat & murah di Jakarta. Layanan 1 hari jadi dengan kualitas cetak tajam, warna cerah, dan bahan awet untuk kebutuhan kantor, event, atau promosi Anda.",
+      "Cetak lanyard premium cepat & murah di Bogor. Layanan 1 hari jadi dengan kualitas cetak tajam, warna cerah, dan bahan awet untuk kebutuhan kantor, event, atau promosi Anda.",
     measurementId: settings.google_analytics_measurement_id || "",
     whatsappNumber: settings.contact_whatsapp || "6282210200700",
     turnstileEnabled: settings.turnstile_homepage_enabled === "true",
