@@ -23,6 +23,16 @@ let mediaTableReady = false;
 async function ensureMediaTable() {
   if (mediaTableReady) return;
 
+  try {
+    await prisma.$queryRawUnsafe("SELECT `id` FROM `media` LIMIT 1");
+    mediaTableReady = true;
+    return;
+  } catch (error) {
+    if (!isMissingMediaTableError(error)) {
+      throw error;
+    }
+  }
+
   await prisma.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS \`media\` (
       \`id\` INTEGER NOT NULL AUTO_INCREMENT,
