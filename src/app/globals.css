@@ -340,16 +340,6 @@
         min-height: 18rem;
     }
 
-    .featured-products-main-visual span {
-        position: absolute;
-        inset: 21% 4% auto auto;
-        width: min(15rem, 92%);
-        aspect-ratio: 1;
-        border-radius: 999px;
-        background: linear-gradient(135deg, #ffd4ad, #ffae6a);
-        z-index: 0;
-    }
-
     .featured-products-main-image {
         position: absolute;
         inset: 1rem -0.75rem 0 auto;
@@ -557,12 +547,6 @@
             max-height: 17rem;
             object-fit: contain;
             transform: rotate(4deg);
-        }
-
-        .featured-products-main-visual span {
-            inset: 16% auto auto 50%;
-            width: min(14rem, 82%);
-            transform: translateX(-50%);
         }
 
         .featured-products-list {

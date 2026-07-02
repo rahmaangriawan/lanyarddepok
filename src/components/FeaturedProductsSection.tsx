@@ -6,13 +6,14 @@ import { Icon } from "@iconify/react";
 import type { UnifiedProduct } from "@/lib/products-service";
 
 const FEATURED_PRODUCT = {
-  name: "Lanyard Polyester Full Color",
+  name: "Lanyard Custom Polyester",
   price: "Rp 6.000",
   image: "/uploads/featured-lanyard-polyester-main.webp",
   points: ["Cetak tajam full color", "Bahan halus & kuat", "Kait besi anti karat"],
 };
 
-const MAIN_PRODUCT_IMAGE = "/uploads/lanyard-telkomsel-1782278237998.webp";
+const MAIN_PRODUCT_NAME = "Lanyard Custom Polyester";
+const MAIN_PRODUCT_IMAGE = "/uploads/featured-lanyard-polyester-main.webp";
 
 const PRODUCT_LIST = [
   {
@@ -52,7 +53,7 @@ function productPrice(product: UnifiedProduct, fallback: string) {
 export default function FeaturedProductsSection({ products = [] }: FeaturedProductsSectionProps) {
   const mainProduct = products[0]
     ? {
-        name: products[0].name,
+        name: MAIN_PRODUCT_NAME,
         price: productPrice(products[0], FEATURED_PRODUCT.price),
         image: MAIN_PRODUCT_IMAGE,
         href: `/produk/${products[0].slug}`,
@@ -62,7 +63,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
           products[0].minOrder ? `Min. order ${products[0].minOrder}` : "",
         ].filter(Boolean).slice(0, 3),
       }
-    : { ...FEATURED_PRODUCT, image: MAIN_PRODUCT_IMAGE, href: "/produk" };
+    : { ...FEATURED_PRODUCT, name: MAIN_PRODUCT_NAME, image: MAIN_PRODUCT_IMAGE, href: "/produk" };
 
   const smallProducts = products.length > 1
     ? products.slice(1, 5).map((product, index) => ({
@@ -117,7 +118,6 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
             </div>
 
             <div className="featured-products-main-visual">
-              <span />
               <Image
                 src={mainProduct.image}
                 alt={mainProduct.name}
