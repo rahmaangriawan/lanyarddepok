@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const cspDirectives = [
+const baseCspDirectives = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
@@ -13,7 +13,11 @@ const cspDirectives = [
   "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://challenges.cloudflare.com https://static.cloudflareinsights.com https://api.iconify.design",
   "frame-src 'self' https://challenges.cloudflare.com https://www.google.com https://www.google.co.id https://maps.google.com",
   "worker-src 'self' blob:",
-  "upgrade-insecure-requests",
+];
+
+const cspDirectives = [
+  ...baseCspDirectives,
+  ...(process.env.CSP_REPORT_ONLY === "false" ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const nextConfig: NextConfig = {

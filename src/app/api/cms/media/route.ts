@@ -9,6 +9,7 @@ import {
   buildFilesystemMediaRecord,
   resolveUploadsRoot,
   scanUploadsMedia,
+  type MediaFileRecord,
 } from "@/lib/media-files";
 
 const WEBP_CONVERTIBLE_TYPES = new Set([
@@ -110,8 +111,12 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "24", 10);
+    const requestedPage = parseInt(searchParams.get("page") || "1", 10);
+    const requestedLimit = parseInt(searchParams.get("limit") || "24", 10);
+    const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+    const limit = Number.isFinite(requestedLimit) && requestedLimit > 0
+      ? Math.min(requestedLimit, 100)
+      : 24;
     const search = searchParams.get("search") || "";
     const type = searchParams.get("type") || "all";
 
@@ -119,8 +124,6 @@ export async function GET(request: Request) {
     if (!tableReady) {
       return mediaFallbackResponse(page, limit, search, type);
     }
-
-    const skip = (page - 1) * limit;
 
     const where: any = {};
 
@@ -145,20 +148,38 @@ export async function GET(request: Request) {
     }
 
     try {
-      // Get total count matching query
-      const total = await prisma.media.count({ where });
-
-      const mediaList = await prisma.media.findMany({
+      const databaseMediaList = await prisma.media.findMany({
         where,
         orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
+        take: 10000,
       });
 
-      if (total === 0 && !search) {
-        return mediaFallbackResponse(page, limit, search, type);
+      const filesystemResult = await scanUploadsMedia({
+        page: 1,
+        limit: 10000,
+        search,
+        type,
+      });
+
+      const mediaByUrl = new Map<string, (typeof databaseMediaList)[number] | MediaFileRecord>();
+
+      for (const media of filesystemResult.mediaList) {
+        mediaByUrl.set(media.url, media);
       }
 
+      for (const media of databaseMediaList) {
+        mediaByUrl.set(media.url, media);
+      }
+
+      const combinedMediaList = Array.from(mediaByUrl.values()).sort((a, b) => {
+        const aTime = new Date(a.createdAt).getTime();
+        const bTime = new Date(b.createdAt).getTime();
+        return bTime - aTime;
+      });
+
+      const total = combinedMediaList.length;
+      const skip = (page - 1) * limit;
+      const mediaList = combinedMediaList.slice(skip, skip + limit);
       const totalPages = Math.ceil(total / limit);
       const hasMore = page < totalPages;
 
@@ -172,6 +193,10 @@ export async function GET(request: Request) {
           totalPages,
           hasMore,
         },
+        source: "database+filesystem",
+        uploadRoot: filesystemResult.uploadRoot,
+        activeUploadRoots: filesystemResult.activeUploadRoots,
+        scannedRoots: filesystemResult.scannedRoots,
       });
     } catch (error) {
       console.warn("Media DB query failed; falling back to uploads scan.", error);

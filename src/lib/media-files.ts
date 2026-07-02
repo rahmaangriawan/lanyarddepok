@@ -60,6 +60,19 @@ export async function resolveUploadsRoot() {
   return candidates[0] || path.join(process.cwd(), "public", "uploads");
 }
 
+async function getExistingUploadRoots() {
+  const roots: string[] = [];
+
+  for (const candidate of getUploadRootCandidates()) {
+    const candidateStat = await stat(candidate).catch(() => null);
+    if (candidateStat?.isDirectory()) {
+      roots.push(candidate);
+    }
+  }
+
+  return roots;
+}
+
 export async function resolveUploadFilePath(parts: string[]) {
   const isSafePath = parts.every(
     (part) =>
@@ -129,30 +142,42 @@ export async function scanUploadsMedia({
   search: string;
   type: string;
 }) {
-  const root = await resolveUploadsRoot();
-  const entries = await readdir(root, { withFileTypes: true }).catch(() => []);
+  const roots = await getExistingUploadRoots();
+  const fallbackRoot = await resolveUploadsRoot();
+  const scanRoots = roots.length > 0 ? roots : [fallbackRoot];
   const normalizedSearch = search.trim().toLowerCase();
-  const records: MediaFileRecord[] = [];
+  const recordsByUrl = new Map<string, MediaFileRecord>();
 
-  for (const entry of entries) {
-    if (!entry.isFile()) continue;
+  for (const root of scanRoots) {
+    const entries = await readdir(root, { withFileTypes: true }).catch(() => []);
 
-    const ext = path.extname(entry.name).toLowerCase();
-    if (!MIME_BY_EXTENSION[ext]) continue;
-    if (normalizedSearch && !entry.name.toLowerCase().includes(normalizedSearch)) {
-      continue;
-    }
+    for (const entry of entries) {
+      if (!entry.isFile()) continue;
 
-    const filePath = path.join(root, entry.name);
-    const fileStat = await stat(filePath).catch(() => null);
-    if (!fileStat) continue;
+      const ext = path.extname(entry.name).toLowerCase();
+      if (!MIME_BY_EXTENSION[ext]) continue;
+      if (normalizedSearch && !entry.name.toLowerCase().includes(normalizedSearch)) {
+        continue;
+      }
 
-    const record = buildFilesystemMediaRecord(entry.name, fileStat.size, fileStat.mtime);
-    if (matchesType(record, type)) {
-      records.push(record);
+      const filePath = path.join(root, entry.name);
+      const fileStat = await stat(filePath).catch(() => null);
+      if (!fileStat) continue;
+
+      const record = buildFilesystemMediaRecord(entry.name, fileStat.size, fileStat.mtime);
+      if (!matchesType(record, type)) continue;
+
+      const existing = recordsByUrl.get(record.url);
+      if (
+        !existing ||
+        new Date(record.createdAt).getTime() > new Date(existing.createdAt).getTime()
+      ) {
+        recordsByUrl.set(record.url, record);
+      }
     }
   }
 
+  const records = Array.from(recordsByUrl.values());
   records.sort((a, b) => {
     const aTime = new Date(a.createdAt).getTime();
     const bTime = new Date(b.createdAt).getTime();
@@ -160,7 +185,7 @@ export async function scanUploadsMedia({
   });
 
   const safePage = Math.max(1, page);
-  const safeLimit = Math.max(1, Math.min(limit, 100));
+  const safeLimit = Math.max(1, Math.min(limit, 10000));
   const start = (safePage - 1) * safeLimit;
   const mediaList = records.slice(start, start + safeLimit);
   const totalPages = Math.ceil(records.length / safeLimit);
@@ -174,7 +199,8 @@ export async function scanUploadsMedia({
       totalPages,
       hasMore: safePage < totalPages,
     },
-    uploadRoot: root,
+    uploadRoot: scanRoots[0],
+    activeUploadRoots: scanRoots,
     scannedRoots: getUploadRootCandidates(),
   };
 }
