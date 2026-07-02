@@ -3,7 +3,6 @@ import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
-import sharp from "sharp";
 import crypto from "crypto";
 import { assertSameOrigin } from "@/lib/security";
 import {
@@ -247,6 +246,8 @@ export async function POST(request: Request) {
 
     let outputBuffer: Buffer<ArrayBufferLike> = originalBuffer;
     let outputMimeType = "image/webp";
+
+    const { default: sharp } = await import("sharp");
 
     outputBuffer = await sharp(originalBuffer)
       .rotate()
