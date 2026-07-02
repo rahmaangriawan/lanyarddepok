@@ -8,6 +8,7 @@ import crypto from "crypto";
 import { assertSameOrigin } from "@/lib/security";
 import {
   buildFilesystemMediaRecord,
+  resolveUploadsRoot,
   scanUploadsMedia,
 } from "@/lib/media-files";
 
@@ -259,7 +260,7 @@ export async function POST(request: Request) {
       .toBuffer();
 
     // Path resolution
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    const uploadDir = await resolveUploadsRoot();
     await mkdir(uploadDir, { recursive: true });
 
     const filePath = path.join(uploadDir, uniqueFilename);

@@ -1,5 +1,6 @@
 import { readFile, stat } from "fs/promises";
 import path from "path";
+import { resolveUploadFilePath } from "@/lib/media-files";
 
 export const runtime = "nodejs";
 
@@ -10,42 +11,19 @@ const CONTENT_TYPES: Record<string, string> = {
   ".jpeg": "image/jpeg",
   ".pdf": "application/pdf",
   ".png": "image/png",
+  ".svg": "image/svg+xml",
   ".webp": "image/webp",
 };
 
 const ALLOWED_EXTENSIONS = new Set(Object.keys(CONTENT_TYPES));
-const UPLOAD_ROOT = path.resolve("public", "uploads");
-
-function getUploadPath(parts: string[]) {
-  const isSafePath = parts.every(
-    (part) =>
-      part &&
-      part !== "." &&
-      part !== ".." &&
-      !part.includes("/") &&
-      !part.includes("\\"),
-  );
-
-  if (!isSafePath) {
-    return null;
-  }
-
-  const resolvedPath = path.resolve(UPLOAD_ROOT, ...parts);
-  const relativePath = path.relative(UPLOAD_ROOT, resolvedPath);
-
-  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
-    return null;
-  }
-
-  return resolvedPath;
-}
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
   const { path: requestedPath } = await params;
-  const filePath = getUploadPath(requestedPath);
+  const resolvedUpload = await resolveUploadFilePath(requestedPath);
+  const filePath = resolvedUpload?.filePath || null;
   const extension = filePath ? path.extname(filePath).toLowerCase() : "";
 
   if (!filePath || !ALLOWED_EXTENSIONS.has(extension)) {

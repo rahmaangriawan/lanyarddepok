@@ -23,8 +23,72 @@ const MIME_BY_EXTENSION: Record<string, string> = {
   ".webp": "image/webp",
 };
 
-function uploadsRoot() {
-  return path.join(process.cwd(), "public", "uploads");
+function uniquePaths(paths: string[]) {
+  return Array.from(new Set(paths.map((item) => path.resolve(item))));
+}
+
+export function getUploadRootCandidates() {
+  const configuredRoot = process.env.MEDIA_UPLOAD_DIR || process.env.UPLOADS_DIR;
+  const cwd = process.cwd();
+  const appRoot = process.env.APP_ROOT || process.env.NEXT_PUBLIC_APP_ROOT;
+  const remotePath = process.env.REMOTE_PATH;
+  const home = process.env.HOME || process.env.USERPROFILE;
+
+  return uniquePaths(
+    [
+      configuredRoot || "",
+      path.join(cwd, "public", "uploads"),
+      path.join(cwd, "..", "public", "uploads"),
+      path.join(cwd, "..", "..", "public", "uploads"),
+      appRoot ? path.join(appRoot, "public", "uploads") : "",
+      home && remotePath ? path.join(home, remotePath, "public", "uploads") : "",
+      home ? path.join(home, "htdocs", "lanyardbogor.com", "public", "uploads") : "",
+    ].filter(Boolean),
+  );
+}
+
+export async function resolveUploadsRoot() {
+  const candidates = getUploadRootCandidates();
+
+  for (const candidate of candidates) {
+    const candidateStat = await stat(candidate).catch(() => null);
+    if (candidateStat?.isDirectory()) {
+      return candidate;
+    }
+  }
+
+  return candidates[0] || path.join(process.cwd(), "public", "uploads");
+}
+
+export async function resolveUploadFilePath(parts: string[]) {
+  const isSafePath = parts.every(
+    (part) =>
+      part &&
+      part !== "." &&
+      part !== ".." &&
+      !part.includes("/") &&
+      !part.includes("\\"),
+  );
+
+  if (!isSafePath) {
+    return null;
+  }
+
+  for (const root of getUploadRootCandidates()) {
+    const resolvedPath = path.resolve(root, ...parts);
+    const relativePath = path.relative(root, resolvedPath);
+
+    if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+      continue;
+    }
+
+    const fileStat = await stat(resolvedPath).catch(() => null);
+    if (fileStat?.isFile()) {
+      return { filePath: resolvedPath, root };
+    }
+  }
+
+  return null;
 }
 
 export function getFilesystemMediaId(filename: string) {
@@ -65,7 +129,7 @@ export async function scanUploadsMedia({
   search: string;
   type: string;
 }) {
-  const root = uploadsRoot();
+  const root = await resolveUploadsRoot();
   const entries = await readdir(root, { withFileTypes: true }).catch(() => []);
   const normalizedSearch = search.trim().toLowerCase();
   const records: MediaFileRecord[] = [];
@@ -110,6 +174,8 @@ export async function scanUploadsMedia({
       totalPages,
       hasMore: safePage < totalPages,
     },
+    uploadRoot: root,
+    scannedRoots: getUploadRootCandidates(),
   };
 }
 
