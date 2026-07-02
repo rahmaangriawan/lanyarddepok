@@ -120,6 +120,29 @@ jobs:
                 exit 1
               fi
             done
+
+            echo "=== Login route check ==="
+            LOGIN_BODY="$(mktemp)"
+            LOGIN_STATUS="$(curl -sS -o "$LOGIN_BODY" -w "%{http_code}" \
+              -H "Content-Type: application/json" \
+              -H "Origin: http://127.0.0.1:$APP_PORT" \
+              -X POST \
+              --data '{"email":"diagnostic@example.invalid","password":"not-a-real-password"}' \
+              "http://127.0.0.1:$APP_PORT/api/auth/login" || true)"
+            if [ "$LOGIN_STATUS" = "401" ]; then
+              echo "Login route check passed with expected 401."
+            else
+              echo "Login route check failed. Expected 401, got $LOGIN_STATUS"
+              echo "=== Response body ==="
+              cat "$LOGIN_BODY" || true
+              echo "=== PM2 list ==="
+              pm2 list || true
+              echo "=== PM2 describe $APP_NAME ==="
+              pm2 describe "$APP_NAME" || true
+              echo "=== PM2 logs $APP_NAME ==="
+              pm2 logs "$APP_NAME" --lines 220 --nostream || true
+              exit 1
+            fi
           else
             for ROUTE in $ROUTES; do
               APP_ROUTE="$ROUTE" node -e "fetch('http://127.0.0.1:' + process.env.APP_PORT + process.env.APP_ROUTE).then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))" || {
@@ -131,5 +154,15 @@ jobs:
               }
               echo "Health check passed on http://127.0.0.1:$APP_PORT$ROUTE"
             done
+
+            echo "=== Login route check ==="
+            LOGIN_STATUS="$(node -e "fetch('http://127.0.0.1:' + process.env.APP_PORT + '/api/auth/login', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:' + process.env.APP_PORT }, body: JSON.stringify({ email: 'diagnostic@example.invalid', password: 'not-a-real-password' }) }).then(async (response) => { console.log(response.status); if (response.status !== 401) { console.error(await response.text()); process.exit(1); } }).catch((error) => { console.error(error); process.exit(1); })")" || {
+              echo "Login route check failed."
+              pm2 list || true
+              pm2 describe "$APP_NAME" || true
+              pm2 logs "$APP_NAME" --lines 220 --nostream || true
+              exit 1
+            }
+            echo "Login route check passed with expected $LOGIN_STATUS."
           fi
           REMOTE_SCRIPT
