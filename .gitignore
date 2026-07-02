@@ -44,3 +44,8 @@ next-env.d.ts
 /src/generated/client
 /scratch
 
+# local-only deploy notes and database/archive files
+/lanyardjakarta.sql
+/lanyardbogor.sql
+/favicon.zip
+/catatan-fixing.md
