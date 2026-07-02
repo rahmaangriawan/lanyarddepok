@@ -101,4 +101,29 @@ jobs:
           chmod +x restart.sh 2>/dev/null || true
 
           PORT="$APP_PORT" APP_NAME="$APP_NAME" ./restart.sh
+
+          echo "=== Health check ==="
+          sleep 3
+          if command -v curl >/dev/null 2>&1; then
+            if curl -fsS "http://127.0.0.1:$APP_PORT/" >/dev/null; then
+              echo "Health check passed on http://127.0.0.1:$APP_PORT/"
+            else
+              echo "Health check failed on http://127.0.0.1:$APP_PORT/"
+              echo "=== PM2 list ==="
+              pm2 list || true
+              echo "=== PM2 describe $APP_NAME ==="
+              pm2 describe "$APP_NAME" || true
+              echo "=== PM2 logs $APP_NAME ==="
+              pm2 logs "$APP_NAME" --lines 120 --nostream || true
+              exit 1
+            fi
+          else
+            node -e "fetch('http://127.0.0.1:' + process.env.APP_PORT + '/').then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))" || {
+              echo "Health check failed on http://127.0.0.1:$APP_PORT/"
+              pm2 list || true
+              pm2 describe "$APP_NAME" || true
+              pm2 logs "$APP_NAME" --lines 120 --nostream || true
+              exit 1
+            }
+          fi
           REMOTE_SCRIPT
