@@ -16,6 +16,52 @@ function isEmergencyOtpValid(otp: string) {
   );
 }
 
+function parseBooleanish(value: unknown) {
+  if (value === true) return true;
+  if (typeof value === "number") return value === 1;
+  if (typeof value !== "string") return false;
+
+  return ["1", "true", "valid", "verified", "success", "ok"].includes(
+    value.trim().toLowerCase(),
+  );
+}
+
+function isWorkerVerified(data: Record<string, unknown>) {
+  return (
+    parseBooleanish(data.verified) ||
+    parseBooleanish(data.valid) ||
+    parseBooleanish(data.success) ||
+    parseBooleanish(data.ok) ||
+    parseBooleanish(data.status) ||
+    parseBooleanish(data.result)
+  );
+}
+
+function getWorkerMessage(data: Record<string, unknown>, fallback: string) {
+  const message =
+    data.message ||
+    data.error ||
+    data.reason ||
+    data.detail ||
+    data.statusText;
+
+  return typeof message === "string" && message.trim()
+    ? message
+    : fallback;
+}
+
+async function parseWorkerResponse(response: Response) {
+  const text = await response.text();
+  if (!text) return {};
+
+  try {
+    const data = JSON.parse(text);
+    return data && typeof data === "object" ? data : {};
+  } catch {
+    return { message: text };
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const csrfError = assertSameOrigin(request);
@@ -32,7 +78,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Kode OTP wajib diisi." }, { status: 400 });
     }
 
-    if (isEmergencyOtpValid(otp)) {
+    const cleanOtp = otp.trim();
+
+    if (isEmergencyOtpValid(cleanOtp)) {
       console.warn("OTP emergency bypass was used. Remove AUTH_OTP_BYPASS_CODE after fixing OTP settings.");
       return NextResponse.json({ success: true, verified: true });
     }
@@ -46,9 +94,9 @@ export async function POST(request: Request) {
     });
 
     const settingsMap = new Map(settings.map((setting) => [setting.key, setting.value]));
-    const verifyUrl = settingsMap.get("otp_verify_url") || "";
-    const apiKey = settingsMap.get("otp_api_key") || "";
-    const target = settingsMap.get("otp_target") || "";
+    const verifyUrl = (settingsMap.get("otp_verify_url") || "").trim();
+    const apiKey = (settingsMap.get("otp_api_key") || "").trim();
+    const target = (settingsMap.get("otp_target") || "").trim();
 
     if (!verifyUrl || !apiKey || !target) {
       console.error("OTP verification is missing database settings.");
@@ -64,14 +112,27 @@ export async function POST(request: Request) {
         "content-type": "application/json",
         "x-api-key": apiKey,
       },
-      body: JSON.stringify({ target, otp }),
+      body: JSON.stringify({ target, otp: cleanOtp }),
       cache: "no-store",
     });
 
-    const verifyData = await verifyRes.json().catch(() => ({}));
+    const verifyData = await parseWorkerResponse(verifyRes);
+    const workerMessage = getWorkerMessage(
+      verifyData,
+      "Kode OTP salah atau kedaluwarsa.",
+    );
 
-    if (!verifyRes.ok || verifyData.verified !== true) {
-      return NextResponse.json({ error: "Kode OTP salah atau kedaluwarsa." }, { status: 401 });
+    if (!verifyRes.ok || !isWorkerVerified(verifyData)) {
+      console.warn("OTP verification rejected by worker.", {
+        status: verifyRes.status,
+        responseKeys: Object.keys(verifyData),
+        targetConfigured: Boolean(target),
+      });
+
+      return NextResponse.json(
+        { error: workerMessage, message: workerMessage },
+        { status: 401 },
+      );
     }
 
     return NextResponse.json({ success: true, verified: true });
