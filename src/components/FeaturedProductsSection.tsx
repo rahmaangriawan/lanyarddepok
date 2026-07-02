@@ -6,14 +6,15 @@ import { Icon } from "@iconify/react";
 import type { UnifiedProduct } from "@/lib/products-service";
 
 const FEATURED_PRODUCT = {
-  name: "Lanyard Custom Polyester",
+  name: "Lanyard Polyester",
   price: "Rp 6.000",
   image: "/uploads/featured-lanyard-polyester-main.webp",
-  points: ["Cetak tajam full color", "Bahan halus & kuat", "Kait besi anti karat"],
+  points: ["min. order 20", "Bahan terbaik", "Kualitas premium"],
 };
 
-const MAIN_PRODUCT_NAME = "Lanyard Custom Polyester";
-const MAIN_PRODUCT_IMAGE = "/uploads/featured-lanyard-polyester-main.webp";
+const MAIN_PRODUCT_NAME = "Lanyard Polyester";
+const MAIN_PRODUCT_IMAGE = "/uploads/cta-footer-lanyard-custom.webp";
+const MAIN_PRODUCT_POINTS = ["min. order 20", "Bahan terbaik", "Kualitas premium"];
 
 const PRODUCT_LIST = [
   {
@@ -57,13 +58,15 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
         price: productPrice(products[0], FEATURED_PRODUCT.price),
         image: MAIN_PRODUCT_IMAGE,
         href: `/produk/${products[0].slug}`,
-        points: [
-          products[0].specs,
-          products[0].accessories,
-          products[0].minOrder ? `Min. order ${products[0].minOrder}` : "",
-        ].filter(Boolean).slice(0, 3),
+        points: MAIN_PRODUCT_POINTS,
       }
-    : { ...FEATURED_PRODUCT, name: MAIN_PRODUCT_NAME, image: MAIN_PRODUCT_IMAGE, href: "/produk" };
+    : {
+        ...FEATURED_PRODUCT,
+        name: MAIN_PRODUCT_NAME,
+        image: MAIN_PRODUCT_IMAGE,
+        points: MAIN_PRODUCT_POINTS,
+        href: "/produk",
+      };
 
   const smallProducts = products.length > 1
     ? products.slice(1, 5).map((product, index) => ({
