@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
 import fs from "fs";
 import path from "path";
+import { findUploadMediaById } from "@/lib/media-files";
 
 export const runtime = "nodejs";
 
@@ -23,9 +24,26 @@ export async function DELETE(
       return NextResponse.json({ error: "Invalid media ID" }, { status: 400 });
     }
 
-    const media = await prisma.media.findUnique({
-      where: { id: mediaId },
-    });
+    let media: {
+      id: number;
+      filename?: string | null;
+      filepath?: string | null;
+      url?: string | null;
+    } | null = null;
+    let shouldDeleteDatabaseRecord = false;
+
+    try {
+      media = await prisma.media.findUnique({
+        where: { id: mediaId },
+      });
+      shouldDeleteDatabaseRecord = Boolean(media);
+    } catch (error) {
+      console.warn("Media DB lookup failed; trying filesystem fallback.", error);
+    }
+
+    if (!media) {
+      media = await findUploadMediaById(mediaId);
+    }
 
     if (!media) {
       return NextResponse.json({ error: "Media file not found" }, { status: 404 });
@@ -53,9 +71,15 @@ export async function DELETE(
     }
 
     // Delete record from database
-    await prisma.media.delete({
-      where: { id: mediaId },
-    });
+    if (shouldDeleteDatabaseRecord) {
+      try {
+        await prisma.media.delete({
+          where: { id: mediaId },
+        });
+      } catch (error) {
+        console.warn("Media DB delete failed after file removal.", error);
+      }
+    }
 
     return NextResponse.json({ success: true, message: "Media deleted successfully" });
   } catch (error: any) {
