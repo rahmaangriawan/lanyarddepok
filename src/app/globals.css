@@ -22,11 +22,11 @@
 
 @theme {
     --font-sans: var(--font-inter), sans-serif;
-    --font-serif: var(--font-source-serif), serif;
-    --font-mono: var(--font-jetbrains-mono), monospace;
+    --font-serif: Georgia, "Times New Roman", serif;
+    --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
     --font-inter: var(--font-inter), sans-serif;
-    --font-source-serif: var(--font-source-serif), serif;
-    --font-jetbrains-mono: var(--font-jetbrains-mono), monospace;
+    --font-source-serif: Georgia, "Times New Roman", serif;
+    --font-jetbrains-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
     --color-public-bg: var(--color-public-bg);
     --color-public-fg: var(--color-public-fg);
     --color-public-muted: var(--color-public-muted);
@@ -155,6 +155,11 @@
         will-change: transform;
         transform: translate3d(0, 0, 0);
         backface-visibility: hidden;
+    }
+
+    .homepage-deferred-section {
+        content-visibility: auto;
+        contain-intrinsic-size: 1px 720px;
     }
 
     @media (prefers-reduced-motion: reduce) {

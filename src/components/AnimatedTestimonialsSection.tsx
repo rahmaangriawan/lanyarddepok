@@ -102,7 +102,7 @@ export default function AnimatedTestimonialsSection() {
   };
 
   return (
-    <section id="testimoni" className="animated-testimonials-section">
+    <section id="testimoni" className="animated-testimonials-section homepage-deferred-section">
       <div className="animated-testimonials-container">
         <div className="animated-testimonials-visual" aria-hidden="true">
           <AnimatePresence mode="popLayout">

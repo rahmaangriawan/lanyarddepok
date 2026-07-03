@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
+import { Inter } from "next/font/google";
 import { getCachedSiteChromeSettings } from "@/lib/settings-cache";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { ToastProvider } from "@/components/Toast";
@@ -17,18 +17,6 @@ export const revalidate = 300; // Cache metadata SEO selama 5 menit
 
 const inter = Inter({
   variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const sourceSerif = Source_Serif_4({
-  variable: "--font-source-serif",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const jetBrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
   display: "swap",
 });
@@ -92,10 +80,12 @@ export default async function RootLayout({
   return (
     <html
       lang="id"
-      className={`${inter.variable} ${sourceSerif.variable} ${jetBrainsMono.variable} h-full`}
+      className={`${inter.variable} h-full`}
       suppressHydrationWarning
     >
-      <head />
+      <head>
+        <link rel="preconnect" href="https://api.iconify.design" crossOrigin="anonymous" />
+      </head>
       <body
         className={`${inter.className} min-h-full flex flex-col bg-white text-[#373f50]`}
         suppressHydrationWarning

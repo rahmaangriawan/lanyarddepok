@@ -28,7 +28,7 @@ const BENEFITS = [
 
 export default function WhyChooseLanyardBogor() {
   return (
-    <section className="why-choose-section">
+    <section className="why-choose-section homepage-deferred-section">
       <div className="why-choose-container">
         <div className="why-choose-heading">
           <div className="why-choose-kicker">
@@ -49,10 +49,10 @@ export default function WhyChooseLanyardBogor() {
             </div>
             <div className="why-choose-image-wrap">
               <Image
-                src="/uploads/why-choose-lanyard-showcase-home.webp"
+                src="/uploads/why-choose-lanyard-showcase-mobile.webp"
                 alt="Contoh lanyard custom premium Lanyard Bogor"
-                width={640}
-                height={381}
+                width={360}
+                height={214}
                 className="why-choose-image"
                 sizes="(min-width: 1100px) 320px, (min-width: 720px) 46vw, 86vw"
                 quality={58}

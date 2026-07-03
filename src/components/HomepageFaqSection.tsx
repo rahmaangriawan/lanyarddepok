@@ -45,7 +45,7 @@ export default function HomepageFaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="homepage-faq-section" id="faq-home">
+    <section className="homepage-faq-section homepage-deferred-section" id="faq-home">
       <div className="homepage-faq-container">
         <div className="homepage-faq-heading">
           <p>Pertanyaan Umum</p>

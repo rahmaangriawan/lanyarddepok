@@ -116,7 +116,7 @@ function LatestBlogSection({ posts }: { posts: HomepagePost[] }) {
   if (posts.length === 0) return null;
 
   return (
-    <section className="homepage-blog-section">
+    <section className="homepage-blog-section homepage-deferred-section">
       <div className="homepage-blog-container">
         <div className="homepage-blog-grid">
           <div className="homepage-blog-intro">
@@ -330,7 +330,7 @@ export default function HomeClient({ latestPosts = [], homepageProducts = [] }: 
         <WhyChooseLanyardBogor />
 
         {/* Brand Logo Loop Section */}
-        <section className="bg-white pt-6 pb-[60px] border-b border-gray-100/60 select-none">
+        <section className="homepage-deferred-section bg-white pt-6 pb-[60px] border-b border-gray-100/60 select-none">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="w-full overflow-hidden">
               <LogoLoop

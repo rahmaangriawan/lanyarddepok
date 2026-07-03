@@ -9,12 +9,12 @@ import type { UnifiedProduct } from "@/lib/products-service";
 const FEATURED_PRODUCT = {
   name: "Lanyard Polyester",
   price: "Rp 6.000",
-  image: "/uploads/cta-footer-lanyard-custom-home.webp",
+  image: "/uploads/cta-footer-lanyard-custom-mobile.webp",
   points: ["Min. order 20", "Bahan terbaik", "Kualitas premium"],
 };
 
 const MAIN_PRODUCT_NAME = "Lanyard Polyester";
-const MAIN_PRODUCT_IMAGE = "/uploads/cta-footer-lanyard-custom-home.webp";
+const MAIN_PRODUCT_IMAGE = "/uploads/cta-footer-lanyard-custom-mobile.webp";
 const MAIN_PRODUCT_POINTS = ["Min. order 20", "Bahan terbaik", "Kualitas premium"];
 const PRODUCT_CARD_IMAGE_OVERRIDES: Record<string, string> = {
   "/uploads/aset-lanyard-3-1782112472764.webp": "/uploads/aset-lanyard-3-card.webp",
@@ -113,7 +113,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
     : PRODUCT_LIST.map((product) => ({ ...product, href: "/produk" }));
 
   return (
-    <section className="featured-products-section">
+    <section className="featured-products-section homepage-deferred-section">
       <div className="featured-products-container">
         <div className="featured-products-copy">
           <p className="featured-products-kicker">Produk Unggulan</p>

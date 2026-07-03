@@ -135,11 +135,12 @@ export default function Header() {
             aria-label="Lanyard Bogor"
           >
             <Image
-              src="/uploads/lanyardbogor-logo-header.webp"
+              src="/uploads/lanyardbogor-logo-mobile.webp"
               alt="Lanyard Bogor Logo"
               width={148}
               height={36}
               className="shrink-0 object-contain"
+              quality={60}
               loading="eager"
               fetchPriority="high"
             />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +13,8 @@ interface AnimatedMarqueeHeroProps {
   ctaHref?: string;
   className?: string;
 }
+
+const MARQUEE_SEQUENCE_COPIES = 4;
 
 const ActionButton = ({
   children,
@@ -57,58 +59,15 @@ export const AnimatedMarqueeHero: React.FC<AnimatedMarqueeHeroProps> = ({
   ctaHref,
   className,
 }) => {
-  const marqueeViewportRef = useRef<HTMLDivElement>(null);
-  const marqueeSetRef = useRef<HTMLDivElement>(null);
-  const [sequenceCopies, setSequenceCopies] = useState(2);
-
-  useEffect(() => {
-    const viewport = marqueeViewportRef.current;
-    const marqueeSet = marqueeSetRef.current;
-
-    if (!viewport || !marqueeSet || images.length === 0) {
-      return;
-    }
-
-    const updateCopies = () => {
-      const setWidth = marqueeSet.getBoundingClientRect().width;
-      const singleSequenceWidth = setWidth / sequenceCopies;
-
-      if (!Number.isFinite(singleSequenceWidth) || singleSequenceWidth <= 0) {
-        return;
-      }
-
-      const nextCopies = Math.max(
-        2,
-        Math.ceil((viewport.clientWidth + singleSequenceWidth) / singleSequenceWidth)
-      );
-
-      setSequenceCopies((currentCopies) =>
-        currentCopies === nextCopies ? currentCopies : nextCopies
-      );
-    };
-
-    updateCopies();
-
-    const resizeObserver = new ResizeObserver(updateCopies);
-    resizeObserver.observe(viewport);
-    resizeObserver.observe(marqueeSet);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [images.length, sequenceCopies]);
-
-  const marqueeSequence = useMemo(
-    () =>
-      Array.from({ length: sequenceCopies }, (_, copyIndex) =>
-        images.map((src, imageIndex) => ({
-          src,
-          imageIndex,
-          key: `${copyIndex}-${src}-${imageIndex}`,
-        }))
-      ).flat(),
-    [images, sequenceCopies]
-  );
+  const marqueeSequence = Array.from(
+    { length: MARQUEE_SEQUENCE_COPIES },
+    (_, copyIndex) =>
+      images.map((src, imageIndex) => ({
+        src,
+        imageIndex,
+        key: `${copyIndex}-${src}-${imageIndex}`,
+      }))
+  ).flat();
 
   const renderMarqueeImages = (group: number) =>
     marqueeSequence.map(({ src, imageIndex, key }) => (
@@ -183,13 +142,12 @@ export const AnimatedMarqueeHero: React.FC<AnimatedMarqueeHeroProps> = ({
       </div>
 
       <div
-        ref={marqueeViewportRef}
         aria-hidden="true"
         className="relative z-10 mt-10 h-48 w-screen overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] md:h-64"
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-gradient-to-b from-[#f9fafb] via-[#f9fafb]/85 to-transparent" />
         <div className="hero-marquee-track flex w-max">
-          <div ref={marqueeSetRef} className="flex shrink-0 gap-4 pr-4">
+          <div className="flex shrink-0 gap-4 pr-4">
             {renderMarqueeImages(1)}
           </div>
           <div className="flex shrink-0 gap-4 pr-4" aria-hidden="true">
