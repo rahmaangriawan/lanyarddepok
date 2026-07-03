@@ -161,7 +161,11 @@ export default function AnimatedTestimonialsSection() {
               exit={{ opacity: 0, y: -14 }}
               transition={{ duration: 0.32, ease: "easeOut" }}
             >
-              <div className="animated-testimonials-rating" aria-label="Rating 5 dari 5">
+              <div
+                className="animated-testimonials-rating"
+                role="img"
+                aria-label={`Rating ${activeTestimonial.rating} dari 5`}
+              >
                 {Array.from({ length: activeTestimonial.rating }).map((_, index) => (
                   <Star key={index} aria-hidden="true" />
                 ))}

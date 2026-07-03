@@ -54,7 +54,8 @@ export default function WhyChooseLanyardBogor() {
                 width={760}
                 height={520}
                 className="why-choose-image"
-                sizes="(min-width: 1100px) 42vw, 92vw"
+                sizes="(min-width: 1100px) 320px, (min-width: 720px) 46vw, 86vw"
+                quality={60}
               />
             </div>
             <div className="why-choose-tags" aria-label="Fitur produk">

@@ -147,7 +147,8 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
                 width={420}
                 height={560}
                 className="featured-products-main-image"
-                sizes="(min-width: 1024px) 28vw, 70vw"
+                sizes="(min-width: 1024px) 320px, 70vw"
+                quality={60}
               />
             </div>
           </div>
@@ -167,7 +168,8 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
                   width={320}
                   height={180}
                   className="featured-products-small-image"
-                  sizes="(min-width: 1024px) 12vw, 34vw"
+                  sizes="(max-width: 720px) 112px, (max-width: 1100px) 44vw, 168px"
+                  quality={60}
                 />
               </div>
               <div className="featured-products-small-copy">

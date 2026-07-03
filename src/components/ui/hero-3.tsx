@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface AnimatedMarqueeHeroProps {
@@ -65,10 +66,13 @@ export const AnimatedMarqueeHero: React.FC<AnimatedMarqueeHeroProps> = ({
           rotate: `${index % 2 === 0 ? -2 : 5}deg`,
         }}
       >
-        <img
+        <Image
           src={src}
           alt={`Showcase image ${index + 1}`}
-          className="h-full w-full rounded-2xl object-cover shadow-md"
+          fill
+          sizes="(max-width: 768px) 144px, 192px"
+          quality={58}
+          className="rounded-2xl object-cover shadow-md"
         />
       </div>
     ));

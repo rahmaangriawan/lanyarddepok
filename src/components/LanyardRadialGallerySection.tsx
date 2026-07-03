@@ -83,6 +83,7 @@ export default function LanyardRadialGallerySection() {
                   alt={item.title}
                   fill
                   sizes="(max-width: 640px) 190px, 230px"
+                  quality={60}
                   className={`object-cover transition-transform duration-700 ease-out ${
                     isActive ? "scale-110" : "scale-100 grayscale-[18%]"
                   }`}
