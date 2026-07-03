@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -57,18 +57,71 @@ export const AnimatedMarqueeHero: React.FC<AnimatedMarqueeHeroProps> = ({
   ctaHref,
   className,
 }) => {
+  const marqueeViewportRef = useRef<HTMLDivElement>(null);
+  const marqueeSetRef = useRef<HTMLDivElement>(null);
+  const [sequenceCopies, setSequenceCopies] = useState(2);
+
+  useEffect(() => {
+    const viewport = marqueeViewportRef.current;
+    const marqueeSet = marqueeSetRef.current;
+
+    if (!viewport || !marqueeSet || images.length === 0) {
+      return;
+    }
+
+    const updateCopies = () => {
+      const setWidth = marqueeSet.getBoundingClientRect().width;
+      const singleSequenceWidth = setWidth / sequenceCopies;
+
+      if (!Number.isFinite(singleSequenceWidth) || singleSequenceWidth <= 0) {
+        return;
+      }
+
+      const nextCopies = Math.max(
+        2,
+        Math.ceil((viewport.clientWidth + singleSequenceWidth) / singleSequenceWidth)
+      );
+
+      setSequenceCopies((currentCopies) =>
+        currentCopies === nextCopies ? currentCopies : nextCopies
+      );
+    };
+
+    updateCopies();
+
+    const resizeObserver = new ResizeObserver(updateCopies);
+    resizeObserver.observe(viewport);
+    resizeObserver.observe(marqueeSet);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [images.length, sequenceCopies]);
+
+  const marqueeSequence = useMemo(
+    () =>
+      Array.from({ length: sequenceCopies }, (_, copyIndex) =>
+        images.map((src, imageIndex) => ({
+          src,
+          imageIndex,
+          key: `${copyIndex}-${src}-${imageIndex}`,
+        }))
+      ).flat(),
+    [images, sequenceCopies]
+  );
+
   const renderMarqueeImages = (group: number) =>
-    images.map((src, index) => (
+    marqueeSequence.map(({ src, imageIndex, key }) => (
       <div
-        key={`${group}-${src}-${index}`}
+        key={`${group}-${key}`}
         className="relative aspect-[3/4] h-48 flex-shrink-0 md:h-64"
         style={{
-          rotate: `${index % 2 === 0 ? -2 : 5}deg`,
+          rotate: `${imageIndex % 2 === 0 ? -2 : 5}deg`,
         }}
       >
         <Image
           src={src}
-          alt={`Showcase image ${index + 1}`}
+          alt={`Showcase image ${imageIndex + 1}`}
           fill
           sizes="(max-width: 768px) 144px, 192px"
           quality={58}
@@ -129,10 +182,14 @@ export const AnimatedMarqueeHero: React.FC<AnimatedMarqueeHeroProps> = ({
         </div>
       </div>
 
-      <div className="relative z-10 mt-10 h-48 w-screen overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] md:h-64">
+      <div
+        ref={marqueeViewportRef}
+        aria-hidden="true"
+        className="relative z-10 mt-10 h-48 w-screen overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] md:h-64"
+      >
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-gradient-to-b from-[#f9fafb] via-[#f9fafb]/85 to-transparent" />
         <div className="hero-marquee-track flex w-max">
-          <div className="flex shrink-0 gap-4 pr-4">
+          <div ref={marqueeSetRef} className="flex shrink-0 gap-4 pr-4">
             {renderMarqueeImages(1)}
           </div>
           <div className="flex shrink-0 gap-4 pr-4" aria-hidden="true">
