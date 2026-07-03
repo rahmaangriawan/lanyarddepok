@@ -113,7 +113,8 @@ export default function Footer() {
                 width={1252}
                 height={1024}
                 className="relative z-10 mx-auto h-full max-h-[330px] w-full object-contain object-center px-6 py-5 sm:px-10 lg:absolute lg:inset-0 lg:max-h-none lg:px-0 lg:py-5 xl:px-2"
-                sizes="(min-width: 1024px) 34vw, 100vw"
+                sizes="(min-width: 1024px) 360px, (min-width: 640px) 48vw, 86vw"
+                quality={60}
                 style={{ height: "auto" }}
                 loading="eager"
               />

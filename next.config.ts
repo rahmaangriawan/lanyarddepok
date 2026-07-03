@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
   // Restart trigger: 2026-06-20 19:10
   reactStrictMode: true,
   output: "standalone",
+  images: {
+    imageSizes: [16, 32, 48, 64, 96, 128, 168, 192, 256, 300, 320, 384],
+    qualities: [58, 60, 75],
+  },
   turbopack: {
     ignoreIssue: [
       {
