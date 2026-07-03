@@ -151,7 +151,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#FAFAFA]">
+    <div className="flex flex-col min-h-screen bg-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -164,20 +164,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           
           {/* Breadcrumb Navigation */}
           <nav className="flex items-center space-x-2 text-[11px] font-semibold text-gray-400 mb-6 select-none">
-            <Link href="/" className="hover:text-brand-red transition-colors">Beranda</Link>
+            <Link href="/" className="hover:text-public-amber transition-colors">Beranda</Link>
             <span>&rsaquo;</span>
-            <Link href={categoryHref} className="text-brand-red hover:text-[#c92f31] transition-colors truncate max-w-[220px]">
+            <Link href={categoryHref} className="text-public-amber hover:text-public-amber-strong transition-colors truncate max-w-[220px]">
               {categoryName}
             </Link>
           </nav>
 
           {/* Product Detail Card */}
-          <div className="bg-white border border-gray-100 rounded-3xl p-6 sm:p-10 shadow-xs">
+          <div className="bg-white border border-public-border/70 rounded-3xl p-6 sm:p-10 shadow-xs">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
               
               {/* Left Column: Image & Info Metadata */}
               <div className="md:col-span-5 flex flex-col space-y-6">
-                <div className="relative w-full aspect-[16/9] bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden shadow-2xs">
+                <div className="relative w-full aspect-[16/9] bg-public-soft border border-public-border/70 rounded-2xl overflow-hidden shadow-2xs">
                   <img
                     src={product.featuredImage || "/uploads/aset-lanyard-4-1782114161098.webp"}
                     alt={product.name}
@@ -186,22 +186,22 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 </div>
 
                 {/* Info Metadata Box */}
-                <div className="bg-gray-50/50 border border-gray-100 rounded-2xl p-4 space-y-3 select-none text-xs">
-                  <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
+                <div className="bg-public-soft/60 border border-public-border/70 rounded-2xl p-4 space-y-3 select-none text-xs">
+                  <div className="flex justify-between items-center py-1.5 border-b border-public-border/70">
                     <span className="text-gray-400 font-medium">SKU Produk</span>
                     <span className="font-mono font-bold text-gray-700">{product.sku}</span>
                   </div>
-                  <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
+                  <div className="flex justify-between items-center py-1.5 border-b border-public-border/70">
                     <span className="text-gray-400 font-medium">Kategori</span>
-                    <span className="font-bold text-brand-red">{product.category?.name || "Lanyard Custom"}</span>
+                    <span className="font-bold text-public-amber-strong">{product.category?.name || "Lanyard Custom"}</span>
                   </div>
-                  <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
+                  <div className="flex justify-between items-center py-1.5 border-b border-public-border/70">
                     <span className="text-gray-400 font-medium">Minimal Pemesanan</span>
                     <span className="font-bold text-gray-700">{product.minOrder}</span>
                   </div>
                   <div className="flex justify-between items-center py-1.5">
                     <span className="text-gray-400 font-medium">Harga Dasar</span>
-                    <span className="font-extrabold text-brand-red">Mulai {product.basePrice}</span>
+                    <span className="font-extrabold text-public-amber-strong">Mulai {product.basePrice}</span>
                   </div>
                 </div>
               </div>
@@ -211,10 +211,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 <div className="space-y-4">
                   {/* Category and SKU Badges */}
                   <div className="flex items-center space-x-2 select-none">
-                    <span className="bg-[#FFF0F0] text-brand-red text-[9px] font-extrabold px-3 py-1 rounded-full border border-red-100 uppercase tracking-wider">
+                    <span className="bg-public-amber/10 text-public-amber-strong text-[9px] font-extrabold px-3 py-1 rounded-full border border-public-amber/20 uppercase tracking-wider">
                       {categoryName}
                     </span>
-                    <span className="bg-gray-100 text-gray-500 text-[9px] font-mono font-bold px-3 py-1 rounded-full border border-gray-200">
+                    <span className="bg-public-soft text-gray-500 text-[9px] font-mono font-bold px-3 py-1 rounded-full border border-public-border/70">
                       SKU: {product.sku}
                     </span>
                   </div>
@@ -225,9 +225,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   </h1>
 
                   {/* Price info display */}
-                  <div className="flex items-baseline space-x-2 py-1.5 border-y border-gray-100 select-none">
+                  <div className="flex items-baseline space-x-2 py-1.5 border-y border-public-border/70 select-none">
                     <span className="text-xs text-gray-400 font-semibold">Harga Mulai:</span>
-                    <span className="text-2xl font-black text-brand-red">{product.basePrice}</span>
+                    <span className="text-2xl font-black text-public-amber-strong">{product.basePrice}</span>
                     <span className="text-xs text-gray-400">/ pcs (MOQ: {product.minOrder})</span>
                   </div>
 
@@ -240,9 +240,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   {/* Specs & Accessories details */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     {product.specs && (
-                      <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-1.5">
+                      <div className="p-4 bg-public-soft/60 rounded-2xl border border-public-border/70 space-y-1.5">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center select-none">
-                          <Icon icon="lucide:settings" className="w-3.5 h-3.5 mr-1 text-brand-red" />
+                          <Icon icon="lucide:settings" className="w-3.5 h-3.5 mr-1 text-public-amber-strong" />
                           Spesifikasi Dasar
                         </span>
                         <p className="text-xs text-gray-600 font-medium leading-relaxed">
@@ -251,9 +251,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       </div>
                     )}
                     {product.accessories && (
-                      <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-1.5">
+                      <div className="p-4 bg-public-soft/60 rounded-2xl border border-public-border/70 space-y-1.5">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center select-none">
-                          <Icon icon="lucide:puzzle" className="w-3.5 h-3.5 mr-1 text-brand-red" />
+                          <Icon icon="lucide:puzzle" className="w-3.5 h-3.5 mr-1 text-public-amber-strong" />
                           Aksesoris &amp; Kelengkapan
                         </span>
                         <p className="text-xs text-gray-600 font-medium leading-relaxed">

@@ -9,12 +9,12 @@ const FEATURED_PRODUCT = {
   name: "Lanyard Polyester",
   price: "Rp 6.000",
   image: "/uploads/featured-lanyard-polyester-main.webp",
-  points: ["min. order 20", "Bahan terbaik", "Kualitas premium"],
+  points: ["Min. order 20", "Bahan terbaik", "Kualitas premium"],
 };
 
 const MAIN_PRODUCT_NAME = "Lanyard Polyester";
 const MAIN_PRODUCT_IMAGE = "/uploads/cta-footer-lanyard-custom.webp";
-const MAIN_PRODUCT_POINTS = ["min. order 20", "Bahan terbaik", "Kualitas premium"];
+const MAIN_PRODUCT_POINTS = ["Min. order 20", "Bahan terbaik", "Kualitas premium"];
 
 const PRODUCT_LIST = [
   {

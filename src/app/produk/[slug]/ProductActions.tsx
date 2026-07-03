@@ -53,13 +53,13 @@ export default function ProductActions({ product }: ProductActionsProps) {
   const waUrl = `https://wa.me/6282210200700?text=${encodeURIComponent(waMessage)}`;
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4 border-t border-gray-100 select-none">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4 border-t border-public-border/70 select-none">
       {/* WhatsApp CTA Button */}
       <a
         href={waUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex-1 inline-flex items-center justify-center bg-[#FF4C4C] hover:bg-[#e03d3d] text-white text-sm font-bold px-6 py-4 rounded-2xl shadow-md shadow-red-200 transition-all duration-300 hover:-translate-y-0.5 text-center"
+        className="flex-1 inline-flex items-center justify-center bg-public-amber hover:bg-public-amber-strong text-[#111827] hover:text-white text-sm font-bold px-6 py-4 rounded-2xl shadow-md shadow-public-amber/20 transition-all duration-300 hover:-translate-y-0.5 text-center"
       >
         <Icon icon="logos:whatsapp-icon" className="w-5 h-5 mr-2 shrink-0" />
         Hubungi WhatsApp CS Sekarang
@@ -70,13 +70,13 @@ export default function ProductActions({ product }: ProductActionsProps) {
         onClick={handleToggleLoved}
         className={`px-5 py-4 rounded-2xl border text-sm font-bold flex items-center justify-center active:scale-105 transition-all duration-200 cursor-pointer focus:outline-none ${
           isLoved
-            ? "bg-[#FFF0F0] border-red-200 text-brand-red"
-            : "bg-white border-gray-200 text-gray-600 hover:border-brand-red hover:text-brand-red"
+            ? "bg-public-amber/10 border-public-amber/30 text-public-amber-strong"
+            : "bg-white border-public-border text-gray-600 hover:border-public-amber hover:text-public-amber-strong"
         }`}
       >
         <Icon 
           icon={isLoved ? "mdi:heart" : "lucide:heart"} 
-          className={`w-5 h-5 mr-2 ${isLoved ? "text-brand-red" : ""}`} 
+          className={`w-5 h-5 mr-2 ${isLoved ? "text-public-amber-strong" : ""}`} 
         />
         {isLoved ? "Tersimpan di Favorit" : "Simpan ke Favorit"}
       </button>

@@ -91,7 +91,7 @@ export default function ProductDescription({ description }: ProductDescriptionPr
         <button
           type="button"
           onClick={() => setIsExpanded(true)}
-          className="inline-flex p-0 text-sm font-bold text-brand-red hover:text-[#c92f31] hover:underline focus-visible:rounded-sm"
+          className="inline-flex p-0 text-sm font-bold text-public-amber-strong hover:text-public-amber hover:underline focus-visible:rounded-sm"
         >
           Baca Selengkapnya
         </button>
