@@ -29,6 +29,9 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 168, 192, 256, 300, 320, 384],
     qualities: [54, 56, 58, 60, 75],
   },
+  experimental: {
+    inlineCss: true,
+  },
   turbopack: {
     ignoreIssue: [
       {
