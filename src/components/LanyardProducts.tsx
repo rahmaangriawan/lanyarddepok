@@ -8,6 +8,7 @@ import { DEFAULT_PRODUCTS, UnifiedProduct } from "@/lib/products-service";
 import { animateWishlistFly } from "@/lib/wishlist-animation";
 import { getWishlist, saveWishlist, checkRateLimit } from "@/lib/wishlist-storage";
 import { useToast } from "@/components/Toast";
+import { getProductListingHref } from "@/lib/product-links";
 
 type LanyardProductsProps = {
   initialProducts?: UnifiedProduct[];
@@ -177,7 +178,7 @@ export default function LanyardProducts({ initialProducts = [] }: LanyardProduct
                 return (
                   <Link
                     key={item.sku}
-                    href={`/produk/${item.slug}`}
+                    href={getProductListingHref(item)}
                     className="bg-white border border-gray-100 rounded-[2rem] p-6 relative flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-300 group min-h-[280px]"
                   >
                     {/* Wishlist Heart Button */}

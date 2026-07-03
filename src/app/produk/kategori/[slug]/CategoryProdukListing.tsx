@@ -8,6 +8,7 @@ import { animateWishlistFly } from "@/lib/wishlist-animation";
 import { getWishlist, saveWishlist, checkRateLimit } from "@/lib/wishlist-storage";
 import { useToast } from "@/components/Toast";
 import { getPaginationItems } from "@/lib/pagination";
+import { getProductListingHref } from "@/lib/product-links";
 
 interface CategoryProdukListingProps {
   products: UnifiedProduct[];
@@ -137,7 +138,7 @@ export default function CategoryProdukListing({ products, categoryName }: Catego
               return (
                 <Link
                   key={item.sku}
-                  href={`/produk/${item.slug}`}
+                  href={getProductListingHref(item)}
                   className="bg-white border border-gray-100 rounded-[2rem] p-6 relative flex flex-col justify-between shadow-xs hover:shadow-md transition-all duration-300 group min-h-[280px]"
                 >
                   {/* Wishlist Heart Button */}

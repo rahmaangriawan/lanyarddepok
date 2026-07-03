@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
+import { getProductListingHref } from "@/lib/product-links";
 import type { UnifiedProduct } from "@/lib/products-service";
 
 const FEATURED_PRODUCT = {
@@ -77,7 +78,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
         name: MAIN_PRODUCT_NAME,
         price: productPrice(products[0], FEATURED_PRODUCT.price),
         image: MAIN_PRODUCT_IMAGE,
-        href: `/produk/${products[0].slug}`,
+        href: getProductListingHref(products[0]),
         points: MAIN_PRODUCT_POINTS,
       }
     : {
@@ -94,7 +95,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
         name: product.name,
         price: productPrice(product, PRODUCT_LIST[index]?.price || "Rp 0"),
         image: product.featuredImage || PRODUCT_LIST[index]?.image || FEATURED_PRODUCT.image,
-        href: `/produk/${product.slug}`,
+        href: getProductListingHref(product),
       }))
     : PRODUCT_LIST.map((product) => ({ ...product, href: "/produk" }));
 

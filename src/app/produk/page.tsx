@@ -66,8 +66,11 @@ const jsonLd = {
   ],
 };
 
-export default async function ProdukListingPage() {
+export default async function ProdukListingPage({ searchParams }: PageProps) {
   const products = await getProducts();
+  const params = searchParams ? await searchParams : {};
+  const rawSearch = params.search;
+  const initialSearchQuery = Array.isArray(rawSearch) ? rawSearch[0] || "" : rawSearch || "";
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -78,7 +81,7 @@ export default async function ProdukListingPage() {
 
       <main className="flex-grow py-8 sm:py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <ProdukListing initialProducts={products} />
+          <ProdukListing initialProducts={products} initialSearchQuery={initialSearchQuery} />
         </div>
       </main>
     </div>

@@ -10,9 +10,11 @@ import { animateWishlistFly } from "@/lib/wishlist-animation";
 import { getWishlist, saveWishlist, checkRateLimit } from "@/lib/wishlist-storage";
 import { useToast } from "@/components/Toast";
 import { getPaginationItems } from "@/lib/pagination";
+import { getProductListingHref } from "@/lib/product-links";
 
 type ProdukListingProps = {
   initialProducts?: UnifiedProduct[];
+  initialSearchQuery?: string;
 };
 
 type FilterOption = {
@@ -121,13 +123,13 @@ function ProductImage({ eager = false, product }: { eager?: boolean; product: Un
   );
 }
 
-export default function ProdukListing({ initialProducts = [] }: ProdukListingProps) {
+export default function ProdukListing({ initialProducts = [], initialSearchQuery = "" }: ProdukListingProps) {
   const [products, setProducts] = useState<UnifiedProduct[]>(
     initialProducts.length > 0 ? initialProducts : DEFAULT_PRODUCTS,
   );
   const [lovedSkus, setLovedSkus] = useState<string[]>([]);
   const [loading, setLoading] = useState(initialProducts.length === 0);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
   const [selectedWidths, setSelectedWidths] = useState<string[]>([]);
@@ -595,7 +597,7 @@ export default function ProdukListing({ initialProducts = [] }: ProdukListingPro
                 return (
                   <Link
                     key={product.sku}
-                    href={`/produk/${product.slug}`}
+                    href={getProductListingHref(product)}
                     className="group relative flex min-h-[300px] flex-col overflow-hidden rounded-xl border border-public-border bg-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition duration-300 hover:-translate-y-0.5 hover:border-public-amber/45 hover:shadow-[0_16px_34px_rgba(15,23,42,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-public-amber"
                   >
                     {isBestSeller && (

@@ -12,6 +12,7 @@ import {
   saveWishlist,
 } from "@/lib/wishlist-storage";
 import { useToast } from "@/components/Toast";
+import { getProductListingHref } from "@/lib/product-links";
 
 const NAV_ITEMS = [
   { label: "Beranda", href: "/" },
@@ -192,7 +193,7 @@ export default function Header() {
                           className="flex items-center gap-3 border-b border-public-border/50 pb-3 last:border-0 last:pb-0"
                         >
                           <Link
-                            href={`/produk/${item.slug}`}
+                            href={getProductListingHref(item)}
                             onClick={() => setWishlistOpen(false)}
                             className="flex min-w-0 flex-1 items-center gap-3"
                           >
