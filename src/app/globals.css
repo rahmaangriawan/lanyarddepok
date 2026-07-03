@@ -404,11 +404,18 @@
     }
 
     .featured-products-small-copy h3 {
+        display: -webkit-box;
+        max-width: 100%;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
         color: #111827;
         font-size: 1rem;
         font-weight: 800;
         line-height: 1.25;
         margin: 0 0 0.875rem;
+        text-overflow: ellipsis;
+        word-break: break-word;
     }
 
     .featured-products-small-copy span {

@@ -19,25 +19,21 @@ const MAIN_PRODUCT_POINTS = ["Min. order 20", "Bahan terbaik", "Kualitas premium
 const PRODUCT_LIST = [
   {
     name: "Keychain Lanyard",
-    desc: "Lembut & mengkilap",
     price: "Rp 7.000",
     image: "/uploads/hero-lanyard-slider-04.webp",
   },
   {
     name: "Lanyard Printing 2 Sisi",
-    desc: "Desain terlihat dari kedua sisi",
     price: "Rp 7.500",
     image: "/uploads/hero-lanyard-slider-03.webp",
   },
   {
     name: "Aksesoris & ID Card",
-    desc: "Lengkapi lanyard anda",
     price: "Rp 2.000",
     image: "/uploads/paket-bundling-1782194588004.webp",
   },
   {
     name: "Wristband Lanyard",
-    desc: "Cocok untuk event & akses tamu",
     price: "Rp 3.000",
     image: "/uploads/1781967181944-wristband.webp",
   },
@@ -49,6 +45,30 @@ type FeaturedProductsSectionProps = {
 
 function productPrice(product: UnifiedProduct, fallback: string) {
   return product.basePrice && product.basePrice !== "0" ? product.basePrice : fallback;
+}
+
+function hashString(value: string) {
+  let hash = 2166136261;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+function getShuffledSmallProducts(products: UnifiedProduct[]) {
+  const mainSlug = products[0]?.slug;
+
+  return products
+    .filter((product) => product.slug !== mainSlug)
+    .sort((firstProduct, secondProduct) => {
+      const firstScore = hashString(`${firstProduct.slug}:${firstProduct.name}:featured-products`);
+      const secondScore = hashString(`${secondProduct.slug}:${secondProduct.name}:featured-products`);
+
+      return firstScore - secondScore;
+    });
 }
 
 export default function FeaturedProductsSection({ products = [] }: FeaturedProductsSectionProps) {
@@ -68,10 +88,10 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
         href: "/produk",
       };
 
-  const smallProducts = products.length > 1
-    ? products.slice(1, 5).map((product, index) => ({
+  const shuffledSmallProducts = getShuffledSmallProducts(products).slice(0, 4);
+  const smallProducts = shuffledSmallProducts.length > 0
+    ? shuffledSmallProducts.map((product, index) => ({
         name: product.name,
-        desc: product.metaDescription || product.specs || PRODUCT_LIST[index]?.desc || "Lanyard custom premium",
         price: productPrice(product, PRODUCT_LIST[index]?.price || "Rp 0"),
         image: product.featuredImage || PRODUCT_LIST[index]?.image || FEATURED_PRODUCT.image,
         href: `/produk/${product.slug}`,
