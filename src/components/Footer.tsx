@@ -108,13 +108,13 @@ export default function Footer() {
             <div className="relative min-h-[250px] overflow-hidden bg-white lg:min-h-full">
               <div className="absolute left-1/2 top-1/2 h-[135%] w-[135%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#fff3e6] sm:h-[118%] sm:w-[118%] lg:left-[92%] lg:h-[164%] lg:w-[164%]" />
               <Image
-                src="/uploads/cta-footer-lanyard-custom.webp"
+                src="/uploads/cta-footer-lanyard-custom-home.webp"
                 alt="Lanyard custom Lanyard Bogor warna oranye dan putih"
-                width={1252}
-                height={1024}
+                width={720}
+                height={589}
                 className="relative z-10 mx-auto h-full max-h-[330px] w-full object-contain object-center px-6 py-5 sm:px-10 lg:absolute lg:inset-0 lg:max-h-none lg:px-0 lg:py-5 xl:px-2"
                 sizes="(min-width: 1024px) 360px, (min-width: 640px) 48vw, 86vw"
-                quality={60}
+                quality={58}
                 style={{ height: "auto" }}
                 loading="eager"
               />
@@ -131,10 +131,10 @@ export default function Footer() {
           <div className="col-span-2 lg:col-span-4 space-y-4">
             <div className="flex items-center space-x-2 select-none">
               <Image
-                src="/uploads/lanyardbogor-logo.webp"
+                src="/uploads/lanyardbogor-logo-header.webp"
                 alt="Lanyard Bogor Logo"
-                width={164}
-                height={40}
+                width={148}
+                height={36}
                 className="object-contain"
               />
             </div>

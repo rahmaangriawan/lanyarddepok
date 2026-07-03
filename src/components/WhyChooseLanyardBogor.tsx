@@ -49,13 +49,13 @@ export default function WhyChooseLanyardBogor() {
             </div>
             <div className="why-choose-image-wrap">
               <Image
-                src="/uploads/why-choose-lanyard-showcase.webp"
+                src="/uploads/why-choose-lanyard-showcase-home.webp"
                 alt="Contoh lanyard custom premium Lanyard Bogor"
-                width={760}
-                height={520}
+                width={640}
+                height={381}
                 className="why-choose-image"
                 sizes="(min-width: 1100px) 320px, (min-width: 720px) 46vw, 86vw"
-                quality={60}
+                quality={58}
               />
             </div>
             <div className="why-choose-tags" aria-label="Fitur produk">

@@ -9,29 +9,34 @@ import type { UnifiedProduct } from "@/lib/products-service";
 const FEATURED_PRODUCT = {
   name: "Lanyard Polyester",
   price: "Rp 6.000",
-  image: "/uploads/featured-lanyard-polyester-main.webp",
+  image: "/uploads/cta-footer-lanyard-custom-home.webp",
   points: ["Min. order 20", "Bahan terbaik", "Kualitas premium"],
 };
 
 const MAIN_PRODUCT_NAME = "Lanyard Polyester";
-const MAIN_PRODUCT_IMAGE = "/uploads/cta-footer-lanyard-custom.webp";
+const MAIN_PRODUCT_IMAGE = "/uploads/cta-footer-lanyard-custom-home.webp";
 const MAIN_PRODUCT_POINTS = ["Min. order 20", "Bahan terbaik", "Kualitas premium"];
+const PRODUCT_CARD_IMAGE_OVERRIDES: Record<string, string> = {
+  "/uploads/aset-lanyard-3-1782112472764.webp": "/uploads/aset-lanyard-3-card.webp",
+  "/uploads/gratis-layanan-desain-mockup-1782194427111.webp": "/uploads/gratis-layanan-desain-mockup-card.webp",
+  "/uploads/paket-bundling-1782194588004.webp": "/uploads/paket-bundling-card.webp",
+};
 
 const PRODUCT_LIST = [
   {
     name: "Keychain Lanyard",
     price: "Rp 7.000",
-    image: "/uploads/hero-lanyard-slider-04.webp",
+    image: "/uploads/hero-lanyard-slider-04-marquee.webp",
   },
   {
     name: "Lanyard Printing 2 Sisi",
     price: "Rp 7.500",
-    image: "/uploads/hero-lanyard-slider-03.webp",
+    image: "/uploads/hero-lanyard-slider-03-marquee.webp",
   },
   {
     name: "Aksesoris & ID Card",
     price: "Rp 2.000",
-    image: "/uploads/paket-bundling-1782194588004.webp",
+    image: "/uploads/paket-bundling-card.webp",
   },
   {
     name: "Wristband Lanyard",
@@ -46,6 +51,14 @@ type FeaturedProductsSectionProps = {
 
 function productPrice(product: UnifiedProduct, fallback: string) {
   return product.basePrice && product.basePrice !== "0" ? product.basePrice : fallback;
+}
+
+function productCardImage(product: UnifiedProduct, fallback: string) {
+  if (!product.featuredImage) {
+    return fallback;
+  }
+
+  return PRODUCT_CARD_IMAGE_OVERRIDES[product.featuredImage] || product.featuredImage;
 }
 
 function hashString(value: string) {
@@ -94,7 +107,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
     ? shuffledSmallProducts.map((product, index) => ({
         name: product.name,
         price: productPrice(product, PRODUCT_LIST[index]?.price || "Rp 0"),
-        image: product.featuredImage || PRODUCT_LIST[index]?.image || FEATURED_PRODUCT.image,
+        image: productCardImage(product, PRODUCT_LIST[index]?.image || FEATURED_PRODUCT.image),
         href: getProductListingHref(product),
       }))
     : PRODUCT_LIST.map((product) => ({ ...product, href: "/produk" }));
@@ -149,7 +162,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
                 height={560}
                 className="featured-products-main-image"
                 sizes="(min-width: 1024px) 320px, 70vw"
-                quality={60}
+                quality={58}
               />
             </div>
           </div>
@@ -170,7 +183,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
                   height={180}
                   className="featured-products-small-image"
                   sizes="(max-width: 720px) 112px, (max-width: 1100px) 44vw, 168px"
-                  quality={60}
+                  quality={56}
                 />
               </div>
               <div className="featured-products-small-copy">

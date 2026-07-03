@@ -8,37 +8,37 @@ const GALLERY_ITEMS = [
   {
     title: "Telkomsel Lanyard",
     category: "Full Color",
-    image: "/uploads/lanyard-telkomsel-1782278237998.webp",
+    image: "/uploads/lanyard-telkomsel-gallery.webp",
   },
   {
     title: "UGM Event Lanyard",
     category: "Instansi",
-    image: "/uploads/lanyard-ugm-1782279137305.webp",
+    image: "/uploads/lanyard-ugm-gallery.webp",
   },
   {
     title: "RRQ Team Lanyard",
     category: "Komunitas",
-    image: "/uploads/rrq-1782279058422.webp",
+    image: "/uploads/rrq-gallery.webp",
   },
   {
     title: "Polyester Premium",
     category: "Material",
-    image: "/uploads/featured-lanyard-polyester-main.webp",
+    image: "/uploads/featured-lanyard-polyester-gallery.webp",
   },
   {
     title: "Event Wristband",
     category: "Akses",
-    image: "/uploads/1781967181944-wristband.webp",
+    image: "/uploads/1781967181944-wristband-gallery.webp",
   },
   {
     title: "Custom Lanyard",
     category: "Branding",
-    image: "/uploads/hero-lanyard-slider-02.webp",
+    image: "/uploads/hero-lanyard-slider-02-marquee.webp",
   },
   {
     title: "ID Card Set",
     category: "Bundling",
-    image: "/uploads/hero-lanyard-slider-07.webp",
+    image: "/uploads/hero-lanyard-slider-07-marquee.webp",
   },
 ];
 
@@ -83,7 +83,7 @@ export default function LanyardRadialGallerySection() {
                   alt={item.title}
                   fill
                   sizes="(max-width: 640px) 190px, 230px"
-                  quality={60}
+                  quality={58}
                   className={`object-cover transition-transform duration-700 ease-out ${
                     isActive ? "scale-110" : "scale-100 grayscale-[18%]"
                   }`}
