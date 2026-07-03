@@ -28,7 +28,7 @@ const BENEFITS = [
 
 export default function WhyChooseLanyardBogor() {
   return (
-    <section className="why-choose-section homepage-deferred-section">
+    <section className="why-choose-section">
       <div className="why-choose-container">
         <div className="why-choose-heading">
           <div className="why-choose-kicker">

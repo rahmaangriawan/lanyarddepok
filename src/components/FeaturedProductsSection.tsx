@@ -113,7 +113,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
     : PRODUCT_LIST.map((product) => ({ ...product, href: "/produk" }));
 
   return (
-    <section className="featured-products-section homepage-deferred-section">
+    <section className="featured-products-section">
       <div className="featured-products-container">
         <div className="featured-products-copy">
           <p className="featured-products-kicker">Produk Unggulan</p>

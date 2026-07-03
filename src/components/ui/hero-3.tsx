@@ -93,7 +93,7 @@ export const AnimatedMarqueeHero: React.FC<AnimatedMarqueeHeroProps> = ({
     <section
       id="hero"
       className={cn(
-        "relative flex h-screen w-full flex-col items-center justify-start overflow-hidden bg-[#f9fafb] px-4 pt-20 text-center text-[#252525]",
+        "relative flex min-h-[100dvh] w-full flex-col items-center justify-start overflow-hidden bg-[#f9fafb] px-4 pt-20 text-center text-[#252525]",
         className
       )}
     >

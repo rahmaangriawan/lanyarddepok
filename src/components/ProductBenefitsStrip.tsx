@@ -27,7 +27,7 @@ const BENEFITS = [
 
 export default function ProductBenefitsStrip() {
   return (
-    <section className="product-benefits-strip-section homepage-deferred-section">
+    <section className="product-benefits-strip-section">
       <div className="product-benefits-strip">
         {BENEFITS.map((benefit) => (
           <div className="product-benefits-item" key={benefit.title}>

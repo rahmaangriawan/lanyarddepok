@@ -151,15 +151,10 @@
     }
 
     .hero-marquee-track {
-        animation: hero-marquee 32s linear infinite;
+        animation: hero-marquee 112s linear infinite;
         will-change: transform;
         transform: translate3d(0, 0, 0);
         backface-visibility: hidden;
-    }
-
-    .homepage-deferred-section {
-        content-visibility: auto;
-        contain-intrinsic-size: 1px 720px;
     }
 
     @media (prefers-reduced-motion: reduce) {

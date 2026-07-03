@@ -44,7 +44,7 @@ const GALLERY_ITEMS = [
 
 export default function LanyardRadialGallerySection() {
   return (
-    <section className="homepage-deferred-section overflow-hidden bg-white text-[var(--color-public-fg)]">
+    <section className="overflow-hidden bg-white text-[var(--color-public-fg)]">
       <RadialScrollGallery
         className="!min-h-[calc(100svh-76px)] pt-14 sm:!min-h-[calc(100svh-60px)] sm:pt-10"
         headerClassName="px-4"
