@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { Metadata } from "next";
 import { sanitizeCmsHtml } from "@/lib/sanitize-html";
 import {
@@ -247,7 +248,15 @@ export default async function CatchAllPage({ params }: PageProps) {
       <section className="bg-[#FFFDFD] border-b border-gray-100 pt-10 pb-12 sm:pt-14 sm:pb-16 text-center select-none animate-fade-in relative overflow-hidden">
         {leafCity.featuredImage && (
           <div className="absolute inset-0 opacity-[0.03] select-none pointer-events-none">
-            <img src={leafCity.featuredImage} alt="" className="w-full h-full object-cover" />
+            <Image
+              src={leafCity.featuredImage}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="100vw"
+              quality={40}
+              aria-hidden="true"
+            />
           </div>
         )}
         <div className="max-w-4xl mx-auto px-5 space-y-3 relative z-10">
@@ -270,11 +279,14 @@ export default async function CatchAllPage({ params }: PageProps) {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white border border-gray-100 rounded-3xl p-6 sm:p-10 shadow-xs">
             {leafCity.featuredImage && (
-              <div className="w-full aspect-[16/9] rounded-2xl overflow-hidden border border-gray-100 mb-6 bg-gray-50 select-none">
-                <img
+              <div className="relative mb-6 aspect-[16/9] w-full overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 select-none">
+                <Image
                   src={leafCity.featuredImage}
                   alt={leafCity.title}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 896px"
+                  quality={58}
                 />
               </div>
             )}

@@ -150,6 +150,15 @@ export async function GET(request: Request) {
     try {
       const databaseMediaList = await prisma.media.findMany({
         where,
+        select: {
+          id: true,
+          filename: true,
+          filepath: true,
+          mimetype: true,
+          size: true,
+          url: true,
+          createdAt: true,
+        },
         orderBy: { createdAt: "desc" },
         take: 10000,
       });

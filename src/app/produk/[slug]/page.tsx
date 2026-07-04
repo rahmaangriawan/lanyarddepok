@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
-import { Icon } from "@iconify/react";
+import { Puzzle, Settings } from "lucide-react";
 import { shouldSkipDbDuringBuild } from "@/lib/build-env";
 import { getProducts } from "@/lib/products-server";
 import {
@@ -178,10 +179,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               {/* Left Column: Image & Info Metadata */}
               <div className="md:col-span-5 flex flex-col space-y-6">
                 <div className="relative w-full aspect-[16/9] bg-public-soft border border-public-border/70 rounded-2xl overflow-hidden shadow-2xs">
-                  <img
+                  <Image
                     src={product.featuredImage || "/uploads/aset-lanyard-4-1782114161098.webp"}
                     alt={product.name}
-                    className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
+                    fill
+                    className="object-cover transition-transform duration-300 hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 42vw, 520px"
+                    quality={58}
+                    priority
                   />
                 </div>
 
@@ -242,7 +247,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     {product.specs && (
                       <div className="p-4 bg-public-soft/60 rounded-2xl border border-public-border/70 space-y-1.5">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center select-none">
-                          <Icon icon="lucide:settings" className="w-3.5 h-3.5 mr-1 text-public-amber-strong" />
+                          <Settings className="mr-1 h-3.5 w-3.5 text-public-amber-strong" aria-hidden="true" />
                           Spesifikasi Dasar
                         </span>
                         <p className="text-xs text-gray-600 font-medium leading-relaxed">
@@ -253,7 +258,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     {product.accessories && (
                       <div className="p-4 bg-public-soft/60 rounded-2xl border border-public-border/70 space-y-1.5">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center select-none">
-                          <Icon icon="lucide:puzzle" className="w-3.5 h-3.5 mr-1 text-public-amber-strong" />
+                          <Puzzle className="mr-1 h-3.5 w-3.5 text-public-amber-strong" aria-hidden="true" />
                           Aksesoris &amp; Kelengkapan
                         </span>
                         <p className="text-xs text-gray-600 font-medium leading-relaxed">

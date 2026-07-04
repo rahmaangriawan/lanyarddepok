@@ -1,26 +1,24 @@
-"use client";
-
 import Image from "next/image";
-import { Icon } from "@iconify/react";
+import { Award, BadgePercent, Gem, Headphones, PenTool, Star, UsersRound } from "lucide-react";
 
 const BENEFITS = [
   {
-    icon: "lucide:award",
+    Icon: Award,
     title: "Kualitas Premium",
     desc: "Bahan pilihan, jahitan rapi, dan print tajam tahan lama.",
   },
   {
-    icon: "lucide:pen-tool",
+    Icon: PenTool,
     title: "Desain Tanpa Batas",
     desc: "Bebas custom, full color, desain sesuai kebutuhan.",
   },
   {
-    icon: "lucide:badge-percent",
+    Icon: BadgePercent,
     title: "Harga Kompetitif",
     desc: "Harga terbaik dengan kualitas yang tidak perlu diragukan.",
   },
   {
-    icon: "lucide:headphones",
+    Icon: Headphones,
     title: "Layanan Responsif",
     desc: "Fast response dan komunikasi aktif setiap saat.",
   },
@@ -44,7 +42,7 @@ export default function WhyChooseLanyardBogor() {
         <div className="why-choose-grid">
           <article className="why-choose-showcase">
             <div className="why-choose-label">
-              <Icon icon="lucide:gem" />
+              <Gem aria-hidden="true" />
               <span>Premium Quality</span>
             </div>
             <div className="why-choose-image-wrap">
@@ -74,7 +72,7 @@ export default function WhyChooseLanyardBogor() {
           >
             <div className="why-choose-stat">
               <span className="why-choose-stat-icon">
-                <Icon icon="lucide:users-round" />
+                <UsersRound aria-hidden="true" />
               </span>
               <strong>1.000+</strong>
               <p>Klien Puas di Seluruh Indonesia</p>
@@ -82,7 +80,7 @@ export default function WhyChooseLanyardBogor() {
             <div className="why-choose-stat-divider" />
             <div className="why-choose-stat">
               <span className="why-choose-stat-icon">
-                <Icon icon="lucide:star" />
+                <Star aria-hidden="true" />
               </span>
               <strong>98%</strong>
               <p>Tingkat Kepuasan Pelanggan</p>
@@ -93,7 +91,7 @@ export default function WhyChooseLanyardBogor() {
             {BENEFITS.map((benefit) => (
               <article className="why-choose-benefit" key={benefit.title}>
                 <span className="why-choose-benefit-icon">
-                  <Icon icon={benefit.icon} />
+                  <benefit.Icon aria-hidden="true" />
                 </span>
                 <h3>{benefit.title}</h3>
                 <span className="why-choose-benefit-rule" />

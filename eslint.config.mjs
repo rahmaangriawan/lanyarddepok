@@ -22,6 +22,15 @@ const eslintConfig = defineConfig([
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          caughtErrors: "none",
+          ignoreRestSiblings: true,
+          varsIgnorePattern: "^_",
+        },
+      ],
       "react-hooks/immutability": "off",
       "react-hooks/purity": "off",
       "react-hooks/set-state-in-effect": "off",
@@ -29,6 +38,12 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-unsafe-function-type": "off",
       "prefer-const": "off",
       "react/no-unescaped-entities": "off",
+    },
+  },
+  {
+    files: ["src/app/kawruh/**/*.{js,jsx,ts,tsx}"],
+    rules: {
+      "@next/next/no-img-element": "off",
     },
   },
 ]);

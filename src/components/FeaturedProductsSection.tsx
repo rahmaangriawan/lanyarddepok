@@ -1,8 +1,6 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { Icon } from "@iconify/react";
+import { ArrowRight, Check, Star } from "lucide-react";
 import { getProductListingHref } from "@/lib/product-links";
 import type { UnifiedProduct } from "@/lib/products-service";
 
@@ -129,13 +127,13 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
             className="mt-11 inline-flex items-center justify-center gap-6 rounded-full bg-public-amber px-8 py-3 text-sm font-semibold text-[#111827] shadow-lg shadow-public-amber/20 transition-colors hover:bg-public-amber-strong hover:text-white focus:outline-none focus:ring-2 focus:ring-public-amber focus:ring-opacity-75"
           >
             <span>Lihat Semua Produk</span>
-            <Icon icon="lucide:arrow-right" className="featured-products-button-icon" />
+            <ArrowRight className="featured-products-button-icon" aria-hidden="true" />
           </Link>
         </div>
 
         <article className="featured-products-main-card">
           <div className="featured-products-badge">
-            <Icon icon="lucide:star" className="featured-products-badge-icon" />
+            <Star className="featured-products-badge-icon" aria-hidden="true" />
             <span>Popular</span>
           </div>
 
@@ -145,7 +143,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
               <ul>
                 {(mainProduct.points.length > 0 ? mainProduct.points : FEATURED_PRODUCT.points).map((point) => (
                   <li key={point}>
-                    <Icon icon="lucide:check" />
+                    <Check aria-hidden="true" />
                     <span>{point}</span>
                   </li>
                 ))}
@@ -193,7 +191,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
                 </span>
               </div>
               <span className="featured-products-small-action">
-                <Icon icon="lucide:arrow-right" />
+                <ArrowRight aria-hidden="true" />
               </span>
             </Link>
           ))}

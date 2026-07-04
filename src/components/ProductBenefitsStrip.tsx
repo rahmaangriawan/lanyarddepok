@@ -1,25 +1,23 @@
-"use client";
-
-import { Icon } from "@iconify/react";
+import { FileText, Grid2X2, Timer, UserRound } from "lucide-react";
 
 const BENEFITS = [
   {
-    icon: "lucide:timer",
+    Icon: Timer,
     title: "Produksi Cepat",
     desc: "Ready 1-3 hari kerja",
   },
   {
-    icon: "lucide:file-text",
+    Icon: FileText,
     title: "Desain Bebas",
     desc: "Custom desain tanpa batas",
   },
   {
-    icon: "lucide:grid-2x2",
+    Icon: Grid2X2,
     title: "MOQ Fleksibel",
     desc: "Mulai dari 50 pcs",
   },
   {
-    icon: "lucide:user-round",
+    Icon: UserRound,
     title: "Ribuan Klien Puas",
     desc: "Kualitas & layanan terbaik",
   },
@@ -32,7 +30,7 @@ export default function ProductBenefitsStrip() {
         {BENEFITS.map((benefit) => (
           <div className="product-benefits-item" key={benefit.title}>
             <span className="product-benefits-icon">
-              <Icon icon={benefit.icon} />
+              <benefit.Icon aria-hidden="true" />
             </span>
             <span className="product-benefits-copy">
               <strong>{benefit.title}</strong>
