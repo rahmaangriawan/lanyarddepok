@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import { revalidateTag } from "next/cache";
 import { CATEGORIES_CACHE_TAG } from "@/lib/public-cache";
 import { PRODUCTS_CACHE_TAG } from "@/lib/products-server";
+import { assertSameOrigin } from "@/lib/security";
 
 export async function GET() {
   try {
@@ -25,6 +26,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
     const session = await getSessionUser();
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

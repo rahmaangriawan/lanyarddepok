@@ -1,12 +1,27 @@
 import type { NextConfig } from "next";
 
+const isDevelopment = process.env.NODE_ENV !== "production";
+const isCspReportOnly = process.env.CSP_REPORT_ONLY === "true";
+
+const scriptSrcDirectives = [
+  "script-src",
+  "'self'",
+  "'unsafe-inline'",
+  ...(isDevelopment ? ["'unsafe-eval'"] : []),
+  "https://www.googletagmanager.com",
+  "https://www.google-analytics.com",
+  "https://challenges.cloudflare.com",
+  "https://static.cloudflareinsights.com",
+].join(" ");
+
 const baseCspDirectives = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'self'",
   "form-action 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://static.cloudflareinsights.com",
+  scriptSrcDirectives,
+  "script-src-attr 'none'",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com data:",
   "img-src 'self' data: blob: https:",
@@ -17,7 +32,7 @@ const baseCspDirectives = [
 
 const cspDirectives = [
   ...baseCspDirectives,
-  ...(process.env.CSP_REPORT_ONLY === "false" ? ["upgrade-insecure-requests"] : []),
+  ...(!isCspReportOnly ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const nextConfig: NextConfig = {
@@ -53,10 +68,9 @@ const nextConfig: NextConfig = {
             value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()",
           },
           {
-            key:
-              process.env.CSP_REPORT_ONLY === "false"
-                ? "Content-Security-Policy"
-                : "Content-Security-Policy-Report-Only",
+            key: isCspReportOnly
+              ? "Content-Security-Policy-Report-Only"
+              : "Content-Security-Policy",
             value: cspDirectives,
           },
         ],

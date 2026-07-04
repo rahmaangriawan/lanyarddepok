@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import fs from "fs";
 import path from "path";
 import { findUploadMediaById } from "@/lib/media-files";
+import { assertSameOrigin } from "@/lib/security";
 
 export const runtime = "nodejs";
 
@@ -12,6 +13,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
     const session = await getSessionUser();
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -84,9 +88,6 @@ export async function DELETE(
     return NextResponse.json({ success: true, message: "Media deleted successfully" });
   } catch (error: any) {
     console.error("Delete Media Error:", error);
-    return NextResponse.json({ 
-      error: "Failed to delete media file", 
-      details: error.message || String(error) 
-    }, { status: 500 });
+    return NextResponse.json({ error: "Failed to delete media file" }, { status: 500 });
   }
 }

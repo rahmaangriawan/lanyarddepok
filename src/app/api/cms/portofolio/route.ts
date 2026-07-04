@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { assertSameOrigin } from "@/lib/security";
 
 export async function GET() {
   try {
@@ -17,6 +18,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const csrfError = assertSameOrigin(request);
+    if (csrfError) return csrfError;
+
     const session = await getSessionUser();
     if (!session || session.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
