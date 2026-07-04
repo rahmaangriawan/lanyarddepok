@@ -14,11 +14,6 @@ const FEATURED_PRODUCT = {
 const MAIN_PRODUCT_NAME = "Lanyard Polyester";
 const MAIN_PRODUCT_IMAGE = "/uploads/cta-footer-lanyard-custom-mobile.webp";
 const MAIN_PRODUCT_POINTS = ["Min. order 20", "Bahan terbaik", "Kualitas premium"];
-const PRODUCT_CARD_IMAGE_OVERRIDES: Record<string, string> = {
-  "/uploads/aset-lanyard-3-1782112472764.webp": "/uploads/aset-lanyard-3-card.webp",
-  "/uploads/gratis-layanan-desain-mockup-1782194427111.webp": "/uploads/gratis-layanan-desain-mockup-card.webp",
-  "/uploads/paket-bundling-1782194588004.webp": "/uploads/paket-bundling-card.webp",
-};
 
 type FeaturedProductsSectionProps = {
   products?: UnifiedProduct[];
@@ -33,7 +28,7 @@ function productCardImage(product: UnifiedProduct) {
     return FEATURED_PRODUCT.image;
   }
 
-  return PRODUCT_CARD_IMAGE_OVERRIDES[product.featuredImage] || product.featuredImage;
+  return product.featuredImage;
 }
 
 function hashString(value: string) {

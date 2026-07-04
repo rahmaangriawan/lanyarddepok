@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ImageIcon } from "lucide-react";
-import { getHomepageProducts } from "@/lib/products-server";
+import { getProducts } from "@/lib/products-server";
 import type { UnifiedProduct } from "@/lib/products-service";
 import { getCachedHomepagePosts } from "@/lib/public-cache";
 import FeaturedProductsSection from "@/components/FeaturedProductsSection";
@@ -160,7 +160,7 @@ export default async function Home() {
   }
 
   try {
-    homepageProducts = await getHomepageProducts();
+    homepageProducts = await getProducts();
   } catch (err) {
     console.error("Failed to fetch homepage products:", err);
   }
