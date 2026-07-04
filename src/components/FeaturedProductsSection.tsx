@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check, Star } from "lucide-react";
 import { getProductListingHref } from "@/lib/product-links";
-import type { UnifiedProduct } from "@/lib/products-service";
+import { DEFAULT_PRODUCTS, type UnifiedProduct } from "@/lib/products-service";
 
 const FEATURED_PRODUCT = {
   name: "Lanyard Polyester",
@@ -20,29 +20,6 @@ const PRODUCT_CARD_IMAGE_OVERRIDES: Record<string, string> = {
   "/uploads/paket-bundling-1782194588004.webp": "/uploads/paket-bundling-card.webp",
 };
 
-const PRODUCT_LIST = [
-  {
-    name: "Keychain Lanyard",
-    price: "Rp 7.000",
-    image: "/uploads/hero-lanyard-slider-04-marquee.webp",
-  },
-  {
-    name: "Lanyard Printing 2 Sisi",
-    price: "Rp 7.500",
-    image: "/uploads/hero-lanyard-slider-03-marquee.webp",
-  },
-  {
-    name: "Aksesoris & ID Card",
-    price: "Rp 2.000",
-    image: "/uploads/paket-bundling-card.webp",
-  },
-  {
-    name: "Wristband Lanyard",
-    price: "Rp 3.000",
-    image: "/uploads/1781967181944-wristband.webp",
-  },
-];
-
 type FeaturedProductsSectionProps = {
   products?: UnifiedProduct[];
 };
@@ -51,9 +28,9 @@ function productPrice(product: UnifiedProduct, fallback: string) {
   return product.basePrice && product.basePrice !== "0" ? product.basePrice : fallback;
 }
 
-function productCardImage(product: UnifiedProduct, fallback: string) {
+function productCardImage(product: UnifiedProduct) {
   if (!product.featuredImage) {
-    return fallback;
+    return FEATURED_PRODUCT.image;
   }
 
   return PRODUCT_CARD_IMAGE_OVERRIDES[product.featuredImage] || product.featuredImage;
@@ -72,8 +49,16 @@ function hashString(value: string) {
 
 function getShuffledSmallProducts(products: UnifiedProduct[]) {
   const mainSlug = products[0]?.slug;
+  const mergedProducts = [...products];
+  const existingSlugs = new Set(mergedProducts.map((product) => product.slug));
 
-  return products
+  for (const product of DEFAULT_PRODUCTS) {
+    if (existingSlugs.has(product.slug)) continue;
+    mergedProducts.push(product);
+    existingSlugs.add(product.slug);
+  }
+
+  return mergedProducts
     .filter((product) => product.slug !== mainSlug)
     .sort((firstProduct, secondProduct) => {
       const firstScore = hashString(`${firstProduct.slug}:${firstProduct.name}:featured-products`);
@@ -100,15 +85,14 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
         href: "/produk",
       };
 
-  const shuffledSmallProducts = getShuffledSmallProducts(products).slice(0, 4);
-  const smallProducts = shuffledSmallProducts.length > 0
-    ? shuffledSmallProducts.map((product, index) => ({
-        name: product.name,
-        price: productPrice(product, PRODUCT_LIST[index]?.price || "Rp 0"),
-        image: productCardImage(product, PRODUCT_LIST[index]?.image || FEATURED_PRODUCT.image),
-        href: getProductListingHref(product),
-      }))
-    : PRODUCT_LIST.map((product) => ({ ...product, href: "/produk" }));
+  const smallProducts = getShuffledSmallProducts(products)
+    .slice(0, 3)
+    .map((product) => ({
+      name: product.name,
+      price: productPrice(product, "Rp 0"),
+      image: productCardImage(product),
+      href: getProductListingHref(product),
+    }));
 
   return (
     <section className="featured-products-section">

@@ -90,7 +90,7 @@ export async function getProducts(): Promise<UnifiedProduct[]> {
 
 async function getHomepageProductsFromDb(): Promise<UnifiedProduct[]> {
   if (shouldSkipDbDuringBuild()) {
-    return DEFAULT_PRODUCTS.slice(0, 4);
+    return DEFAULT_PRODUCTS;
   }
 
   try {
@@ -121,11 +121,11 @@ async function getHomepageProductsFromDb(): Promise<UnifiedProduct[]> {
         },
       },
       orderBy: productOrderBy,
-      take: 4,
+      take: 8,
     });
 
     if (products.length === 0) {
-      return DEFAULT_PRODUCTS.slice(0, 4);
+      return DEFAULT_PRODUCTS;
     }
 
     return products.map((product) => ({
@@ -153,7 +153,7 @@ async function getHomepageProductsFromDb(): Promise<UnifiedProduct[]> {
   } catch (error) {
     const message = error instanceof Error ? error.message.split("\n")[0] : String(error);
     console.warn(`Homepage products DB fetch failed; using fallback products. ${message}`);
-    return DEFAULT_PRODUCTS.slice(0, 4);
+    return DEFAULT_PRODUCTS;
   }
 }
 
