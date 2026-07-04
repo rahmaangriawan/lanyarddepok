@@ -37,6 +37,30 @@ const widthOptions: FilterOption[] = [
   { label: "2.5 cm", keywords: ["2.5cm", "2,5cm", "2.5 cm", "2,5 cm"] },
 ];
 
+function normalizeSearchText(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function matchesSearchQuery(productText: string, query: string) {
+  const normalizedQuery = normalizeSearchText(query);
+  if (!normalizedQuery) return true;
+
+  const normalizedText = normalizeSearchText(productText);
+  const compactText = normalizedText.replace(/\s+/g, "");
+  const compactQuery = normalizedQuery.replace(/\s+/g, "");
+
+  return (
+    normalizedText.includes(normalizedQuery) ||
+    compactText.includes(compactQuery) ||
+    normalizedQuery.split(/\s+/).every((token) => normalizedText.includes(token))
+  );
+}
+
 function getProductText(product: UnifiedProduct) {
   return [
     product.name,
@@ -260,14 +284,14 @@ export default function ProdukListing({ initialProducts = [], initialSearchQuery
 
   const filteredProducts = useMemo(() => {
     const activePrice = appliedPrice || [priceBounds.min, priceBounds.max];
-    const query = searchQuery.trim().toLowerCase();
+    const query = searchQuery.trim();
 
     return products.filter((product) => {
       const text = getProductText(product);
       const productPrice = parsePrice(product.basePrice);
       const category = product.category?.name || "Lanyard";
 
-      const matchesSearch = query.length === 0 || text.includes(query);
+      const matchesSearch = matchesSearchQuery(text, query);
       const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(category);
       const matchesMaterial = matchesSelectedOptions(product, selectedMaterials, materialOptions);
       const matchesWidth = matchesSelectedOptions(product, selectedWidths, widthOptions);

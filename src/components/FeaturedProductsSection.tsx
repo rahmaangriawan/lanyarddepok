@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check, Star } from "lucide-react";
 import { getProductListingHref } from "@/lib/product-links";
-import { DEFAULT_PRODUCTS, type UnifiedProduct } from "@/lib/products-service";
+import type { UnifiedProduct } from "@/lib/products-service";
 
 const FEATURED_PRODUCT = {
   name: "Lanyard Polyester",
@@ -14,16 +14,42 @@ const FEATURED_PRODUCT = {
 const MAIN_PRODUCT_NAME = "Lanyard Polyester";
 const MAIN_PRODUCT_IMAGE = "/uploads/cta-footer-lanyard-custom-mobile.webp";
 const MAIN_PRODUCT_POINTS = ["Min. order 20", "Bahan terbaik", "Kualitas premium"];
+const FEATURED_SMALL_PRODUCT_SLUGS = ["ks-j-st-20", "kh-j-ss-25", "ky-j-ss-25"];
+const FEATURED_SMALL_PRODUCT_FALLBACKS: Record<string, Pick<UnifiedProduct, "name" | "slug" | "sku" | "basePrice" | "featuredImage">> = {
+  "ks-j-st-20": {
+    name: "Tali Lanyard Custom Kait Standar Jahit Stopper Trisula 2 cm",
+    slug: "ks-j-st-20",
+    sku: "KS.J.ST-20",
+    basePrice: "Rp 17.000",
+    featuredImage: FEATURED_PRODUCT.image,
+  },
+  "kh-j-ss-25": {
+    name: "Tali Lanyard Custom Kait Kawat Hitam Jahit Stopper Standar 2.5 cm",
+    slug: "kh-j-ss-25",
+    sku: "KH.J.SS-25",
+    basePrice: "Rp 25.000",
+    featuredImage: FEATURED_PRODUCT.image,
+  },
+  "ky-j-ss-25": {
+    name: "Tali Lanyard Custom Kait Yoyo Jahit Stopper Standar 2.5 cm",
+    slug: "ky-j-ss-25",
+    sku: "KY.J.SS-25",
+    basePrice: "Rp 29.000",
+    featuredImage: FEATURED_PRODUCT.image,
+  },
+};
 
 type FeaturedProductsSectionProps = {
   products?: UnifiedProduct[];
 };
 
-function productPrice(product: UnifiedProduct, fallback: string) {
+type ProductCardSource = Pick<UnifiedProduct, "name" | "slug" | "sku" | "basePrice" | "featuredImage">;
+
+function productPrice(product: Pick<UnifiedProduct, "basePrice">, fallback: string) {
   return product.basePrice && product.basePrice !== "0" ? product.basePrice : fallback;
 }
 
-function productCardImage(product: UnifiedProduct) {
+function productCardImage(product: Pick<UnifiedProduct, "featuredImage">) {
   if (!product.featuredImage) {
     return FEATURED_PRODUCT.image;
   }
@@ -31,36 +57,10 @@ function productCardImage(product: UnifiedProduct) {
   return product.featuredImage;
 }
 
-function hashString(value: string) {
-  let hash = 2166136261;
+function getFeaturedSmallProducts(products: UnifiedProduct[]): ProductCardSource[] {
+  const productsBySlug = new Map(products.map((product) => [product.slug, product]));
 
-  for (let index = 0; index < value.length; index += 1) {
-    hash ^= value.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-
-  return hash >>> 0;
-}
-
-function getShuffledSmallProducts(products: UnifiedProduct[]) {
-  const mainSlug = products[0]?.slug;
-  const mergedProducts = [...products];
-  const existingSlugs = new Set(mergedProducts.map((product) => product.slug));
-
-  for (const product of DEFAULT_PRODUCTS) {
-    if (existingSlugs.has(product.slug)) continue;
-    mergedProducts.push(product);
-    existingSlugs.add(product.slug);
-  }
-
-  return mergedProducts
-    .filter((product) => product.slug !== mainSlug)
-    .sort((firstProduct, secondProduct) => {
-      const firstScore = hashString(`${firstProduct.slug}:${firstProduct.name}:featured-products`);
-      const secondScore = hashString(`${secondProduct.slug}:${secondProduct.name}:featured-products`);
-
-      return firstScore - secondScore;
-    });
+  return FEATURED_SMALL_PRODUCT_SLUGS.map((slug) => productsBySlug.get(slug) || FEATURED_SMALL_PRODUCT_FALLBACKS[slug]);
 }
 
 export default function FeaturedProductsSection({ products = [] }: FeaturedProductsSectionProps) {
@@ -80,8 +80,7 @@ export default function FeaturedProductsSection({ products = [] }: FeaturedProdu
         href: "/produk",
       };
 
-  const smallProducts = getShuffledSmallProducts(products)
-    .slice(0, 3)
+  const smallProducts = getFeaturedSmallProducts(products)
     .map((product) => ({
       name: product.name,
       price: productPrice(product, "Rp 0"),

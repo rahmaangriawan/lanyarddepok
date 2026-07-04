@@ -1,10 +1,34 @@
 import { NextResponse } from "next/server";
 import { getProducts } from "@/lib/products-server";
 
+function normalizeSearchText(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function matchesSearchQuery(productText: string, query: string) {
+  const normalizedQuery = normalizeSearchText(query);
+  if (!normalizedQuery) return true;
+
+  const normalizedText = normalizeSearchText(productText);
+  const compactText = normalizedText.replace(/\s+/g, "");
+  const compactQuery = normalizedQuery.replace(/\s+/g, "");
+
+  return (
+    normalizedText.includes(normalizedQuery) ||
+    compactText.includes(compactQuery) ||
+    normalizedQuery.split(/\s+/).every((token) => normalizedText.includes(token))
+  );
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get("q")?.toLowerCase() || "";
+    const query = searchParams.get("q") || "";
     const limitParam = searchParams.get("limit");
     const limit = limitParam ? parseInt(limitParam, 10) : null;
 
@@ -13,12 +37,18 @@ export async function GET(request: Request) {
     let filtered = allProducts;
     if (query) {
       filtered = allProducts.filter((product) => {
-        return (
-          product.name.toLowerCase().includes(query) ||
-          product.sku.toLowerCase().includes(query) ||
-          product.specs.toLowerCase().includes(query) ||
-          product.description.toLowerCase().includes(query)
-        );
+        const productText = [
+          product.name,
+          product.sku,
+          product.specs,
+          product.accessories,
+          product.description,
+          product.category?.name,
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        return matchesSearchQuery(productText, query);
       });
     }
 
