@@ -50,12 +50,28 @@ function escapeHtml(value: string) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function mergeRelValue(value: string) {
+  const relValues = new Set(
+    value
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean),
+  );
+
+  relValues.add("noopener");
+  relValues.add("noreferrer");
+
+  return Array.from(relValues).join(" ");
 }
 
 function sanitizeAttrs(tag: string, attrs = "") {
   const allowed = TAG_ATTRS.get(tag) || GLOBAL_ATTRS;
   const output: string[] = [];
+  const attrValues = new Map<string, string>();
   const attrPattern = /([a-zA-Z0-9:-]+)(?:\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
   let match: RegExpExecArray | null;
 
@@ -71,6 +87,7 @@ function sanitizeAttrs(tag: string, attrs = "") {
       continue;
     }
 
+    attrValues.set(name, value);
     output.push(`${name}="${escapeHtml(value)}"`);
   }
 
@@ -78,6 +95,8 @@ function sanitizeAttrs(tag: string, attrs = "") {
     const relIndex = output.findIndex((attr) => attr.startsWith("rel="));
     if (relIndex === -1) {
       output.push('rel="noopener noreferrer"');
+    } else {
+      output[relIndex] = `rel="${escapeHtml(mergeRelValue(attrValues.get("rel") || ""))}"`;
     }
   }
 

@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { CITY_PAGES_CACHE_TAG } from "@/lib/public-cache";
 import { assertSameOrigin } from "@/lib/security";
+import { normalizeCmsHtml } from "@/lib/sanitize-html";
 
 export async function GET() {
   try {
@@ -60,9 +61,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Slug already exists" }, { status: 400 });
     }
 
-    const cleanContent = typeof content === "string"
-      ? content.replace(/&nbsp;/gi, " ").replace(/\u00a0/g, " ").replace(/\xa0/g, " ")
-      : content;
+    const cleanContent = typeof content === "string" ? normalizeCmsHtml(content) : content;
 
     const parsedParentId = parentId ? parseInt(parentId, 10) : null;
 

@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { CITY_PAGES_CACHE_TAG } from "@/lib/public-cache";
 import { assertSameOrigin } from "@/lib/security";
+import { normalizeCmsHtml } from "@/lib/sanitize-html";
 
 // Helper to check if a potential parent is a descendant of the page itself to prevent circular reference
 async function isDescendant(possibleParentId: number, targetId: number): Promise<boolean> {
@@ -101,9 +102,7 @@ export async function PUT(
       }
     }
 
-    const cleanContent = typeof content === "string"
-      ? content.replace(/&nbsp;/gi, " ").replace(/\u00a0/g, " ").replace(/\xa0/g, " ")
-      : content;
+    const cleanContent = typeof content === "string" ? normalizeCmsHtml(content) : content;
 
     const updatedCity = await prisma.cityPage.update({
       where: { id: cityId },
