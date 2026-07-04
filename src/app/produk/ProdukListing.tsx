@@ -53,11 +53,12 @@ function matchesSearchQuery(productText: string, query: string) {
   const normalizedText = normalizeSearchText(productText);
   const compactText = normalizedText.replace(/\s+/g, "");
   const compactQuery = normalizedQuery.replace(/\s+/g, "");
+  const queryTokens = normalizedQuery.split(/\s+/).filter((token) => token.length >= 2);
 
   return (
     normalizedText.includes(normalizedQuery) ||
-    compactText.includes(compactQuery) ||
-    normalizedQuery.split(/\s+/).every((token) => normalizedText.includes(token))
+    (compactQuery.length >= 3 && compactText.includes(compactQuery)) ||
+    (queryTokens.length >= 2 && queryTokens.every((token) => normalizedText.includes(token)))
   );
 }
 
