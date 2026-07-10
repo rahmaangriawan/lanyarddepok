@@ -156,6 +156,22 @@ jobs:
 
           chmod -R u+rwX "$APP_DIR/apps" 2>/dev/null || true
 
+          ensure_frontend_dist() {
+            FRONTEND_DIST="$APP_DIR/apps/frontend/dist"
+            FRONTEND_SERVER="$FRONTEND_DIST/server"
+
+            if [ -d "$FRONTEND_SERVER" ] && [ ! -w "$FRONTEND_SERVER" ]; then
+              FRONTEND_BACKUP="$APP_DIR/apps/frontend/dist.unwritable.$(date +%Y%m%d%H%M%S)"
+              echo "Existing Astro dist server directory is not writable. Moving dist to $FRONTEND_BACKUP."
+              if ! mv "$FRONTEND_DIST" "$FRONTEND_BACKUP"; then
+                echo "Cannot move unwritable Astro dist directory. Rename or delete $FRONTEND_DIST in CloudPanel, then rerun deploy."
+                exit 1
+              fi
+            fi
+          }
+
+          ensure_frontend_dist
+
           if command -v rsync >/dev/null 2>&1; then
             rsync -r --checksum \
               --no-times --no-perms --no-owner --no-group --omit-dir-times \
