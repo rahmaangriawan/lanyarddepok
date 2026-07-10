@@ -122,7 +122,9 @@ jobs:
           if [ -d "$APP_DIR/shared/storage" ] && [ ! -f "$APP_DIR/.direct-deploy-migrated" ]; then
             mkdir -p "$APP_DIR/apps/backend/storage"
             if command -v rsync >/dev/null 2>&1; then
-              rsync -a "$APP_DIR/shared/storage/" "$APP_DIR/apps/backend/storage/"
+              rsync -r --inplace \
+                --no-times --no-perms --no-owner --no-group --omit-dir-times \
+                "$APP_DIR/shared/storage/" "$APP_DIR/apps/backend/storage/"
             else
               cp -R "$APP_DIR/shared/storage/." "$APP_DIR/apps/backend/storage/"
             fi
@@ -132,7 +134,8 @@ jobs:
           chmod -R u+rwX "$APP_DIR/apps" 2>/dev/null || true
 
           if command -v rsync >/dev/null 2>&1; then
-            rsync -a --checksum \
+            rsync -r --checksum --inplace \
+              --no-times --no-perms --no-owner --no-group --omit-dir-times \
               --exclude 'apps/backend/.env' \
               --exclude 'apps/backend/storage/' \
               "$STAGING_DIR/" "$APP_DIR/"
