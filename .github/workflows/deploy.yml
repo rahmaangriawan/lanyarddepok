@@ -94,57 +94,62 @@ jobs:
             -o StrictHostKeyChecking=no \
             -p "$SSH_PORT" \
             "$SSH_USER@$SSH_HOST" \
-            "APP_NAME='$APP_NAME' APP_PORT='$APP_PORT' REMOTE_PATH='$REMOTE_PATH' RELEASE_ID='$GITHUB_SHA' bash -s" <<'REMOTE_SCRIPT'
+            "APP_NAME='$APP_NAME' APP_PORT='$APP_PORT' REMOTE_PATH='$REMOTE_PATH' DEPLOY_ID='$GITHUB_SHA' bash -s" <<'REMOTE_SCRIPT'
           set -euo pipefail
 
           if [ -d "$HOME/$REMOTE_PATH" ]; then
-            BASE_DIR="$HOME/$REMOTE_PATH"
+            APP_DIR="$HOME/$REMOTE_PATH"
           else
-            BASE_DIR="$REMOTE_PATH"
+            APP_DIR="$REMOTE_PATH"
           fi
 
-          RELEASES_DIR="$BASE_DIR/releases"
-          SHARED_DIR="$BASE_DIR/shared"
-          RELEASE_DIR="$RELEASES_DIR/$RELEASE_ID"
-          SHARED_STORAGE="$SHARED_DIR/storage"
-
-          mkdir -p "$RELEASE_DIR" "$SHARED_DIR"
-          unzip -q "$HOME/deploy-lanyarddepok.zip" -d "$RELEASE_DIR"
+          STAGING_DIR="$HOME/.deploy-lanyarddepok-$DEPLOY_ID"
+          rm -rf "$STAGING_DIR"
+          mkdir -p "$STAGING_DIR" "$APP_DIR"
+          unzip -q "$HOME/deploy-lanyarddepok.zip" -d "$STAGING_DIR"
           rm -f "$HOME/deploy-lanyarddepok.zip"
 
-          if [ ! -f "$SHARED_DIR/backend.env" ]; then
-            for ENV_SOURCE in \
-              "$BASE_DIR/current/apps/backend/.env" \
-              "$BASE_DIR/apps/backend/.env"; do
-              if [ -f "$ENV_SOURCE" ]; then
-                cp "$ENV_SOURCE" "$SHARED_DIR/backend.env"
-                break
-              fi
-            done
+          if [ ! -f "$APP_DIR/apps/backend/.env" ] && [ -f "$APP_DIR/shared/backend.env" ]; then
+            mkdir -p "$APP_DIR/apps/backend"
+            cp "$APP_DIR/shared/backend.env" "$APP_DIR/apps/backend/.env"
           fi
 
-          if [ ! -f "$SHARED_DIR/backend.env" ]; then
-            echo "Laravel environment file not found. Create $SHARED_DIR/backend.env and rerun deploy."
+          if [ ! -f "$APP_DIR/apps/backend/.env" ]; then
+            echo "Laravel environment file not found. Create $APP_DIR/apps/backend/.env and rerun deploy."
             exit 1
           fi
 
-          mkdir -p \
-            "$SHARED_STORAGE/app/public" \
-            "$SHARED_STORAGE/framework/cache/data" \
-            "$SHARED_STORAGE/framework/sessions" \
-            "$SHARED_STORAGE/framework/views" \
-            "$SHARED_STORAGE/logs"
-
-          if [ -d "$BASE_DIR/apps/backend/storage" ] && [ ! -f "$SHARED_DIR/.storage-migrated" ]; then
-            cp -R "$BASE_DIR/apps/backend/storage/." "$SHARED_STORAGE/" 2>/dev/null || true
-            touch "$SHARED_DIR/.storage-migrated"
+          if [ -d "$APP_DIR/shared/storage" ] && [ ! -f "$APP_DIR/.direct-deploy-migrated" ]; then
+            mkdir -p "$APP_DIR/apps/backend/storage"
+            if command -v rsync >/dev/null 2>&1; then
+              rsync -a "$APP_DIR/shared/storage/" "$APP_DIR/apps/backend/storage/"
+            else
+              cp -R "$APP_DIR/shared/storage/." "$APP_DIR/apps/backend/storage/"
+            fi
+            touch "$APP_DIR/.direct-deploy-migrated"
           fi
 
-          rm -rf "$RELEASE_DIR/apps/backend/storage"
-          ln -s "$SHARED_STORAGE" "$RELEASE_DIR/apps/backend/storage"
-          ln -s "$SHARED_DIR/backend.env" "$RELEASE_DIR/apps/backend/.env"
+          chmod -R u+rwX "$APP_DIR/apps" 2>/dev/null || true
 
-          cd "$RELEASE_DIR/apps/backend"
+          if command -v rsync >/dev/null 2>&1; then
+            rsync -a --checksum \
+              --exclude 'apps/backend/.env' \
+              --exclude 'apps/backend/storage/' \
+              "$STAGING_DIR/" "$APP_DIR/"
+          else
+            cp -R "$STAGING_DIR/." "$APP_DIR/"
+          fi
+
+          rm -rf "$STAGING_DIR"
+
+          mkdir -p \
+            "$APP_DIR/apps/backend/storage/app/public" \
+            "$APP_DIR/apps/backend/storage/framework/cache/data" \
+            "$APP_DIR/apps/backend/storage/framework/sessions" \
+            "$APP_DIR/apps/backend/storage/framework/views" \
+            "$APP_DIR/apps/backend/storage/logs"
+
+          cd "$APP_DIR/apps/backend"
           composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
           php artisan migrate --force
           php artisan storage:link || true
@@ -152,10 +157,7 @@ jobs:
           php artisan route:cache
           php artisan view:cache
 
-          ln -sfn "$RELEASE_DIR" "$BASE_DIR/current.next"
-          mv -Tf "$BASE_DIR/current.next" "$BASE_DIR/current"
-
-          cd "$RELEASE_DIR"
+          cd "$APP_DIR"
           chmod +x restart.sh
           APP_NAME="$APP_NAME" APP_PORT="$APP_PORT" REMOTE_PATH="$REMOTE_PATH" ./restart.sh
 
