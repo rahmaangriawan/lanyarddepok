@@ -278,10 +278,10 @@ export default function OrderForm() {
                 <div>
                   <h3>Email Support</h3>
                   <a
-                    href="mailto:info@lanyardbogor.com"
+                    href="mailto:info@lanyarddepok.com"
                     className="contact-section-info-link"
                   >
-                    info@lanyardbogor.com
+                    info@lanyarddepok.com
                   </a>
                 </div>
               </div>

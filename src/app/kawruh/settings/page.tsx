@@ -303,7 +303,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Email</label>
-                <input type="email" value={settings.contact_email} onChange={(e) => handleChange("contact_email", e.target.value)} placeholder="cs@lanyardbogor.com" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <input type="email" value={settings.contact_email} onChange={(e) => handleChange("contact_email", e.target.value)} placeholder="cs@lanyarddepok.com" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Alamat</label>
@@ -467,15 +467,15 @@ export default function SettingsPage() {
             <div className="p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Instagram</label>
-                <input type="text" value={settings.social_instagram} onChange={(e) => handleChange("social_instagram", e.target.value)} placeholder="https://instagram.com/lanyardbogor" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <input type="text" value={settings.social_instagram} onChange={(e) => handleChange("social_instagram", e.target.value)} placeholder="https://instagram.com/lanyarddepok" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">Facebook</label>
-                <input type="text" value={settings.social_facebook} onChange={(e) => handleChange("social_facebook", e.target.value)} placeholder="https://facebook.com/lanyardbogor" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <input type="text" value={settings.social_facebook} onChange={(e) => handleChange("social_facebook", e.target.value)} placeholder="https://facebook.com/lanyarddepok" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
               </div>
               <div>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1">TikTok</label>
-                <input type="text" value={settings.social_tiktok} onChange={(e) => handleChange("social_tiktok", e.target.value)} placeholder="https://tiktok.com/@lanyardbogor" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
+                <input type="text" value={settings.social_tiktok} onChange={(e) => handleChange("social_tiktok", e.target.value)} placeholder="https://tiktok.com/@lanyarddepok" className="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5" />
               </div>
             </div>
           </div>
@@ -889,7 +889,7 @@ export default function SettingsPage() {
                     type="text"
                     value={settings.google_search_console_site_url}
                     onChange={(e) => handleChange("google_search_console_site_url", e.target.value)}
-                    placeholder="Contoh: https://lanyardbogor.com"
+                    placeholder="Contoh: https://lanyarddepok.com"
                     className="bg-gray-50 border border-gray-200 text-gray-950 text-sm rounded-lg focus:ring-brand-red focus:border-brand-red block w-full p-2.5"
                   />
                 </div>

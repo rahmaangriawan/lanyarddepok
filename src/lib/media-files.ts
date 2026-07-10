@@ -42,7 +42,7 @@ export function getUploadRootCandidates() {
       path.join(cwd, "..", "..", "public", "uploads"),
       appRoot ? path.join(appRoot, "public", "uploads") : "",
       home && remotePath ? path.join(home, remotePath, "public", "uploads") : "",
-      home ? path.join(home, "htdocs", "lanyardbogor.com", "public", "uploads") : "",
+      home ? path.join(home, "htdocs", "lanyarddepok.com", "public", "uploads") : "",
     ].filter(Boolean),
   );
 }

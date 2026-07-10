@@ -670,7 +670,7 @@ export default function PagesEditor({ editId }: { editId?: number }) {
               </div>
               {(title || slug) && (
                 <p className="text-[10px] text-gray-400 font-medium mt-1">
-                  URL: lanyardbogor.com/<span className="text-gray-500">{autoSlug || "slug-halaman"}</span>
+                  URL: lanyarddepok.com/<span className="text-gray-500">{autoSlug || "slug-halaman"}</span>
                 </p>
               )}
             </div>
@@ -872,7 +872,7 @@ export default function PagesEditor({ editId }: { editId?: number }) {
             <div>
               <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Preview di Google</label>
               <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 space-y-1">
-                <p className="text-[10px] text-green-700 font-medium truncate">lanyardbogor.com &rsaquo; {autoSlug || "slug-halaman"}</p>
+                <p className="text-[10px] text-green-700 font-medium truncate">lanyarddepok.com &rsaquo; {autoSlug || "slug-halaman"}</p>
                 <p className="text-sm font-bold text-blue-700 leading-tight truncate">{metaTitle || title || "Judul halaman Anda akan muncul di sini"}</p>
                 <p className="text-[11px] text-gray-500 leading-snug line-clamp-2">{metaDescription || "Masukkan meta description untuk melihat preview di hasil pencarian Google."}</p>
               </div>

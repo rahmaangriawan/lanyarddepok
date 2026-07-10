@@ -131,7 +131,7 @@ export default function Footer() {
           <div className="col-span-2 lg:col-span-4 space-y-4">
             <div className="flex items-center space-x-2 select-none">
               <Image
-                src="/uploads/lanyardbogor-logo-mobile.webp"
+                src="/uploads/lanyarddepok-logo-mobile.webp"
                 alt="Lanyard Bogor Logo"
                 width={148}
                 height={36}
@@ -234,8 +234,8 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-2">
                 <Icon icon="lucide:mail" className="h-4.5 w-4.5 text-public-amber-strong shrink-0" />
-                <a href="mailto:info@lanyardbogor.com" className="min-w-0 break-words hover:text-public-amber-strong transition-colors">
-                  info@lanyardbogor.com
+                <a href="mailto:info@lanyarddepok.com" className="min-w-0 break-words hover:text-public-amber-strong transition-colors">
+                  info@lanyarddepok.com
                 </a>
               </li>
               <li className="flex items-start gap-2">

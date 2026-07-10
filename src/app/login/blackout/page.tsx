@@ -98,7 +98,7 @@ export default function Login() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <Link href="/" className="flex justify-center items-center mb-6">
-          <img src="/uploads/lanyardbogor-logo.webp" alt="Lanyard Bogor Logo" className="h-12 w-auto object-contain brightness-0 invert" />
+          <img src="/uploads/lanyarddepok-logo.webp" alt="Lanyard Bogor Logo" className="h-12 w-auto object-contain brightness-0 invert" />
         </Link>
         <h2 className="text-center text-3xl font-extrabold text-white tracking-tight">
           Masuk ke Akun Anda

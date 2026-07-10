@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   }),
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardbogor.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyarddepok.com";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -38,7 +38,7 @@ const jsonLd = {
         name: "Lanyard Bogor",
         logo: {
           "@type": "ImageObject",
-          url: `${siteUrl}/uploads/lanyardbogor-logo.webp`,
+          url: `${siteUrl}/uploads/lanyarddepok-logo.webp`,
         },
       },
     },

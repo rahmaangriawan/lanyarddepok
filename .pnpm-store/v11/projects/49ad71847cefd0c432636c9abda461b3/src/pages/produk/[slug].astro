@@ -1,0 +1,64 @@
+---
+import PublicLayout from '../../layouts/PublicLayout.astro';
+import { api, mediaUrl } from '../../lib/api';
+import '../../styles/produk.css';
+
+export const prerender = false;
+
+const slug = Astro.params.slug || '';
+const { product } = await api.product(slug);
+
+if (!product) return Astro.redirect('/produk', 302);
+
+const productName = product.name || product.sku || 'Produk Lanyard';
+const productDescription = product.description || product.shortDescription || product.shortDesc || product.longDesc || product.metaDescription || 'Pilihan lanyard custom untuk kebutuhan brand, event, dan identitas Anda.';
+const productDetails = [
+  { label: 'Kategori', value: product.category?.name },
+  { label: 'Minimum Order', value: product.minOrder },
+  { label: 'Harga Mulai', value: product.basePrice },
+  { label: 'Spesifikasi', value: product.specs },
+  { label: 'Aksesori', value: product.accessories },
+].filter((item) => item.value);
+---
+
+<PublicLayout title={product.metaTitle || productName || 'Produk Lanyard Depok'} description={product.metaDescription || product.shortDescription || ''}>
+  <section class="border-b border-[var(--border)] bg-white py-20 text-[var(--foreground)] sm:py-24">
+    <div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-14 lg:px-8">
+      <div class="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--muted)] p-4 shadow-sm">
+        <div aria-hidden="true" class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[var(--secondary)] opacity-70 blur-3xl"></div>
+        <div aria-hidden="true" class="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[var(--primary)] opacity-10 blur-3xl"></div>
+        <img class="relative z-10 aspect-[4/3] w-full rounded-xl bg-white object-cover" src={mediaUrl(product.featuredImage)} alt={productName} fetchpriority="high" decoding="async" />
+      </div>
+
+      <div class="min-w-0">
+        <a href="/produk" class="inline-flex items-center gap-2 text-sm font-bold text-[var(--primary)] transition hover:opacity-75">
+          <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5"></path>
+            <path d="m12 19-7-7 7-7"></path>
+          </svg>
+          <span>Kembali ke Produk</span>
+        </a>
+
+        <p class="mt-8 inline-flex rounded-full bg-[var(--secondary)] px-4 py-2 text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">{product.category?.name || 'Produk'}</p>
+        <h1 class="mt-5 text-[2.45rem] font-bold leading-[1.05] tracking-normal text-[var(--foreground)] sm:text-[3.1rem]">{productName}</h1>
+        <p class="mt-6 max-w-xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">{productDescription}</p>
+
+        {productDetails.length > 0 && (
+          <div class="mt-8 grid gap-3 sm:grid-cols-2">
+            {productDetails.map((item) => (
+              <div class="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4">
+                <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">{item.label}</p>
+                <p class="mt-2 text-sm font-semibold leading-6 text-[var(--foreground)]">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a class="btn-primary" href={`https://wa.me/6282210200700?text=Halo%20Lanyard%20Depok%2C%20saya%20mau%20tanya%20${encodeURIComponent(productName)}.`}>Tanya Produk Ini</a>
+          <a class="btn-secondary text-[var(--primary)]" href="/kontak">Konsultasi Dulu</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</PublicLayout>

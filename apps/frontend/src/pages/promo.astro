@@ -1,0 +1,231 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import '../styles/promo.css';
+
+export const prerender = true;
+
+const whatsappUrl =
+  'https://wa.me/6282210200700?text=Halo%20Lanyard%20Depok%2C%20saya%20ingin%20klaim%20promo%20lanyard%20custom.';
+
+const heroBenefits = [
+  {
+    title: 'Harga Terbaik',
+    description: 'Hemat untuk setiap order',
+    icon: 'badge',
+  },
+  {
+    title: 'Kualitas Premium',
+    description: 'Bahan terbaik dan awet',
+    icon: 'shield',
+  },
+  {
+    title: 'Proses Cepat',
+    description: 'Produksi dan pengiriman cepat',
+    icon: 'refresh',
+  },
+];
+
+const promoCards = [
+  {
+    label: 'Diskon 20%',
+    date: 'Berakhir 30 Jun 2026',
+    title: 'Diskon 20% Semua Produk',
+    description: 'Dapatkan diskon 20% untuk semua produk lanyard custom tanpa minimal pembelian.',
+    meta: '20%',
+    metaSuffix: 'OFF',
+    image: '/uploads/promo-diskon-20-lanyard-custom.webp',
+    href: whatsappUrl,
+  },
+  {
+    label: 'Paket Hemat',
+    date: 'Berakhir 15 Jul 2026',
+    title: 'Paket Hemat Corporate',
+    description: 'Paket lengkap lanyard dan ID Card holder untuk kebutuhan perusahaan.',
+    meta: '15%',
+    metaSuffix: 'hemat',
+    image: '/uploads/promo-paket-hemat-corporate.webp',
+    href: whatsappUrl,
+  },
+  {
+    label: 'Gratis Ongkir',
+    date: 'Berakhir 30 Jun 2026',
+    title: 'Gratis Ongkir Jabodetabek',
+    description: 'Gratis ongkir untuk pemesanan minimal 200 pcs ke seluruh area Jabodetabek.',
+    meta: 'Gratis Ongkir',
+    metaSuffix: '',
+    image: '/uploads/promo-gratis-ongkir-jabodetabek.webp',
+    href: whatsappUrl,
+  },
+  {
+    label: 'Promo Event',
+    date: 'Berakhir 20 Jul 2026',
+    title: 'Event Spesial Tahun Ini',
+    description: 'Promo spesial untuk event, seminar, konser, dan kegiatan lainnya.',
+    meta: '20%',
+    metaSuffix: 'hemat',
+    image: '/uploads/hero-lanyard-slider-03.webp',
+    href: whatsappUrl,
+  },
+];
+
+const orderReasons = [
+  {
+    title: 'Kualitas Terjamin',
+    description: 'Kami menggunakan bahan berkualitas dan hasil cetak tajam.',
+    icon: 'award',
+  },
+  {
+    title: 'Harga Kompetitif',
+    description: 'Harga terbaik dengan kualitas premium untuk setiap pesanan.',
+    icon: 'bag',
+  },
+  {
+    title: 'Produksi Cepat',
+    description: 'Proses produksi cepat dan tepat waktu sesuai kebutuhan.',
+    icon: 'clock',
+  },
+  {
+    title: 'Garansi Kepuasan',
+    description: 'Kepuasan Anda prioritas kami. Garansi revisi jika diperlukan.',
+    icon: 'refresh',
+  },
+];
+---
+
+<PublicLayout
+  title="Promo Spesial Lanyard Custom Depok"
+  description="Dapatkan penawaran terbaik untuk kebutuhan lanyard custom Depok. Kualitas premium, harga lebih hemat, dan proses cepat."
+>
+  <section class="border-b border-[var(--border)] bg-white py-16 text-[var(--foreground)] sm:py-20">
+    <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:px-8">
+      <div class="min-w-0">
+        <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Promo Menarik</p>
+        <h1 class="mt-5 max-w-xl text-[2.7rem] font-bold leading-[1.05] tracking-normal text-[var(--foreground)] sm:text-[3.45rem] lg:text-[4rem]">
+          Promo Spesial Lanyard Custom
+        </h1>
+        <p class="mt-6 max-w-xl text-base leading-7 text-[var(--muted-foreground)]">
+          Dapatkan penawaran terbaik untuk kebutuhan lanyard custom Anda. Kualitas premium, harga lebih hemat.
+        </p>
+
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a class="btn-primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Minta Quotation</a>
+          <a class="btn-secondary text-[var(--primary)]" href="/produk">Lihat Produk</a>
+        </div>
+
+        <div class="mt-14 hidden max-w-xl grid-cols-1 gap-5 min-[520px]:grid min-[520px]:grid-cols-3">
+          {heroBenefits.map((item) => (
+            <div>
+              <div class="grid h-12 w-12 place-items-center rounded-2xl bg-[var(--secondary)] text-[var(--primary)]">
+                {item.icon === 'badge' && (
+                  <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 8.8 6.2 4.4 6.8l.8 4.3L3 15l3.9 2 1.9 4 3.2-3.1 3.2 3.1 1.9-4 3.9-2-2.2-3.9.8-4.3-4.4-.6z"/><path d="M9.5 12.5 11 14l3.5-4"/></svg>
+                )}
+                {item.icon === 'shield' && (
+                  <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V5l8-3 8 3z"/><path d="m9 12 2 2 4-5"/></svg>
+                )}
+                {item.icon === 'refresh' && (
+                  <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.1-6.6"/><path d="M18 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.1 6.6"/><path d="M6 21v-5h5"/></svg>
+                )}
+              </div>
+              <h2 class="mt-4 text-sm font-bold leading-tight text-[var(--foreground)]">{item.title}</h2>
+              <p class="mt-2 text-xs leading-5 text-[var(--muted-foreground)]">{item.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="relative">
+        <div class="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--muted)] shadow-sm">
+          <img
+            src="/uploads/featured-products-showcase-lanyarddepok-v2.webp"
+            alt="Promo lanyard custom Lanyard Depok"
+            class="aspect-[1.15/1] w-full object-cover"
+            width="1254"
+            height="1254"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+          <div class="absolute bottom-6 right-6 w-[12.5rem] overflow-hidden rounded-2xl border border-[var(--border)] bg-white/95 text-center shadow-xl backdrop-blur sm:bottom-10 sm:right-8 sm:w-[15rem]">
+            <div class="px-5 py-6">
+              <p class="text-[11px] font-extrabold uppercase leading-5 text-[var(--primary)]">Diskon Hingga</p>
+              <div class="mt-2 flex items-start justify-center gap-1 text-[3.5rem] font-extrabold leading-none text-[var(--foreground)]">
+                <span>20</span>
+                <span class="mt-2 text-xl leading-none">%</span>
+              </div>
+              <p class="mt-3 text-sm font-bold leading-5 text-[var(--foreground)]">Untuk Semua Produk Lanyard Custom</p>
+            </div>
+            <div class="bg-[var(--primary)] px-5 py-3 text-sm font-extrabold text-[var(--primary-foreground)]">Periode Terbatas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white py-14 text-[var(--foreground)]">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        {promoCards.map((promo) => (
+          <article class="group flex min-h-full flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 transition hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--primary)_40%,var(--border))]">
+            <div class="relative overflow-hidden rounded-xl bg-[var(--muted)]">
+              <img class="aspect-[1.08/1] w-full object-cover transition duration-500 group-hover:scale-[1.03]" src={promo.image} alt={promo.title} loading="lazy" decoding="async" />
+              <span class="absolute left-4 top-4 rounded-xl border border-[var(--border)] bg-white/95 px-4 py-2 text-[11px] font-extrabold uppercase text-[var(--primary)] shadow-sm">{promo.label}</span>
+            </div>
+
+            <div class="flex flex-1 flex-col pt-5">
+              <p class="w-fit rounded-full bg-[var(--muted)] px-4 py-2 text-xs font-bold text-[var(--primary)]">{promo.date}</p>
+              <h2 class="mt-4 text-xl font-bold leading-tight text-[var(--foreground)]">{promo.title}</h2>
+              <p class="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{promo.description}</p>
+
+              <div class="mt-auto flex items-end justify-between gap-4 pt-10">
+                <div>
+                  <p class="text-xs leading-5 text-[var(--muted-foreground)]">{promo.metaSuffix === 'hemat' ? 'Hemat hingga' : promo.metaSuffix === '' ? 'Min. 200 pcs' : ''}</p>
+                  <p class:list={[
+                    'font-extrabold leading-none text-[var(--primary)]',
+                    promo.meta.length > 8 ? 'whitespace-nowrap text-[1.45rem]' : 'text-[2rem]',
+                  ]}>
+                    {promo.meta}
+                    {promo.metaSuffix === 'OFF' && <span class="ml-1 align-middle text-xs uppercase">{promo.metaSuffix}</span>}
+                  </p>
+                </div>
+                <a href={promo.href} target="_blank" rel="noopener noreferrer" aria-label={`Klaim ${promo.title}`} class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[var(--primary)] transition group-hover:scale-105" style="color: var(--primary-foreground);">
+                  <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="var(--primary-foreground)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white pb-20 text-[var(--foreground)]">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="rounded-2xl border border-[var(--border)] bg-[var(--card)] px-5 py-10 sm:px-8 lg:px-10">
+        <h2 class="text-center text-xl font-bold leading-tight text-[var(--foreground)] sm:text-2xl">Kenapa Order di LanyardDepok.com?</h2>
+
+        <div class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {orderReasons.map((reason) => (
+            <div class="text-center">
+              <div class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[var(--secondary)] text-[var(--primary)]">
+                {reason.icon === 'award' && (
+                  <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 21.42a.5.5 0 0 1-.8.46l-3.6-2.69a1 1 0 0 0-1.2 0l-3.6 2.69a.5.5 0 0 1-.8-.46l1.52-8.53"/></svg>
+                )}
+                {reason.icon === 'bag' && (
+                  <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 13H7z"/><path d="M9 8a3 3 0 0 1 6 0"/><path d="M9.5 14.5 11 16l3.5-4"/></svg>
+                )}
+                {reason.icon === 'clock' && (
+                  <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                )}
+                {reason.icon === 'refresh' && (
+                  <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.1-6.6"/><path d="M18 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.1 6.6"/><path d="M6 21v-5h5"/></svg>
+                )}
+              </div>
+              <h3 class="mt-5 text-sm font-bold leading-tight text-[var(--foreground)]">{reason.title}</h3>
+              <p class="mx-auto mt-3 max-w-[13rem] text-sm leading-6 text-[var(--muted-foreground)]">{reason.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</PublicLayout>

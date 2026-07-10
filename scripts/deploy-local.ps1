@@ -2,7 +2,7 @@ param(
   [string]$HostName = $env:DEPLOY_HOST,
   [string]$UserName = $env:DEPLOY_USER,
   [int]$Port = $(if ($env:DEPLOY_PORT) { [int]$env:DEPLOY_PORT } else { 22 }),
-  [string]$RemotePath = $(if ($env:DEPLOY_REMOTE_PATH) { $env:DEPLOY_REMOTE_PATH } else { "htdocs/lanyardbogor.com" }),
+  [string]$RemotePath = $(if ($env:DEPLOY_REMOTE_PATH) { $env:DEPLOY_REMOTE_PATH } else { "htdocs/lanyarddepok.com" }),
   [switch]$SkipBuild
 )
 
@@ -74,7 +74,8 @@ Run-Step "Prepare standalone archive" {
     Copy-Item -Path $restartScript -Destination (Join-Path $scratchDir "restart.sh") -Force
   }
 
-  Compress-Archive -Path (Join-Path $scratchDir "*") -DestinationPath $archivePath -Force
+  # Use native tar instead of Compress-Archive because Compress-Archive fails silently on long paths (>260 chars) common in node_modules
+  tar -acf $archivePath -C $scratchDir .
 }
 
 $remote = "$UserName@$HostName"

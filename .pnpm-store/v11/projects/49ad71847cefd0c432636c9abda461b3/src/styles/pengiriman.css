@@ -1,0 +1,50 @@
+@import "tailwindcss" source(none);
+
+@source "../layouts/PublicLayout.astro";
+@source "../components/SiteHeader.astro";
+@source "../components/SiteFooter.astro";
+@source "../pages/pengiriman.astro";
+
+.shipping-benefit-card {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: auto 1fr;
+}
+
+.shipping-timeline {
+  display: grid;
+  gap: 1rem;
+}
+
+.shipping-info-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .shipping-timeline {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .shipping-timeline-item {
+    position: relative;
+  }
+
+  .shipping-timeline-item:not(:last-child)::after {
+    border-top: 1px dashed color-mix(in srgb, var(--primary) 42%, var(--border));
+    content: "";
+    left: calc(50% + 2.25rem);
+    position: absolute;
+    right: calc(-50% + 2.25rem);
+    top: 1.75rem;
+  }
+
+  .shipping-info-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .shipping-info-grid > * + * {
+    border-left: 1px solid var(--border);
+    padding-left: 1.5rem;
+  }
+}

@@ -1,0 +1,237 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import '../styles/legal.css';
+
+export const prerender = true;
+
+const updatedAt = '9 Juli 2026';
+const whatsappUrl = 'https://wa.me/6282210200700?text=Halo%20Lanyard%20Depok%2C%20saya%20ingin%20bertanya%20tentang%20syarat%20dan%20ketentuan.';
+const email = 'info@lanyarddepok.com';
+
+const sections = [
+  {
+    id: 'lingkup-layanan',
+    title: 'Lingkup Layanan',
+    body: [
+      'Lanyard Depok menyediakan layanan konsultasi, desain, produksi, dan pengiriman lanyard custom untuk kebutuhan perusahaan, instansi, sekolah, komunitas, event, dan kebutuhan promosi lainnya.',
+      'Setiap pesanan dapat memiliki ketentuan teknis yang berbeda sesuai bahan, ukuran, jumlah, aksesoris, finishing, deadline, dan lokasi pengiriman.',
+    ],
+  },
+  {
+    id: 'quotation-harga',
+    title: 'Quotation dan Harga',
+    body: [
+      'Harga yang kami sampaikan melalui WhatsApp, email, atau dokumen quotation berlaku sesuai detail pesanan yang disepakati pada saat penawaran dibuat.',
+      'Perubahan jumlah, bahan, warna, aksesoris, finishing, desain, atau deadline dapat memengaruhi harga akhir dan estimasi produksi.',
+    ],
+    items: [
+      'Quotation belum menjadi pesanan final sebelum ada persetujuan dari pelanggan.',
+      'Harga dapat berubah jika spesifikasi pesanan berubah.',
+      'Biaya pengiriman dihitung berdasarkan alamat tujuan dan metode pengiriman.',
+    ],
+  },
+  {
+    id: 'desain-mockup',
+    title: 'Desain dan Mockup',
+    body: [
+      'Pelanggan bertanggung jawab mengirimkan logo, file desain, referensi warna, dan detail visual yang diperlukan untuk proses mockup.',
+      'Mockup digunakan sebagai gambaran visual sebelum produksi. Perbedaan kecil warna dapat terjadi karena perbedaan layar, bahan, metode cetak, dan kondisi produksi.',
+    ],
+  },
+  {
+    id: 'pembayaran',
+    title: 'Pembayaran',
+    body: [
+      'Produksi dimulai setelah pelanggan menyetujui quotation, mockup, dan melakukan pembayaran sesuai instruksi yang diberikan oleh tim Lanyard Depok.',
+      'Bukti pembayaran dapat diminta untuk verifikasi agar proses pesanan berjalan lebih cepat dan tercatat dengan baik.',
+    ],
+  },
+  {
+    id: 'produksi',
+    title: 'Produksi',
+    body: [
+      'Estimasi produksi dihitung setelah desain, spesifikasi, dan pembayaran dinyatakan lengkap. Timeline produksi dapat berubah jika ada revisi desain, keterlambatan konfirmasi, kendala bahan, atau situasi pengiriman di luar kendali kami.',
+      'Kami berupaya menjaga kualitas produksi sesuai spesifikasi yang disepakati sebelum pesanan masuk proses cetak.',
+    ],
+  },
+  {
+    id: 'revisi-garansi',
+    title: 'Revisi dan Garansi',
+    body: [
+      'Revisi desain dilakukan sebelum produksi dimulai. Setelah produksi berjalan, perubahan desain atau spesifikasi tidak selalu dapat dilakukan.',
+      'Jika terdapat kendala hasil produksi yang terbukti tidak sesuai spesifikasi yang disepakati, pelanggan dapat menghubungi tim kami untuk pemeriksaan dan solusi yang wajar.',
+    ],
+  },
+  {
+    id: 'pengiriman',
+    title: 'Pengiriman',
+    body: [
+      'Pengiriman dilakukan ke alamat yang diberikan pelanggan. Pastikan nama penerima, nomor telepon, dan alamat pengiriman sudah benar sebelum pesanan dikirim.',
+      'Keterlambatan dari jasa kirim, cuaca, alamat tidak lengkap, atau kendala operasional pihak pengiriman berada di luar kendali langsung Lanyard Depok.',
+    ],
+  },
+  {
+    id: 'pembatalan',
+    title: 'Pembatalan Pesanan',
+    body: [
+      'Pembatalan hanya dapat diproses sebelum produksi dimulai. Jika bahan sudah disiapkan atau produksi sudah berjalan, biaya yang sudah timbul dapat diperhitungkan dari pembayaran pelanggan.',
+      'Pesanan custom yang sudah selesai diproduksi tidak dapat dibatalkan karena dibuat khusus sesuai kebutuhan pelanggan.',
+    ],
+  },
+  {
+    id: 'tanggung-jawab',
+    title: 'Batas Tanggung Jawab',
+    body: [
+      'Lanyard Depok tidak bertanggung jawab atas kesalahan informasi yang diberikan pelanggan, seperti file desain yang keliru, typo yang sudah disetujui, alamat pengiriman tidak lengkap, atau instruksi yang berubah setelah produksi berjalan.',
+      'Kami tetap membantu mencari solusi terbaik selama kendala tersebut dapat ditangani secara wajar dan sesuai kondisi pesanan.',
+    ],
+  },
+  {
+    id: 'kontak',
+    title: 'Kontak',
+    body: [
+      'Untuk pertanyaan terkait syarat dan ketentuan, pelanggan dapat menghubungi Lanyard Depok melalui WhatsApp 0822-1020-0700 atau email info@lanyarddepok.com.',
+    ],
+  },
+];
+---
+
+<PublicLayout
+  title="Syarat dan Ketentuan Lanyard Depok"
+  description="Baca syarat dan ketentuan pemesanan lanyard custom di Lanyard Depok, termasuk quotation, pembayaran, produksi, pengiriman, revisi, dan garansi."
+>
+  <section class="border-b border-[var(--border)] bg-[#FEF9F6] py-16 text-[var(--foreground)] sm:py-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <p class="inline-flex items-center gap-3 rounded-full bg-[var(--muted)] px-5 py-3 text-sm font-bold text-[var(--primary)]">
+        <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l3 3v15H5V3z"/><path d="M16 3v4h4"/><path d="M8 12h8"/><path d="M8 16h6"/></svg>
+        Syarat & Ketentuan
+      </p>
+      <h1 class="mt-6 max-w-3xl text-[2.65rem] font-bold leading-[1.08] tracking-normal text-[var(--foreground)] sm:text-[3.4rem] lg:text-[4rem]">
+        Ketentuan pemesanan lanyard custom di Lanyard Depok.
+      </h1>
+      <p class="mt-6 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">
+        Halaman ini menjelaskan aturan umum sebelum Anda melakukan konsultasi, menyetujui quotation, dan memulai produksi lanyard custom bersama kami.
+      </p>
+      <p class="mt-6 w-fit rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-bold text-[var(--primary)]">
+        Terakhir diperbarui: {updatedAt}
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-white py-16 text-[var(--foreground)] sm:py-20">
+    <div class="legal-layout mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <nav class="legal-mobile-dots" aria-label="Navigasi daftar isi mobile">
+        {sections.map((section) => (
+          <a class="legal-mobile-dot" href={`#${section.id}`} data-legal-nav={section.id}>
+            <span class="sr-only">{section.title}</span>
+          </a>
+        ))}
+      </nav>
+
+      <aside class="legal-sidebar">
+        <div class="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
+          <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Daftar Isi</p>
+          <nav class="mt-5 grid gap-2">
+            {sections.map((section) => (
+              <a class="legal-nav-link" href={`#${section.id}`} data-legal-nav={section.id}>{section.title}</a>
+            ))}
+          </nav>
+        </div>
+      </aside>
+
+      <div class="grid gap-5">
+        {sections.map((section, index) => (
+          <article id={section.id} data-legal-section class="scroll-mt-28 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[0_14px_34px_rgba(124,80,63,0.04)] sm:p-8">
+            <div class="flex items-start gap-4">
+              <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[var(--secondary)] text-sm font-extrabold text-[var(--primary)]">{String(index + 1).padStart(2, '0')}</span>
+              <div class="min-w-0">
+                <h2 class="text-2xl font-bold leading-tight text-[var(--foreground)]">{section.title}</h2>
+                <div class="mt-4 space-y-4 text-sm leading-7 text-[var(--muted-foreground)] sm:text-base sm:leading-8">
+                  {section.body.map((paragraph) => <p>{paragraph}</p>)}
+                </div>
+                {section.items && (
+                  <ul class="mt-5 grid gap-3">
+                    {section.items.map((item) => (
+                      <li class="flex gap-3 text-sm font-semibold leading-6 text-[var(--foreground)]">
+                        <span class="mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[var(--secondary)] text-[var(--primary)]">
+                          <svg aria-hidden="true" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </article>
+        ))}
+
+        <div class="rounded-2xl border border-[var(--border)] bg-[#FEF9F6] p-6 sm:p-8">
+          <h2 class="text-2xl font-bold leading-tight text-[var(--foreground)]">Butuh penjelasan sebelum pesan?</h2>
+          <p class="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted-foreground)] sm:text-base">
+            Tim Lanyard Depok siap membantu menjelaskan detail quotation, bahan, deadline, dan pengiriman sebelum pesanan Anda diproses.
+          </p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a class="btn-primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Chat WhatsApp</a>
+            <a class="btn-secondary text-[var(--primary)]" href={`mailto:${email}`}>Kirim Email</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const legalSections = Array.from(document.querySelectorAll('[data-legal-section]'));
+    const legalNavLinks = Array.from(document.querySelectorAll('[data-legal-nav]'));
+    const legalMobileDots = document.querySelector('.legal-mobile-dots');
+
+    const setActiveLegalNav = (id) => {
+      legalNavLinks.forEach((link) => {
+        link.classList.toggle('is-active', link.getAttribute('data-legal-nav') === id);
+      });
+    };
+
+    legalNavLinks.forEach((link) => {
+      link.addEventListener('click', () => {
+        const targetId = link.getAttribute('data-legal-nav');
+        if (targetId) setActiveLegalNav(targetId);
+      });
+    });
+
+    if (legalSections.length > 0) {
+      let ticking = false;
+
+      const updateLegalNav = () => {
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        const readingLine = viewportHeight * 0.32;
+        const visibleSections = legalSections
+          .map((section) => ({ section, rect: section.getBoundingClientRect() }))
+          .filter(({ rect }) => rect.bottom > viewportHeight * 0.18 && rect.top < viewportHeight * 0.58);
+
+        legalMobileDots?.classList.toggle('is-visible', visibleSections.length > 0);
+
+        if (visibleSections.length > 0) {
+          const active = visibleSections.sort(
+            (a, b) => Math.abs(a.rect.top - readingLine) - Math.abs(b.rect.top - readingLine)
+          )[0];
+
+          if (active?.section?.id) setActiveLegalNav(active.section.id);
+        }
+
+        ticking = false;
+      };
+
+      const requestLegalNavUpdate = () => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(updateLegalNav);
+      };
+
+      setActiveLegalNav(legalSections[0].id);
+      updateLegalNav();
+      window.addEventListener('scroll', requestLegalNavUpdate, { passive: true });
+      window.addEventListener('resize', requestLegalNavUpdate);
+      window.addEventListener('load', updateLegalNav);
+    }
+  </script>
+</PublicLayout>

@@ -1,0 +1,475 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import '../styles/faq.css';
+
+export const prerender = true;
+
+const faqCategories = [
+  { key: 'pemesanan', title: 'Pemesanan', icon: 'bag' },
+  { key: 'pembayaran', title: 'Pembayaran', icon: 'card' },
+  { key: 'pengiriman', title: 'Pengiriman', icon: 'truck' },
+  { key: 'produk', title: 'Produk', icon: 'box' },
+  { key: 'lainnya', title: 'Lainnya', icon: 'badge' },
+];
+
+const faqItems = [
+  {
+    category: 'pemesanan',
+    question: 'Bagaimana cara melakukan pemesanan lanyard custom?',
+    answer:
+      'Anda dapat menghubungi kami melalui WhatsApp, menyampaikan jumlah pesanan, bahan, aksesoris, warna, dan kebutuhan desain. Tim kami akan membantu membuat estimasi harga dan mockup sebelum produksi.',
+  },
+  {
+    category: 'pembayaran',
+    question: 'Metode pembayaran apa saja yang tersedia?',
+    answer:
+      'Pembayaran dapat dilakukan melalui transfer bank sesuai invoice. Produksi diproses setelah pembayaran tanda jadi diterima, lalu pelunasan dilakukan sebelum pesanan dikirim.',
+  },
+  {
+    category: 'pengiriman',
+    question: 'Kapan pesanan saya akan dikirim?',
+    answer:
+      'Pesanan dikirim setelah produksi selesai, quality control dilakukan, dan pembayaran terkonfirmasi. Estimasi produksi umumnya 1 sampai 3 hari kerja tergantung jumlah dan spesifikasi.',
+  },
+  {
+    category: 'pengiriman',
+    question: 'Apakah tersedia layanan gratis ongkir?',
+    answer:
+      'Promo gratis ongkir dapat tersedia pada periode tertentu atau untuk minimum pesanan tertentu. Silakan hubungi admin untuk konfirmasi promo yang sedang aktif.',
+  },
+  {
+    category: 'produk',
+    question: 'Bahan lanyard apa saja yang bisa dipilih?',
+    answer:
+      'Pilihan bahan menyesuaikan kebutuhan, mulai dari polyester, tisu, sampai bahan premium lain. Tim kami akan merekomendasikan bahan paling pas berdasarkan budget, desain, dan jumlah pesanan.',
+  },
+  {
+    category: 'produk',
+    question: 'Apakah desain dan aksesoris bisa custom?',
+    answer:
+      'Bisa. Anda dapat memilih warna, logo, jenis kait, stopper, holder, dan finishing sesuai identitas brand atau kebutuhan acara.',
+  },
+  {
+    category: 'lainnya',
+    question: 'Bagaimana jika produk yang diterima rusak atau salah?',
+    answer:
+      'Jika ada kendala dari sisi produksi, laporkan maksimal 3 hari setelah barang diterima dengan foto atau video pendukung. Tim kami akan membantu pengecekan dan solusi terbaik.',
+  },
+  {
+    category: 'pemesanan',
+    question: 'Apakah bisa membatalkan pesanan?',
+    answer:
+      'Pembatalan dapat dilakukan sebelum desain disetujui dan produksi dimulai. Jika pesanan sudah masuk proses produksi, pembatalan mengikuti status pengerjaan dan biaya yang sudah berjalan.',
+  },
+];
+
+const faqCategoryItems = faqCategories.map((category) => {
+  const count = faqItems.filter((item) => item.category === category.key).length;
+
+  return {
+    ...category,
+    count,
+    countLabel: `${count} Pertanyaan`,
+  };
+});
+---
+
+<PublicLayout
+  title="FAQ Lanyard Depok"
+  description="Temukan jawaban untuk pertanyaan yang sering diajukan seputar pemesanan lanyard custom di Lanyard Depok."
+>
+  <section class="border-b border-[var(--border)] bg-[#FEF9F6] py-16 text-[var(--foreground)] sm:py-20" style="background-color: #FEF9F6;">
+    <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16 lg:px-8">
+      <div class="min-w-0">
+        <p class="inline-flex items-center gap-3 rounded-full bg-[var(--muted)] px-5 py-3 text-sm font-bold text-[var(--primary)]">
+          <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h.01"/><path d="M12 9h.01"/><path d="M16 9h.01"/></svg>
+          FAQ
+        </p>
+        <h1 class="mt-6 max-w-2xl text-[2.65rem] font-bold leading-[1.08] tracking-normal text-[var(--foreground)] sm:text-[3.4rem] lg:text-[4rem]">
+          Pertanyaan yang Sering Diajukan
+        </h1>
+        <p class="mt-6 max-w-xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">
+          Temukan jawaban untuk pertanyaan yang sering ditanyakan. Jika belum menemukan yang Anda cari, jangan ragu untuk menghubungi kami.
+        </p>
+        <label class="mt-8 flex min-h-16 max-w-xl items-center gap-4 rounded-2xl border border-[var(--border)] bg-white px-6 py-4 text-[var(--muted-foreground)] shadow-sm">
+          <svg aria-hidden="true" class="h-5 w-5 shrink-0 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input
+            type="search"
+            class="min-w-0 flex-1 bg-transparent text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] sm:text-base"
+            placeholder="Cari pertanyaan..."
+            aria-label="Cari pertanyaan"
+            autocomplete="off"
+            data-faq-search
+          />
+        </label>
+      </div>
+
+      <div class="relative">
+        <img
+          src="/uploads/faq-hero-lanyarddepok.webp"
+          alt="Ilustrasi FAQ Lanyard Depok"
+          class="mx-auto h-auto w-full max-w-[620px] object-contain"
+          width="900"
+          height="620"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white py-14 text-[var(--foreground)] sm:py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="faq-category-scroller -mx-4 overflow-x-auto px-4 pb-3 md:mx-0 md:overflow-visible md:px-0 md:pb-0" data-category-scroller>
+      <div class="flex w-max gap-3 md:grid md:w-full md:gap-0 md:overflow-hidden md:rounded-2xl md:border md:border-[var(--border)] md:bg-[var(--card)]" style="grid-template-columns: repeat(5, minmax(0, 1fr));">
+        {faqCategoryItems.map((category, index) => (
+          <button
+            type="button"
+            class:list={[
+              'flex min-h-[9.5rem] w-32 shrink-0 flex-col items-center justify-center rounded-2xl border border-[var(--border)] bg-[var(--card)] px-3 py-5 text-center transition hover:bg-[var(--muted)] focus:outline-none sm:w-36 md:min-h-[12.5rem] md:w-auto md:rounded-none md:border-0 md:bg-transparent md:px-5 md:py-8',
+              index > 0 && 'md:border-l md:border-[var(--border)]',
+            ]}
+            data-category-button
+            data-category={category.key}
+            aria-pressed="false"
+          >
+            <span class="faq-category-icon grid place-items-center rounded-full bg-[var(--secondary)] text-[var(--primary)]">
+              {category.icon === 'bag' && (
+                <svg aria-hidden="true" class="h-6 w-6 md:h-10 md:w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 13H7z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>
+              )}
+              {category.icon === 'card' && (
+                <svg aria-hidden="true" class="h-6 w-6 md:h-10 md:w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>
+              )}
+              {category.icon === 'truck' && (
+                <svg aria-hidden="true" class="h-6 w-6 md:h-10 md:w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 17H5V6h10v11h-1"/><path d="M15 9h3l3 4v4h-3"/><circle cx="7" cy="17" r="2"/><circle cx="18" cy="17" r="2"/></svg>
+              )}
+              {category.icon === 'box' && (
+                <svg aria-hidden="true" class="h-6 w-6 md:h-10 md:w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-9-5-9 5 9 5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+              )}
+              {category.icon === 'badge' && (
+                <svg aria-hidden="true" class="h-6 w-6 md:h-10 md:w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 8.8 6.2 4.4 6.8l.8 4.3L3 15l3.9 2 1.9 4 3.2-3.1 3.2 3.1 1.9-4 3.9-2-2.2-3.9.8-4.3-4.4-.6z"/><path d="m9 12 2 2 4-5"/></svg>
+              )}
+            </span>
+            <span class="mt-4 block text-sm font-extrabold leading-tight text-[var(--foreground)] md:mt-5 md:text-lg">{category.title}</span>
+            <span class="mt-1 block whitespace-nowrap text-xs leading-5 text-[var(--muted-foreground)] md:mt-2 md:text-sm md:leading-6" data-category-count>{category.countLabel}</span>
+          </button>
+        ))}
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white pb-14 text-[var(--foreground)] sm:pb-16" data-faq-page>
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-8 lg:p-10">
+        <div class="mb-5 flex items-center justify-between gap-3">
+        <h2 class="text-2xl font-bold leading-tight text-[var(--foreground)]" data-faq-title>Semua Pertanyaan</h2>
+        <button type="button" class="inline-flex w-fit items-center gap-2 text-sm font-bold text-[var(--primary)]" data-faq-toggle-all>
+          <span>Buka semua</span>
+          <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        </div>
+
+        <div data-faq-list>
+        {faqItems.map((item, index) => {
+          const contentId = `faq-page-content-${index}`;
+          const isOpen = index === 0;
+
+          return (
+            <article class="overflow-hidden rounded-2xl border border-[var(--border)] bg-white" data-faq-item data-category={item.category} style={index < faqItems.length - 1 ? 'margin-bottom: 22px;' : ''}>
+              <button
+                type="button"
+                class:list={[
+                  'flex min-h-16 w-full items-center justify-between gap-5 px-5 py-4 text-left text-base font-extrabold leading-snug text-[var(--foreground)] transition hover:text-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/25 sm:px-7',
+                  isOpen && 'bg-[var(--muted)] text-[var(--primary)]',
+                ]}
+                aria-expanded={isOpen ? 'true' : 'false'}
+                aria-controls={contentId}
+                data-faq-button
+              >
+                <span><span data-faq-number>{index + 1}</span>. {item.question}</span>
+                <svg aria-hidden="true" class:list={['h-5 w-5 shrink-0 transition-transform duration-300', isOpen && 'rotate-180']} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" data-faq-chevron><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div id={contentId} class:list={['grid transition-all duration-300 ease-out', isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]']} data-faq-panel>
+                <div class="overflow-hidden">
+                  <p class="border-t border-[var(--border)] px-5 py-5 text-sm leading-7 text-[var(--muted-foreground)] sm:px-7">{item.answer}</p>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+        </div>
+        <p class="hidden rounded-2xl border border-dashed border-[var(--border)] px-5 py-8 text-center text-sm font-semibold text-[var(--muted-foreground)]" data-faq-empty>
+        Pertanyaan tidak ditemukan.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .faq-category-scroller {
+      -webkit-overflow-scrolling: touch;
+      cursor: grab;
+      scrollbar-width: none;
+      overscroll-behavior-x: contain;
+      touch-action: pan-x;
+      user-select: none;
+    }
+
+    .faq-category-scroller.is-dragging {
+      cursor: grabbing;
+      scroll-behavior: auto;
+    }
+
+    [data-category-button] {
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+
+    [data-category-button]:focus,
+    [data-category-button]:focus-visible,
+    [data-category-button]:active {
+      box-shadow: none;
+      outline: none;
+    }
+
+    .faq-category-scroller::-webkit-scrollbar {
+      display: none;
+    }
+
+    .faq-category-icon {
+      width: 58px;
+      height: 58px;
+      min-width: 58px;
+      min-height: 58px;
+      aspect-ratio: 1 / 1;
+      border-radius: 9999px;
+    }
+
+    @media (min-width: 768px) {
+      .faq-category-icon {
+        width: 80px;
+        height: 80px;
+        min-width: 80px;
+        min-height: 80px;
+      }
+    }
+  </style>
+
+  <script>
+    const faqRoot = document.querySelector('[data-faq-page]');
+
+    if (faqRoot) {
+      const faqItems = Array.from(faqRoot.querySelectorAll('[data-faq-item]'));
+      const faqTitle = faqRoot.querySelector('[data-faq-title]');
+      const toggleAll = faqRoot.querySelector('[data-faq-toggle-all]');
+      const toggleAllLabel = toggleAll?.querySelector('span');
+      const categoryButtons = Array.from(document.querySelectorAll('[data-category-button]'));
+      const categoryScroller = document.querySelector('[data-category-scroller]');
+      const searchInput = document.querySelector('[data-faq-search]');
+      let activeCategory = 'all';
+      let searchQuery = '';
+      let isCategoryDragging = false;
+      let categoryDragMoved = false;
+      let suppressCategoryClick = false;
+      let categoryPointerButton = null;
+      let categoryDragStartX = 0;
+      let categoryDragStartScrollLeft = 0;
+
+      const setItemOpen = (item, open) => {
+        const button = item.querySelector('[data-faq-button]');
+        const panel = item.querySelector('[data-faq-panel]');
+        const chevron = item.querySelector('[data-faq-chevron]');
+
+        button?.setAttribute('aria-expanded', open ? 'true' : 'false');
+        button?.classList.toggle('bg-[var(--muted)]', open);
+        button?.classList.toggle('text-[var(--primary)]', open);
+        panel?.classList.toggle('grid-rows-[1fr]', open);
+        panel?.classList.toggle('grid-rows-[0fr]', !open);
+        chevron?.classList.toggle('rotate-180', open);
+      };
+
+      const getVisibleItems = () => faqItems.filter((item) => !item.hidden);
+
+      const getItemMatchesSearch = (item, query) => {
+        if (!query) return true;
+        const text = item.textContent?.toLowerCase() ?? '';
+
+        return text.includes(query);
+      };
+
+      const updateCategoryCounts = () => {
+        categoryButtons.forEach((button) => {
+          const category = button.dataset.category;
+          const countTarget = button.querySelector('[data-category-count]');
+          const count = faqItems.filter((item) => item.dataset.category === category && getItemMatchesSearch(item, searchQuery)).length;
+
+          if (countTarget) countTarget.textContent = `${count} Pertanyaan`;
+        });
+      };
+
+      const syncFaqSpacing = () => {
+        const visibleItems = getVisibleItems();
+
+        visibleItems.forEach((item, index) => {
+          item.style.marginBottom = index < visibleItems.length - 1 ? '22px' : '0';
+          const number = item.querySelector('[data-faq-number]');
+          if (number) number.textContent = String(index + 1);
+        });
+      };
+
+      const updateToggleAllLabel = () => {
+        if (!toggleAllLabel) return;
+
+        const visibleItems = getVisibleItems();
+        const allOpen = visibleItems.length > 0 && visibleItems.every((item) => item.querySelector('[data-faq-button]')?.getAttribute('aria-expanded') === 'true');
+        toggleAllLabel.textContent = allOpen ? 'Tutup semua' : 'Buka semua';
+      };
+
+      const updateFaqTitle = () => {
+        if (!faqTitle) return;
+
+        if (searchQuery) {
+          faqTitle.textContent = activeCategory === 'all' ? 'Hasil Pencarian' : `Hasil Pencarian ${categoryButtons.find((button) => button.dataset.category === activeCategory)?.querySelector('span:nth-of-type(2)')?.textContent?.trim() ?? ''}`;
+          return;
+        }
+
+        if (activeCategory === 'all') {
+          faqTitle.textContent = 'Semua Pertanyaan';
+          return;
+        }
+
+        const selectedTitle = categoryButtons.find((button) => button.dataset.category === activeCategory)?.querySelector('span:nth-of-type(2)')?.textContent?.trim();
+        faqTitle.textContent = selectedTitle ? `Pertanyaan ${selectedTitle}` : 'Semua Pertanyaan';
+      };
+
+      const applyFilters = () => {
+        categoryButtons.forEach((button) => {
+          const isActive = button.dataset.category === activeCategory;
+          button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          button.classList.toggle('bg-[var(--muted)]', isActive);
+        });
+
+        faqItems.forEach((item) => {
+          const matchesCategory = activeCategory === 'all' || item.dataset.category === activeCategory;
+          const matchesSearch = getItemMatchesSearch(item, searchQuery);
+          const isVisible = matchesCategory && matchesSearch;
+
+          item.hidden = !isVisible;
+          setItemOpen(item, false);
+        });
+
+        const visibleItems = getVisibleItems();
+        if (visibleItems[0]) setItemOpen(visibleItems[0], true);
+
+        const emptyState = faqRoot.querySelector('[data-faq-empty]');
+        emptyState?.classList.toggle('hidden', visibleItems.length > 0);
+
+        updateCategoryCounts();
+        updateFaqTitle();
+        syncFaqSpacing();
+        updateToggleAllLabel();
+      };
+
+      const applyCategory = (category) => {
+        activeCategory = category;
+        const selectedButton = categoryButtons.find((button) => button.dataset.category === category);
+        selectedButton?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        applyFilters();
+      };
+
+      faqItems.forEach((item) => {
+        const button = item.querySelector('[data-faq-button]');
+        button?.addEventListener('click', () => {
+          const isOpen = button.getAttribute('aria-expanded') === 'true';
+          setItemOpen(item, !isOpen);
+          updateToggleAllLabel();
+        });
+      });
+
+      categoryScroller?.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-category-button]');
+        if (!button) return;
+
+        if (suppressCategoryClick) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+
+        const category = button.dataset.category;
+        if (category && category !== activeCategory) applyCategory(category);
+      });
+
+      searchInput?.addEventListener('input', () => {
+        searchQuery = searchInput.value.trim().toLowerCase();
+        activeCategory = searchQuery ? 'all' : activeCategory;
+        applyFilters();
+      });
+
+      categoryScroller?.addEventListener('wheel', (event) => {
+        if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+        event.preventDefault();
+        categoryScroller.scrollLeft += event.deltaY;
+      }, { passive: false });
+
+      categoryScroller?.addEventListener('pointerdown', (event) => {
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+        const target = event.target instanceof Element ? event.target : null;
+        isCategoryDragging = true;
+        categoryDragMoved = false;
+        categoryPointerButton = target?.closest('[data-category-button]') ?? null;
+        categoryDragStartX = event.clientX;
+        categoryDragStartScrollLeft = categoryScroller.scrollLeft;
+        categoryScroller.classList.add('is-dragging');
+        categoryScroller.setPointerCapture?.(event.pointerId);
+      });
+
+      categoryScroller?.addEventListener('pointermove', (event) => {
+        if (!isCategoryDragging) return;
+
+        const deltaX = event.clientX - categoryDragStartX;
+        if (Math.abs(deltaX) > 10) categoryDragMoved = true;
+        if (!categoryDragMoved) return;
+
+        event.preventDefault();
+        categoryScroller.scrollLeft = categoryDragStartScrollLeft - deltaX;
+      });
+
+      const stopCategoryDrag = (event) => {
+        if (!isCategoryDragging) return;
+
+        const hadMoved = categoryDragMoved;
+        const tappedButton = !hadMoved ? categoryPointerButton : null;
+        isCategoryDragging = false;
+        suppressCategoryClick = hadMoved || Boolean(tappedButton);
+        categoryDragMoved = false;
+        categoryPointerButton = null;
+        categoryScroller.classList.remove('is-dragging');
+        categoryScroller.releasePointerCapture?.(event.pointerId);
+        if (tappedButton) {
+          const category = tappedButton.dataset.category;
+          if (category && category !== activeCategory) applyCategory(category);
+        }
+        window.setTimeout(() => {
+          suppressCategoryClick = false;
+        }, 160);
+      };
+
+      categoryScroller?.addEventListener('pointerup', stopCategoryDrag);
+      categoryScroller?.addEventListener('pointercancel', stopCategoryDrag);
+      categoryScroller?.addEventListener('pointerleave', stopCategoryDrag);
+
+      toggleAll?.addEventListener('click', () => {
+        const visibleItems = getVisibleItems();
+        const shouldOpen = visibleItems.some((item) => item.querySelector('[data-faq-button]')?.getAttribute('aria-expanded') !== 'true');
+        visibleItems.forEach((item) => setItemOpen(item, shouldOpen));
+        updateToggleAllLabel();
+      });
+
+      applyFilters();
+    }
+  </script>
+</PublicLayout>

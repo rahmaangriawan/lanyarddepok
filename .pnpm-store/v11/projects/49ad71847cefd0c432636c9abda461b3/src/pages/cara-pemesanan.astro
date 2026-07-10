@@ -1,0 +1,158 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import '../styles/cara-pemesanan.css';
+
+export const prerender = true;
+
+const whatsappUrl = 'https://wa.me/6282210200700?text=Halo%20Lanyard%20Depok%2C%20saya%20mau%20minta%20quotation%20lanyard%20custom.';
+
+const orderSteps = [
+  {
+    title: 'Pilih produk lanyard',
+    description: 'Pilih jenis lanyard, bahan, model, dan aksesoris yang sesuai dengan kebutuhan Anda.',
+  },
+  {
+    title: 'Konsultasi desain / kirim logo',
+    description: 'Kirimkan logo, desain, atau ide Anda kepada tim kami untuk dibuatkan desain terbaik.',
+  },
+  {
+    title: 'Terima mockup & quotation',
+    description: 'Kami akan mengirimkan mockup desain dan penawaran harga resmi untuk Anda setujui.',
+  },
+  {
+    title: 'Lakukan pembayaran',
+    description: 'Setelah quotation disetujui, lakukan pembayaran sesuai dengan instruksi yang diberikan.',
+  },
+  {
+    title: 'Produksi & pengiriman',
+    description: 'Lanyard akan kami produksi dengan standar kualitas terbaik lalu dikirimkan ke alamat Anda dengan aman.',
+  },
+];
+---
+
+<PublicLayout
+  title="Cara Pemesanan Lanyard Depok"
+  description="Ikuti langkah mudah untuk pesan lanyard custom berkualitas di Lanyard Depok."
+>
+  <section class="border-b border-[var(--border)] bg-[#FCF8F5] py-16 text-[var(--foreground)] sm:py-20" style="background-color: #FCF8F5;">
+    <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:px-8">
+      <div class="min-w-0">
+        <p class="inline-flex items-center gap-3 rounded-full bg-[var(--muted)] px-5 py-3 text-sm font-bold text-[var(--primary)]">
+          <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11h6"/><path d="M9 15h6"/><path d="M8 3h8l3 3v15H5V3z"/><path d="M16 3v4h4"/></svg>
+          Cara Pemesanan
+        </p>
+
+        <h1 class="mt-6 max-w-2xl text-[2.65rem] font-bold leading-[1.08] tracking-normal text-[var(--foreground)] sm:text-[3.4rem] lg:text-[4rem]">
+          Mudah Pesan Lanyard Custom dalam Hitungan Menit
+        </h1>
+
+        <p class="mt-6 max-w-xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">
+          Ikuti langkah-langkah mudah berikut untuk mendapatkan lanyard custom berkualitas dari LanyardDepok.com.
+        </p>
+
+        <div class="mt-8">
+          <a
+            href={whatsappUrl}
+            class="btn-primary gap-3"
+          >
+            <span>Minta Quotation</span>
+            <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="var(--primary-foreground)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="relative">
+        <div class="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--muted)] shadow-sm">
+          <img
+            src="/uploads/cara-pemesanan-hero-lanyarddepok.webp"
+            alt="Lanyard custom dan ID card Lanyard Depok"
+            class="aspect-[1.22/1] w-full object-cover"
+            width="980"
+            height="640"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white py-16 text-[var(--foreground)] sm:py-20">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h2 class="order-steps-title font-bold leading-[1.08] tracking-normal text-[var(--foreground)]" style="font-size: clamp(2.1rem, 3.5vw, 2.75rem);">
+          Langkah Pemesanan
+        </h2>
+        <div class="mx-auto mt-4 h-1 w-16 rounded-full bg-[var(--secondary)]"></div>
+      </div>
+
+      <div class="order-steps-list mx-auto mt-10 grid gap-4 sm:mt-12">
+        {orderSteps.map((step, index) => (
+          <article class="order-step-card rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-[0_14px_34px_rgba(124,80,63,0.04)]">
+            <div class="order-step-number-wrap">
+              <span class="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-[var(--muted)] text-2xl font-extrabold text-[var(--primary)]">
+                {index + 1}
+              </span>
+            </div>
+            <div class="order-step-copy min-w-0">
+              <h3 class="text-xl font-bold leading-tight text-[var(--foreground)]">
+                {step.title}
+              </h3>
+              <p class="mt-2.5 text-sm leading-6 text-[var(--muted-foreground)] sm:text-base sm:leading-7">
+                {step.description}
+              </p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .order-steps-title {
+      font-size: clamp(2.1rem, 3.5vw, 2.75rem);
+    }
+
+    .order-steps-list {
+      max-width: 750px;
+    }
+
+    .order-step-card {
+      display: grid;
+      min-height: 7.25rem;
+      grid-template-columns: 7.5rem 1fr;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1.5rem 2rem;
+    }
+
+    .order-step-number-wrap {
+      display: flex;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px dashed var(--border);
+      padding-right: 1.75rem;
+    }
+
+    .order-step-copy {
+      padding-left: 0.25rem;
+    }
+
+    @media (max-width: 639px) {
+      .order-step-card {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1.35rem;
+      }
+
+      .order-step-number-wrap {
+        justify-content: flex-start;
+        border-right: 0;
+        padding-right: 0;
+      }
+    }
+  </style>
+
+</PublicLayout>

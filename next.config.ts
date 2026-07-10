@@ -121,7 +121,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/uploads/lanyardbogor-favicon.webp",
+        source: "/uploads/lanyarddepok-favicon.webp",
         headers: [
           { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
         ],

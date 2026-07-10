@@ -1,0 +1,7 @@
+@import "tailwindcss" source(none);
+
+@source "../layouts/PublicLayout.astro";
+@source "../components/SiteHeader.astro";
+@source "../components/SiteFooter.astro";
+@source "../pages/blog/index.astro";
+@source "../pages/blog/[slug].astro";

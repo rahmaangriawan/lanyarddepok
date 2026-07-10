@@ -1,0 +1,120 @@
+---
+import PublicLayout from '../../layouts/PublicLayout.astro';
+import { api, mediaUrl } from '../../lib/api';
+import '../../styles/blog.css';
+
+const postsPerPage = 6;
+const requestedPage = Number(Astro.url.searchParams.get('page') || '1');
+const currentPage = Number.isFinite(requestedPage) && requestedPage > 0 ? Math.floor(requestedPage) : 1;
+const response = await api.posts({ limit: postsPerPage, page: currentPage });
+const postResponse = response.posts;
+const posts = Array.isArray(postResponse) ? postResponse : postResponse.data || [];
+const lastPage = Array.isArray(postResponse) ? 1 : postResponse.last_page || 1;
+const totalPosts = Array.isArray(postResponse) ? posts.length : postResponse.total || posts.length;
+const hasPagination = lastPage > 1;
+const pageNumbers = Array.from({ length: lastPage }, (_, index) => index + 1);
+const firstImageFromContent = (html?: string | null) => {
+  const match = html?.match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i);
+  return match?.[1] || null;
+};
+const postThumbnail = (post: (typeof posts)[number]) => post.featuredImage || firstImageFromContent(post.content);
+const pageHref = (page: number) => {
+  const params = new URLSearchParams(Astro.url.searchParams);
+  if (page <= 1) {
+    params.delete('page');
+  } else {
+    params.set('page', String(page));
+  }
+
+  const query = params.toString();
+  return `/blog${query ? `?${query}` : ''}`;
+};
+---
+
+<PublicLayout title="Blog Lanyard Depok">
+  <section class="border-b border-[var(--border)] bg-white py-20 text-[var(--foreground)] sm:py-24">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <p class="inline-flex rounded-full bg-[var(--secondary)] px-4 py-2 text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Artikel</p>
+      <h1 class="mt-5 max-w-3xl text-[2.45rem] font-bold leading-[1.05] tracking-normal text-[var(--foreground)] sm:text-[3.1rem]">Artikel & Insight Terbaru</h1>
+      <p class="mt-6 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">Referensi seputar lanyard custom, desain, produksi, dan kebutuhan branding untuk event maupun instansi.</p>
+      {totalPosts > 0 && (
+        <p class="mt-5 text-sm font-semibold leading-6 text-[var(--muted-foreground)]">
+          Menampilkan {posts.length} dari {totalPosts} artikel.
+        </p>
+      )}
+      <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post) => {
+          const thumbnail = postThumbnail(post);
+
+          return (
+          <a href={`/blog/${post.slug}`} class="group flex min-h-full flex-col rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 transition hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--primary)_40%,var(--border))]">
+            <div class="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--secondary)]">
+              {thumbnail ? (
+                <img class="aspect-[16/10] w-full bg-[var(--muted)] object-cover transition duration-500 group-hover:scale-[1.02]" src={mediaUrl(thumbnail)} alt={post.title} loading="lazy" decoding="async" />
+              ) : (
+                <div class="grid aspect-[16/10] place-items-center px-6 text-center">
+                  <div>
+                    <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Lanyard Depok</p>
+                    <p class="mt-2 text-lg font-extrabold leading-tight text-[var(--foreground)]">Artikel</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <p class="mt-5 text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">{post.category?.name || 'Artikel'}</p>
+            <h2 class="blog-card-title mt-2 text-xl font-bold leading-tight text-[var(--foreground)]">{post.title}</h2>
+            <p class="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{post.metaDescription}</p>
+          </a>
+          );
+        })}
+      </div>
+      {hasPagination && (
+        <nav class="mt-12 flex flex-wrap items-center justify-center gap-3" aria-label="Pagination artikel">
+          <a
+            href={pageHref(Math.max(1, currentPage - 1))}
+            aria-disabled={currentPage <= 1 ? 'true' : 'false'}
+            class:list={[
+              'inline-flex min-h-11 items-center justify-center rounded-full border border-[var(--border)] px-5 text-sm font-bold transition',
+              currentPage <= 1 ? 'pointer-events-none opacity-45' : 'hover:border-[var(--primary)] hover:text-[var(--primary)]',
+            ]}
+          >
+            Sebelumnya
+          </a>
+          {pageNumbers.map((page) => (
+            <a
+              href={pageHref(page)}
+              aria-current={page === currentPage ? 'page' : undefined}
+              class:list={[
+                'inline-flex h-11 min-w-11 items-center justify-center rounded-full border px-4 text-sm font-extrabold transition',
+                page === currentPage
+                  ? 'border-[var(--primary)] bg-[var(--primary)]'
+                  : 'border-[var(--border)] text-[var(--foreground)] hover:border-[var(--primary)] hover:text-[var(--primary)]',
+              ]}
+              style={page === currentPage ? 'color: #fff;' : undefined}
+            >
+              {page}
+            </a>
+          ))}
+          <a
+            href={pageHref(Math.min(lastPage, currentPage + 1))}
+            aria-disabled={currentPage >= lastPage ? 'true' : 'false'}
+            class:list={[
+              'inline-flex min-h-11 items-center justify-center rounded-full border border-[var(--border)] px-5 text-sm font-bold transition',
+              currentPage >= lastPage ? 'pointer-events-none opacity-45' : 'hover:border-[var(--primary)] hover:text-[var(--primary)]',
+            ]}
+          >
+            Berikutnya
+          </a>
+        </nav>
+      )}
+    </div>
+  </section>
+</PublicLayout>
+
+<style>
+  .blog-card-title {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+</style>

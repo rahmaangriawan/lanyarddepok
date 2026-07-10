@@ -1,9 +1,8 @@
-overrides:
-  '@hono/node-server': 1.19.13
-  postcss: 8.5.15
-
+packages:
+  - "apps/frontend"
 allowBuilds:
-  '@prisma/engines': true
-  prisma: true
-  sharp: true
-  unrs-resolver: true
+  '@prisma/engines': set this to true or false
+  esbuild: set this to true or false
+  prisma: set this to true or false
+  sharp: set this to true or false
+  unrs-resolver: set this to true or false

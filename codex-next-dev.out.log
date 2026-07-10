@@ -1,0 +1,20 @@
+▲ Next.js 16.2.10 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.100.9:3000
+- Environments: .env
+✓ Ready in 4.5s
+- Experiments (use with caution):
+  ✓ inlineCss
+
+○ Compiling / ...
+ GET / 200 in 16.1s (next.js: 14.0s, application-code: 2.0s)
+ GET / 200 in 1267ms (next.js: 29ms, application-code: 1237ms)
+○ Compiling /api/categories ...
+ GET / 200 in 467ms (next.js: 222ms, application-code: 245ms)
+ GET /api/categories?type=PRODUCT 200 in 5.3s (next.js: 4.7s, application-code: 610ms)
+ GET / 200 in 561ms (next.js: 7ms, application-code: 555ms)
+ GET / 200 in 185ms (next.js: 3ms, application-code: 182ms)
+ GET /api/categories?type=PRODUCT 200 in 18ms (next.js: 4ms, application-code: 14ms)
+ GET /api/categories?type=PRODUCT 200 in 11ms (next.js: 4ms, application-code: 7ms)
+ GET / 200 in 651ms (next.js: 280ms, application-code: 370ms)
+ GET / 200 in 115ms (next.js: 4ms, application-code: 111ms)

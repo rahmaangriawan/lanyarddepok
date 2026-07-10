@@ -1,0 +1,116 @@
+@import "tailwindcss" source(none);
+
+@source "../layouts/PublicLayout.astro";
+@source "../components/SiteHeader.astro";
+@source "../components/SiteFooter.astro";
+@source "../pages/syarat-ketentuan.astro";
+@source "../pages/kebijakan.astro";
+
+.legal-layout {
+  display: grid;
+  gap: 2rem;
+}
+
+.legal-sidebar {
+  min-width: 0;
+}
+
+.legal-mobile-dots {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  right: 0.75rem;
+  top: 38%;
+  transform: translateY(-0.5rem);
+  z-index: 40;
+}
+
+.legal-mobile-dots.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.legal-mobile-dot {
+  background: color-mix(in srgb, var(--primary) 22%, white);
+  border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border));
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(112, 77, 64, 0.08);
+  display: block;
+  height: 0.55rem;
+  width: 0.55rem;
+}
+
+.legal-mobile-dot.is-active {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 10px 24px rgba(112, 77, 64, 0.22);
+  height: 1.35rem;
+}
+
+.legal-nav-link {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted-foreground);
+  display: inline-flex;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+  padding: 0.75rem 1rem;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.legal-nav-link:hover,
+.legal-nav-link.is-active {
+  background: var(--muted);
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+  color: var(--primary);
+}
+
+.legal-nav-link.is-active {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 10px 26px rgba(112, 77, 64, 0.12);
+  color: var(--primary-foreground);
+  transform: translateX(0.25rem);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .legal-nav-link,
+  .legal-mobile-dots,
+  .legal-mobile-dot {
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      opacity 180ms ease,
+      box-shadow 180ms ease,
+      color 180ms ease,
+      transform 180ms ease;
+  }
+}
+
+@media (min-width: 1024px) {
+  .legal-layout {
+    align-items: start;
+    grid-template-columns: minmax(15rem, 0.32fr) minmax(0, 1fr);
+  }
+
+  .legal-sidebar {
+    position: sticky;
+    top: 6rem;
+  }
+
+  .legal-mobile-dots {
+    display: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .legal-sidebar {
+    display: none;
+  }
+}

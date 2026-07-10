@@ -1,0 +1,270 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import '../styles/kontak.css';
+
+export const prerender = true;
+
+const phoneDisplay = '0822-1020-0700';
+const phoneRaw = '6282210200700';
+const email = 'info@lanyarddepok.com';
+const location = 'Depok, Indonesia';
+const whatsappUrl = `https://wa.me/${phoneRaw}?text=Halo%20Lanyard%20Depok%2C%20saya%20ingin%20konsultasi%20lanyard%20custom.`;
+const backendBase = (import.meta.env.PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+const primaryApiBase = (import.meta.env.PUBLIC_API_BASE_URL || 'http://127.0.0.1:3000/api').replace(/\/$/, '');
+const inquiryApiBases = Array.from(new Set([
+  primaryApiBase,
+  'http://127.0.0.1:3000/api',
+  'http://localhost:3000/api',
+  `${backendBase}/api`,
+]));
+
+const contactCards = [
+  {
+    icon: 'phone',
+    title: 'WhatsApp',
+    value: phoneDisplay,
+    description: 'Respon cepat untuk quotation dan konsultasi.',
+    href: whatsappUrl,
+  },
+  {
+    icon: 'mail',
+    title: 'Email',
+    value: email,
+    description: 'Kirim brief, logo, atau kebutuhan detail Anda.',
+    href: `mailto:${email}`,
+  },
+  {
+    icon: 'pin',
+    title: 'Lokasi',
+    value: location,
+    description: 'Melayani pemesanan lanyard custom dari Depok.',
+    href: null,
+  },
+  {
+    icon: 'clock',
+    title: 'Jam Layanan',
+    value: 'Senin - Sabtu',
+    description: '09.00 - 21.00 WIB',
+    href: null,
+  },
+];
+
+const prepItems = [
+  'Jumlah pesanan atau estimasi kebutuhan',
+  'Deadline produksi dan pengiriman',
+  'Logo, desain, atau referensi warna',
+  'Pilihan bahan, kait, holder, dan aksesoris',
+];
+---
+
+<PublicLayout
+  title="Kontak Lanyard Depok"
+  description="Hubungi tim Lanyard Depok untuk konsultasi desain, quotation, bahan, produksi, dan pengiriman lanyard custom."
+>
+  <section class="border-b border-[var(--border)] bg-[#FEF9F6] py-16 text-[var(--foreground)] sm:py-20" style="background-color: #FEF9F6;">
+    <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:px-8">
+      <div class="min-w-0">
+        <p class="inline-flex items-center gap-3 rounded-full bg-[var(--muted)] px-5 py-3 text-sm font-bold text-[var(--primary)]">
+          <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h.01"/><path d="M12 9h.01"/><path d="M16 9h.01"/></svg>
+          Kontak Lanyard Depok
+        </p>
+
+        <h1 class="mt-6 max-w-2xl text-[2.65rem] font-bold leading-[1.08] tracking-normal text-[var(--foreground)] sm:text-[3.4rem] lg:text-[4rem]">
+          Hubungi Tim Lanyard Depok
+        </h1>
+
+        <p class="mt-6 max-w-xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">
+          Konsultasikan desain, bahan, quotation, produksi, sampai pengiriman lanyard custom Anda. Tim kami siap membantu dari brief awal sampai pesanan siap dikirim.
+        </p>
+
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a class="btn-primary gap-3" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+            <span>Chat WhatsApp</span>
+            <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="var(--primary-foreground)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </a>
+          <a class="btn-secondary text-[var(--primary)]" href={`mailto:${email}`}>Kirim Email</a>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm sm:p-6 lg:p-8">
+        <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Informasi Kontak</p>
+        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+          {contactCards.map((card) => (
+            <article class="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
+              <div class="grid h-12 w-12 place-items-center rounded-full bg-[var(--secondary)] text-[var(--primary)]">
+                {card.icon === 'phone' && (
+                  <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.7.6 2.5a2 2 0 0 1-.4 2.1L8.1 9.5a16 16 0 0 0 6.4 6.4l1.2-1.2a2 2 0 0 1 2.1-.4c.8.3 1.6.5 2.5.6a2 2 0 0 1 1.7 2z"/></svg>
+                )}
+                {card.icon === 'mail' && (
+                  <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.97 5.7a2 2 0 0 1-2.06 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+                )}
+                {card.icon === 'pin' && (
+                  <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+                )}
+                {card.icon === 'clock' && (
+                  <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                )}
+              </div>
+              <h2 class="mt-5 text-sm font-bold leading-tight text-[var(--foreground)]">{card.title}</h2>
+              {card.href ? (
+                <a href={card.href} target={card.href.startsWith('http') ? '_blank' : undefined} rel={card.href.startsWith('http') ? 'noopener noreferrer' : undefined} class="mt-2 block break-words text-base font-bold leading-6 text-[var(--primary)]">{card.value}</a>
+              ) : (
+                <p class="mt-2 break-words text-base font-bold leading-6 text-[var(--primary)]">{card.value}</p>
+              )}
+              <p class="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{card.description}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white py-16 text-[var(--foreground)] sm:py-20">
+    <div class="contact-bottom-grid mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <aside class="min-w-0 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-8">
+        <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Sebelum Menghubungi Kami</p>
+        <h2 class="mt-4 text-2xl font-bold leading-tight text-[var(--foreground)] sm:text-3xl">Siapkan brief singkat agar proses lebih cepat.</h2>
+        <p class="mt-4 text-sm leading-7 text-[var(--muted-foreground)]">
+          Detail kecil di awal membantu kami memberi rekomendasi bahan, estimasi harga, dan timeline produksi yang lebih akurat.
+        </p>
+        <ul class="mt-6 space-y-3">
+          {prepItems.map((item) => (
+            <li class="flex gap-3 text-sm font-semibold leading-6 text-[var(--foreground)]">
+              <span class="mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[var(--secondary)] text-[var(--primary)]">
+                <svg aria-hidden="true" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>
+              </span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      <div class="min-w-0 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-8 lg:p-10">
+        <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Kirim Pesan</p>
+        <h2 class="mt-4 text-2xl font-bold leading-tight text-[var(--foreground)] sm:text-3xl">Ceritakan kebutuhan lanyard Anda.</h2>
+        <p class="mt-4 text-sm leading-7 text-[var(--muted-foreground)]">
+          Pesan Anda akan masuk ke tim Lanyard Depok untuk ditindaklanjuti.
+        </p>
+
+        <form class="mt-8 grid gap-4" data-contact-form>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="block">
+              <span class="text-sm font-bold text-[var(--foreground)]">Nama</span>
+              <input required minlength="3" name="name" type="text" autocomplete="name" class="mt-2 min-h-12 w-full rounded-2xl border border-[var(--border)] bg-white px-4 text-sm outline-none transition focus:border-[var(--primary)]" placeholder="Nama Anda" />
+            </label>
+            <label class="block">
+              <span class="text-sm font-bold text-[var(--foreground)]">Email</span>
+              <input required name="email" type="email" autocomplete="email" class="mt-2 min-h-12 w-full rounded-2xl border border-[var(--border)] bg-white px-4 text-sm outline-none transition focus:border-[var(--primary)]" placeholder={email} />
+            </label>
+          </div>
+
+          <label class="block">
+            <span class="text-sm font-bold text-[var(--foreground)]">Nomor WhatsApp</span>
+            <input required minlength="8" name="phone" type="tel" autocomplete="tel" class="mt-2 min-h-12 w-full rounded-2xl border border-[var(--border)] bg-white px-4 text-sm outline-none transition focus:border-[var(--primary)]" placeholder={phoneDisplay} />
+          </label>
+
+          <label class="block">
+            <span class="text-sm font-bold text-[var(--foreground)]">Pesan</span>
+            <textarea required minlength="10" name="message" rows="6" class="mt-2 w-full rounded-2xl border border-[var(--border)] bg-white px-4 py-4 text-sm leading-6 outline-none transition focus:border-[var(--primary)]" placeholder="Contoh: Saya ingin pesan 200 pcs lanyard untuk event bulan depan. Butuh rekomendasi bahan dan quotation."></textarea>
+          </label>
+
+          <p class="hidden rounded-2xl border px-4 py-3 text-sm font-semibold leading-6" data-contact-status></p>
+
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <button type="submit" class="btn-primary gap-3" data-contact-submit>
+              <span data-contact-submit-label>Kirim Pesan</span>
+              <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="var(--primary-foreground)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+            </button>
+            <a class="btn-secondary text-[var(--primary)]" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Chat Langsung</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script define:vars={{ inquiryApiBases }}>
+    const form = document.querySelector('[data-contact-form]');
+
+    if (form) {
+      const status = form.querySelector('[data-contact-status]');
+      const submit = form.querySelector('[data-contact-submit]');
+      const submitLabel = form.querySelector('[data-contact-submit-label]');
+
+      const setStatus = (type, message) => {
+        if (!status) return;
+        status.textContent = message;
+        status.classList.remove('hidden', 'border-red-200', 'bg-red-50', 'text-red-700', 'border-green-200', 'bg-green-50', 'text-green-700');
+        if (type === 'success') {
+          status.classList.add('border-green-200', 'bg-green-50', 'text-green-700');
+        } else {
+          status.classList.add('border-red-200', 'bg-red-50', 'text-red-700');
+        }
+      };
+
+      const setLoading = (loading) => {
+        if (submit) submit.disabled = loading;
+        if (submitLabel) submitLabel.textContent = loading ? 'Mengirim...' : 'Kirim Pesan';
+        submit?.classList.toggle('opacity-70', loading);
+      };
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        setLoading(true);
+
+        const formData = new FormData(form);
+        const payload = {
+          name: String(formData.get('name') || '').trim(),
+          email: String(formData.get('email') || '').trim(),
+          phone: String(formData.get('phone') || '').trim(),
+          message: String(formData.get('message') || '').trim(),
+        };
+
+        let lastError = null;
+
+        for (const apiBase of inquiryApiBases) {
+          try {
+            const response = await fetch(`${apiBase.replace(/\/$/, '')}/inquiries`, {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+            });
+
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+              lastError = result.error || result.message || 'Pesan belum berhasil dikirim.';
+              continue;
+            }
+
+            form.reset();
+            setStatus('success', 'Pesan berhasil dikirim. Tim Lanyard Depok akan menghubungi Anda secepatnya.');
+            setLoading(false);
+            return;
+          } catch (error) {
+            lastError = error;
+          }
+        }
+
+        setStatus('error', typeof lastError === 'string' ? lastError : 'Pesan belum berhasil dikirim. Silakan coba lagi atau hubungi WhatsApp kami.');
+        setLoading(false);
+      });
+    }
+  </script>
+
+  <style>
+    .contact-bottom-grid {
+      display: grid;
+      gap: 2rem;
+    }
+
+    @media (min-width: 1024px) {
+      .contact-bottom-grid {
+        align-items: start;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+    }
+  </style>
+</PublicLayout>

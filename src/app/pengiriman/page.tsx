@@ -18,11 +18,11 @@ export const metadata: Metadata = {
     description:
       "Informasi layanan pengiriman Lanyard Bogor, alur pengiriman, pilihan ekspedisi, standar pengemasan, estimasi, dan tracking pesanan.",
     path: "/pengiriman",
-    image: "/uploads/pengiriman-packaging-lanyardbogor.webp",
+    image: "/uploads/pengiriman-packaging-lanyarddepok.webp",
   }),
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardbogor.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyarddepok.com";
 
 const shippingSteps = [
   {
@@ -76,7 +76,7 @@ const jsonLd = {
         name: "Lanyard Bogor",
         logo: {
           "@type": "ImageObject",
-          url: `${siteUrl}/uploads/lanyardbogor-logo.webp`,
+          url: `${siteUrl}/uploads/lanyarddepok-logo.webp`,
         },
       },
     },
@@ -169,7 +169,7 @@ export default function PengirimanPage() {
             <section className="mt-8 grid gap-8 rounded-2xl border border-public-border bg-white p-6 shadow-xs lg:grid-cols-[1fr_1fr] lg:p-8">
               <div className="overflow-hidden rounded-2xl bg-public-soft">
                 <Image
-                  src="/uploads/pengiriman-packaging-lanyardbogor.webp"
+                  src="/uploads/pengiriman-packaging-lanyarddepok.webp"
                   alt="Packing paket lanyard Lanyard Bogor"
                   width={1040}
                   height={720}

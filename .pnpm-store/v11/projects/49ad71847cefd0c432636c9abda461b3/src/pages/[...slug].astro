@@ -1,0 +1,71 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import { api } from '../lib/api';
+import '../styles/cms.css';
+
+export const prerender = false;
+
+const parts = Astro.params.slug?.split('/').filter(Boolean) || [];
+const leafSlug = parts.at(-1) || '';
+
+let pageResponse = await api.page(leafSlug);
+let page = pageResponse.page;
+
+if (!page) {
+  const cityResponse = await api.cityPage(leafSlug);
+  page = cityResponse.cityPage;
+}
+
+if (!page) return Astro.redirect('/', 302);
+---
+
+<PublicLayout title={page.metaTitle || page.title} description={page.metaDescription || ''}>
+  <article class="border-b border-[var(--border)] bg-white px-4 py-20 text-[var(--foreground)] sm:px-6 sm:py-24 lg:px-8">
+    <div class="mx-auto max-w-4xl">
+      <p class="inline-flex rounded-full bg-[var(--secondary)] px-4 py-2 text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Lanyard Depok</p>
+      <h1 class="mt-5 text-[2.45rem] font-bold leading-[1.05] tracking-normal text-[var(--foreground)] sm:text-[3.1rem]">{page.title}</h1>
+      {page.metaDescription && <p class="mt-6 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">{page.metaDescription}</p>}
+      <div class="content-prose mt-10 max-w-none rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 sm:p-8" set:html={page.content} />
+    </div>
+  </article>
+</PublicLayout>
+
+<style is:global>
+  .content-prose {
+    color: var(--muted-foreground);
+    line-height: 1.8;
+  }
+
+  .content-prose :where(h1, h2, h3, h4, h5, h6) {
+    color: var(--foreground);
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.15;
+    margin: 1.5em 0 0.6em;
+  }
+
+  .content-prose :where(h1, h2) {
+    font-size: clamp(1.75rem, 3vw, 2.4rem);
+  }
+
+  .content-prose :where(h3) {
+    font-size: 1.35rem;
+  }
+
+  .content-prose :where(p, ul, ol) {
+    margin: 0 0 1.1em;
+  }
+
+  .content-prose :where(a) {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  .content-prose :where(strong) {
+    color: var(--foreground);
+  }
+
+  .content-prose :where(ul, ol) {
+    padding-left: 1.25rem;
+  }
+</style>

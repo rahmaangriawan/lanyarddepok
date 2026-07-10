@@ -1,0 +1,182 @@
+---
+import { api } from '../lib/api';
+
+const footerWhatsappUrl = 'https://wa.me/6282210200700?text=Halo%20Lanyard%20Depok%2C%20saya%20ingin%20minta%20quotation%20untuk%20lanyard%20custom.';
+
+const fallbackProductCategories = [
+  { id: 1, name: 'Lanyard Custom', slug: 'lanyard-custom' },
+  { id: 2, name: 'ID Card', slug: 'id-card' },
+  { id: 3, name: 'Holder ID Card', slug: 'holder-id-card' },
+  { id: 4, name: 'Aksesoris', slug: 'aksesoris' },
+  { id: 5, name: 'Cetak Kartu PVC', slug: 'cetak-kartu-pvc' },
+];
+
+const footerBenefits = [
+  {
+    icon: 'award',
+    title: 'Kualitas Premium',
+    description: 'Nyaman, kuat, dan tahan lama',
+  },
+  {
+    icon: 'clock',
+    title: 'Produksi Cepat',
+    description: 'Proses cepat & tepat waktu',
+  },
+  {
+    icon: 'shield',
+    title: 'Terpercaya',
+    description: 'Dipercaya banyak brand',
+  },
+];
+
+const informationLinks = [
+  { label: 'Tentang Kami', href: '/tentang' },
+  { label: 'Artikel', href: '/blog' },
+  { label: 'Promo', href: '/promo' },
+  { label: 'Syarat & Ketentuan', href: '/syarat-ketentuan' },
+  { label: 'Kontak Kami', href: '/kontak' },
+];
+
+const helpLinks = [
+  { label: 'FAQ', href: '/faq' },
+  { label: 'Cara Pemesanan', href: '/cara-pemesanan' },
+  { label: 'Pembayaran', href: '/pembayaran' },
+  { label: 'Pengiriman', href: '/pengiriman' },
+  { label: 'Kebijakan Privasi', href: '/kebijakan' },
+];
+
+const { categories } = await api.categories('PRODUCT');
+const productCategories = categories.length > 0 ? categories : fallbackProductCategories;
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="relative z-30 w-full border-t border-gray-100 bg-white pb-8 pt-12 text-gray-600">
+  <div class="mx-auto mb-20 max-w-7xl px-4 sm:px-6 lg:mb-24 lg:px-8">
+    <section class="relative isolate overflow-hidden rounded-[24px] border border-[var(--border)] bg-white select-none">
+      <div class="grid min-h-[300px] grid-cols-1 lg:grid-cols-[1.2fr_0.8fr_0.9fr]">
+        <div class="relative flex min-w-0 flex-col justify-center px-4 py-8 text-center sm:px-8 lg:px-9 lg:py-10 lg:text-left lg:after:absolute lg:after:right-0 lg:after:top-1/2 lg:after:h-1/2 lg:after:w-px lg:after:-translate-y-1/2 lg:after:bg-[var(--border)] xl:px-10">
+          <h2 class="max-w-full break-words text-[1.55rem] font-bold leading-[1.16] tracking-normal text-[var(--foreground)] min-[360px]:text-[1.75rem] sm:text-[2.4rem] lg:text-[1.82rem] xl:text-[1.95rem]">
+            <span class="block sm:whitespace-nowrap">Siap Cetak Lanyard Custom</span>
+            <span class="block text-[var(--primary)] sm:whitespace-nowrap">untuk Brand Anda?</span>
+          </h2>
+          <p class="mt-5 max-w-[31rem] text-sm font-normal leading-7 text-[var(--muted-foreground)] sm:text-base lg:max-w-[34rem]">
+            Desain bebas, kualitas premium, dan hasil cepat. Kami siap wujudkan lanyard yang merepresentasikan brand Anda.
+          </p>
+          <div class="mt-7 flex justify-center lg:justify-start">
+            <a
+              href={footerWhatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style="background: var(--secondary); color: #111827;"
+              class="inline-flex min-h-10 max-w-full items-center justify-center gap-3 rounded-full border border-transparent px-4 text-center text-sm font-bold leading-5 shadow-sm transition hover:bg-[var(--primary)] hover:text-white focus:outline-none focus:ring-4 focus:ring-[rgb(245_158_11_/_20%)]"
+            >
+              <span>Minta Quotation <span class="hidden min-[360px]:inline">Sekarang</span></span>
+              <svg aria-hidden="true" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center justify-center gap-6 border-t border-[var(--border)] px-5 py-7 sm:px-8 lg:border-t-0 lg:px-8 lg:py-10">
+          {footerBenefits.map((benefit) => (
+            <div class="flex w-full max-w-[15rem] items-center gap-4">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-[var(--primary)]" style="border: 1px solid rgba(245, 158, 11, 0.22); background: rgba(245, 158, 11, 0.08);">
+                {benefit.icon === 'award' && (
+                  <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 21.42a.5.5 0 0 1-.8.46l-3.6-2.69a1 1 0 0 0-1.2 0l-3.6 2.69a.5.5 0 0 1-.8-.46l1.52-8.53"/></svg>
+                )}
+                {benefit.icon === 'clock' && (
+                  <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                )}
+                {benefit.icon === 'shield' && (
+                  <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V5l8-3 8 3z"/><path d="m9 12 2 2 4-5"/></svg>
+                )}
+              </div>
+              <div class="min-w-0">
+                <h3 class="text-sm font-bold leading-tight text-[var(--foreground)] sm:text-base">{benefit.title}</h3>
+                <p class="mt-1 text-xs font-normal leading-5 text-[var(--muted-foreground)] sm:text-sm">{benefit.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div class="relative min-h-[250px] overflow-hidden bg-white lg:min-h-full">
+          <div class="absolute left-1/2 top-1/2 h-[135%] w-[135%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#fff3e6] sm:h-[118%] sm:w-[118%] lg:left-[92%] lg:h-[164%] lg:w-[164%]"></div>
+          <img
+            src="/uploads/cta-footer-lanyard-custom-mobile.webp"
+            alt="Lanyard custom Lanyard Depok warna oranye dan putih"
+            class="relative z-10 mx-auto h-auto max-h-[330px] w-full object-contain object-center px-6 py-5 sm:px-10 lg:absolute lg:inset-0 lg:h-full lg:max-h-none lg:px-0 lg:py-5 xl:px-2"
+            width="360"
+            height="294"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-12 grid grid-cols-2 gap-x-6 gap-y-9 md:grid-cols-2 lg:grid-cols-12">
+      <div class="col-span-2 space-y-4 lg:col-span-4">
+        <div class="flex items-center space-x-2 select-none">
+          <img class="h-9 w-auto object-contain" src="/uploads/lanyarddepok-logo-mobile.webp" alt="Lanyard Depok Logo" width="148" height="36" loading="lazy" decoding="async" />
+        </div>
+        <p class="max-w-sm text-sm font-normal leading-relaxed text-gray-500">
+          Pusatnya Lanyard Custom berkualitas untuk perusahaan, instansi, sekolah, komunitas, dan event di seluruh Indonesia.
+        </p>
+      </div>
+
+      <div class="col-span-1 lg:col-span-2">
+        <h3 class="mb-4 text-[13px] font-bold uppercase tracking-wider text-gray-800 sm:text-sm">Produk</h3>
+        <ul class="space-y-3 text-sm font-normal text-gray-500">
+          {productCategories.map((cat) => (
+            <li>
+              <a href={`/produk?category=${encodeURIComponent(cat.name)}`} class="transition hover:text-[var(--primary)]">{cat.name}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="col-span-1 lg:col-span-2">
+        <h3 class="mb-4 text-[13px] font-bold uppercase tracking-wider text-gray-800 sm:text-sm">Informasi</h3>
+        <ul class="space-y-3 text-sm font-normal text-gray-500">
+          {informationLinks.map((link) => (
+            <li><a href={link.href} class="transition hover:text-[var(--primary)]">{link.label}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="col-span-1 lg:col-span-2">
+        <h3 class="mb-4 text-[13px] font-bold uppercase tracking-wider text-gray-800 sm:text-sm">Bantuan</h3>
+        <ul class="space-y-3 text-sm font-normal text-gray-500">
+          {helpLinks.map((link) => (
+            <li><a href={link.href} class="transition hover:text-[var(--primary)]">{link.label}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="col-span-1 lg:col-span-2">
+        <h3 class="mb-4 text-[13px] font-bold uppercase tracking-wider text-gray-800 sm:text-sm">Kontak</h3>
+        <ul class="space-y-3.5 text-[13px] font-normal text-gray-500 sm:text-sm">
+          <li class="flex items-start gap-2">
+            <svg aria-hidden="true" class="h-[1.125rem] w-[1.125rem] shrink-0 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.7.6 2.5a2 2 0 0 1-.4 2.1L8.1 9.5a16 16 0 0 0 6.4 6.4l1.2-1.2a2 2 0 0 1 2.1-.4c.8.3 1.6.5 2.5.6a2 2 0 0 1 1.7 2z"/></svg>
+            <a href="https://wa.me/6282210200700" target="_blank" rel="noopener noreferrer" class="min-w-0 transition hover:text-[var(--primary)]">0822-1020-0700</a>
+          </li>
+          <li class="flex items-start gap-2">
+            <svg aria-hidden="true" class="h-[1.125rem] w-[1.125rem] shrink-0 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.97 5.7a2 2 0 0 1-2.06 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+            <a href="mailto:info@lanyarddepok.com" class="min-w-0 break-words transition hover:text-[var(--primary)]">info@lanyarddepok.com</a>
+          </li>
+          <li class="flex items-start gap-2">
+            <svg aria-hidden="true" class="mt-0.5 h-[1.125rem] w-[1.125rem] shrink-0 text-[var(--primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+            <span class="min-w-0 leading-relaxed">Depok, Indonesia</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="border-gray-100" />
+
+    <div class="pt-6 text-center text-xs font-semibold text-gray-600 select-none">
+      &copy; {currentYear} <span class="font-extrabold text-gray-500">Lanyard Depok</span>. All Rights Reserved.
+    </div>
+  </div>
+</footer>

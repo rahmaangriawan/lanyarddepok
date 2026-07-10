@@ -73,7 +73,7 @@ export async function generateMetadata({
       title,
       description: AUTHOR_DESCRIPTION,
       path: `/blog/author/${slug}`,
-      image: "/uploads/blog-hero-lanyardbogor.webp",
+      image: "/uploads/blog-hero-lanyarddepok.webp",
     }),
   };
 }

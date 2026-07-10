@@ -17,11 +17,11 @@ export const metadata: Metadata = {
     description:
       "Pelajari bagaimana Lanyard Bogor mengumpulkan, menggunakan, melindungi, dan menjaga privasi data pelanggan.",
     path: "/kebijakan",
-    image: "/uploads/privacy-priority-lanyardbogor.webp",
+    image: "/uploads/privacy-priority-lanyarddepok.webp",
   }),
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardbogor.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyarddepok.com";
 
 const trustItems = [
   {
@@ -88,8 +88,8 @@ const contactItems = [
   },
   {
     icon: "lucide:mail",
-    label: "info@lanyardbogor.com",
-    href: "mailto:info@lanyardbogor.com",
+    label: "info@lanyarddepok.com",
+    href: "mailto:info@lanyarddepok.com",
   },
   {
     icon: "lucide:clock",
@@ -112,7 +112,7 @@ const jsonLd = {
         name: "Lanyard Bogor",
         logo: {
           "@type": "ImageObject",
-          url: `${siteUrl}/uploads/lanyardbogor-logo.webp`,
+          url: `${siteUrl}/uploads/lanyarddepok-logo.webp`,
         },
       },
     },
@@ -305,7 +305,7 @@ export default function KebijakanPrivasiPage() {
                 <section className="overflow-hidden rounded-2xl border border-public-border bg-white shadow-xs">
                   <div className="bg-public-soft p-4">
                     <Image
-                      src="/uploads/privacy-priority-lanyardbogor.webp"
+                      src="/uploads/privacy-priority-lanyarddepok.webp"
                       alt="Ilustrasi perlindungan data dan privasi Lanyard Bogor"
                       width={1254}
                       height={1254}

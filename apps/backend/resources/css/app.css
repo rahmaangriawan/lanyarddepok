@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --dashboard-background: #f7f7f5;
+    --dashboard-card: #ffffff;
+    --dashboard-foreground: #241f1d;
+    --dashboard-muted: #6f625c;
+    --dashboard-border: #ded8d3;
+    --dashboard-primary: #6f4f43;
+    --dashboard-primary-strong: #563b32;
+}
+
+@layer utilities {
+    .bg-background { background-color: var(--dashboard-background); }
+    .bg-card { background-color: var(--dashboard-card); }
+    .bg-primary { background-color: var(--dashboard-primary); }
+    .bg-primary\/10 { background-color: color-mix(in srgb, var(--dashboard-primary) 10%, transparent); }
+    .text-foreground { color: var(--dashboard-foreground); }
+    .text-muted-foreground { color: var(--dashboard-muted); }
+    .text-primary { color: var(--dashboard-primary); }
+    .border-border { border-color: var(--dashboard-border); }
+    .border-primary { border-color: var(--dashboard-primary); }
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .focus\:ring-primary:focus {
+        --tw-ring-color: var(--dashboard-primary);
+    }
+}
+
+@layer components {
+    .meridian-brand-mark {
+        display: inline-flex;
+        width: 2rem;
+        height: 2rem;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        background: var(--dashboard-primary);
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0;
+    }
+
+    .sidebar__button.is-active {
+        background: color-mix(in srgb, var(--dashboard-primary) 12%, #fff);
+        color: var(--dashboard-primary-strong);
+        font-weight: 800;
+    }
+
+    .meridian-menu-link {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        border-radius: 0.875rem;
+        padding: 0.625rem 0.75rem;
+        color: var(--dashboard-foreground);
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-align: left;
+    }
+
+    .meridian-menu-link:hover {
+        background: color-mix(in srgb, var(--dashboard-primary) 10%, #fff);
+        color: var(--dashboard-primary-strong);
+    }
+
+    .meridian-card {
+        border: 1px solid var(--dashboard-border);
+        border-radius: 1rem;
+        background: var(--dashboard-card);
+        box-shadow: 0 10px 28px rgb(36 31 29 / 0.045);
+    }
+
+    .meridian-input {
+        width: 100%;
+        border-radius: 0.95rem;
+        border: 1px solid var(--dashboard-border);
+        background: #fff;
+        padding: 0.75rem 0.9rem;
+        color: var(--dashboard-foreground);
+        outline: none;
+    }
+
+    .meridian-input:focus {
+        border-color: var(--dashboard-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--dashboard-primary) 18%, transparent);
+    }
+
+    .meridian-btn-primary {
+        display: inline-flex;
+        min-height: 2.75rem;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: 999px;
+        background: var(--dashboard-primary);
+        padding: 0.7rem 1rem;
+        color: #fff;
+        font-size: 0.875rem;
+        font-weight: 800;
+        transition: 150ms ease;
+    }
+
+    .meridian-btn-primary:hover {
+        background: var(--dashboard-primary-strong);
+    }
+
+    .meridian-btn-secondary {
+        display: inline-flex;
+        min-height: 2.75rem;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border: 1px solid var(--dashboard-border);
+        border-radius: 999px;
+        background: #fff;
+        padding: 0.7rem 1rem;
+        color: var(--dashboard-foreground);
+        font-size: 0.875rem;
+        font-weight: 800;
+        transition: 150ms ease;
+    }
+
+    .meridian-btn-secondary:hover {
+        border-color: var(--dashboard-primary);
+        color: var(--dashboard-primary-strong);
+    }
+
+    .meridian-editor-btn {
+        display: inline-flex;
+        min-height: 2.25rem;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        border: 1px solid var(--dashboard-border);
+        border-radius: 0.75rem;
+        background: #fff;
+        padding: 0.45rem 0.65rem;
+        color: var(--dashboard-foreground);
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+
+    .meridian-editor-btn:hover {
+        border-color: var(--dashboard-primary);
+        color: var(--dashboard-primary);
+    }
+
+    .prose h2 {
+        margin: 1rem 0 0.5rem;
+        font-size: 1.35rem;
+        font-weight: 800;
+    }
+
+    .prose p {
+        margin: 0.75rem 0;
+        line-height: 1.7;
+    }
+
+    .prose ul,
+    .prose ol {
+        margin: 0.75rem 0;
+        padding-left: 1.25rem;
+    }
+
+    .prose img {
+        max-width: 100%;
+        border-radius: 1rem;
+    }
+}

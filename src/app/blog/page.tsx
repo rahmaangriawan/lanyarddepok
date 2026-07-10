@@ -52,7 +52,7 @@ export async function generateMetadata({
       title: BLOG_TITLE,
       description: BLOG_DESCRIPTION,
       path: "/blog",
-      image: "/uploads/blog-hero-lanyardbogor.webp",
+      image: "/uploads/blog-hero-lanyarddepok.webp",
     }),
   };
 }
@@ -201,7 +201,7 @@ export default async function BlogListingPage({ searchParams }: PageProps) {
 
           <div className="flex min-w-0 justify-center md:justify-end">
             <Image
-              src="/uploads/blog-hero-lanyardbogor.webp"
+              src="/uploads/blog-hero-lanyarddepok.webp"
               alt="Ilustrasi artikel dan berita Lanyard Bogor"
               width={1672}
               height={941}

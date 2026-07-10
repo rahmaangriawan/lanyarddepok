@@ -353,7 +353,7 @@ export default function FaqContent() {
             </a>
 
             <a
-              href="mailto:info@lanyardbogor.com"
+              href="mailto:info@lanyarddepok.com"
               className="flex min-h-24 items-center gap-4 rounded-2xl border border-public-border bg-white p-5 transition-colors hover:border-public-amber focus:outline-none focus:ring-4 focus:ring-public-amber/20"
             >
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-public-amber/30 text-public-amber">
@@ -364,7 +364,7 @@ export default function FaqContent() {
                   Email
                 </span>
                 <span className="mt-1 block text-sm text-[#64748b]">
-                  info@lanyardbogor.com
+                  info@lanyarddepok.com
                 </span>
                 <span className="mt-1 block text-xs text-[#64748b]">
                   Kami siap membantu

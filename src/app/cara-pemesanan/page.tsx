@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   }),
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardbogor.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyarddepok.com";
 
 const orderingSteps = [
   {

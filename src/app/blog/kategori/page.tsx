@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     title: PAGE_TITLE,
     description: PAGE_DESCRIPTION,
     path: "/blog/kategori",
-    image: "/uploads/blog-hero-lanyardbogor.webp",
+    image: "/uploads/blog-hero-lanyarddepok.webp",
   }),
 };
 

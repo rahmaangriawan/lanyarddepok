@@ -15,11 +15,11 @@ export const metadata: Metadata = {
     description:
       "Dapatkan penawaran eksklusif cetak lanyard custom premium di Lanyard Bogor. Gratis jasa desain mockup, diskon volume besar, dan paket bundling card holder.",
     path: "/promo",
-    image: "/uploads/promo-hero-lanyardbogor.webp",
+    image: "/uploads/promo-hero-lanyarddepok.webp",
   }),
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardbogor.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyarddepok.com";
 
 const whatsappUrl =
   "https://wa.me/6282210200700?text=Halo%20Lanyard%20Bogor%2C%20saya%20ingin%20klaim%20promo%20lanyard%20custom.";
@@ -39,7 +39,7 @@ const jsonLd = {
         name: "Lanyard Bogor",
         logo: {
           "@type": "ImageObject",
-          url: `${siteUrl}/uploads/lanyardbogor-logo.webp`,
+          url: `${siteUrl}/uploads/lanyarddepok-logo.webp`,
         },
       },
     },
@@ -147,7 +147,7 @@ export default function PromoPage() {
 
             <div className="relative mx-auto w-full max-w-[620px]">
               <Image
-                src="/uploads/promo-hero-lanyardbogor.webp"
+                src="/uploads/promo-hero-lanyarddepok.webp"
                 alt="Promo spesial lanyard custom Lanyard Bogor"
                 width={1254}
                 height={1254}

@@ -1,4 +1,4 @@
-name: Deploy Lanyard Bogor
+name: Deploy Lanyard Depok
 
 on:
   push:
@@ -7,13 +7,16 @@ on:
   workflow_dispatch:
 
 env:
-  APP_NAME: lanyardbogor.com
-  REMOTE_PATH: htdocs/lanyardbogor.com
+  APP_NAME: lanyarddepok.com
+  REMOTE_PATH: htdocs/lanyarddepok.com
   APP_PORT: "3006"
+  PUBLIC_SITE_URL: https://lanyarddepok.com
+  PUBLIC_BACKEND_URL: https://lanyarddepok.com
+  PUBLIC_API_BASE_URL: https://lanyarddepok.com/api
 
 jobs:
   deploy:
-    name: Build and deploy to CloudPanel
+    name: Build and deploy Laravel + Astro to CloudPanel
     runs-on: ubuntu-latest
 
     steps:
@@ -29,33 +32,38 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "pnpm"
+          cache: pnpm
 
-      - name: Install dependencies
+      - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate Prisma client
-        run: pnpm exec prisma generate
+      - name: Build Astro frontend
+        working-directory: apps/frontend
         env:
-          DATABASE_URL: mysql://skip:skip@127.0.0.1:3306/skip
-
-      - name: Build Next.js app
+          PUBLIC_SITE_URL: ${{ env.PUBLIC_SITE_URL }}
+          PUBLIC_BACKEND_URL: ${{ env.PUBLIC_BACKEND_URL }}
+          PUBLIC_API_BASE_URL: ${{ env.PUBLIC_API_BASE_URL }}
         run: pnpm build
-        env:
-          DATABASE_URL: mysql://skip:skip@127.0.0.1:3306/skip
-          SKIP_DB_DURING_BUILD: "true"
-          JWT_SECRET: build-only-placeholder
 
-      - name: Package standalone build
+      - name: Package Laravel and Astro
+        shell: bash
         run: |
-          cp restart.sh .next/standalone/restart.sh
-          cp -r public .next/standalone/public
-          mkdir -p .next/standalone/.next
-          cp -r .next/static .next/standalone/.next/static
-          cd .next/standalone
-          zip -r ../../deploy.zip . \
-            -x ".env" "*.map" "scratch/*" "scratch/**" ".git/*" ".github/*"
-          cd ../..
+          set -euo pipefail
+          rm -rf deploy-package deploy.zip
+          mkdir -p deploy-package/apps/frontend deploy-package/apps/backend
+
+          cp -R apps/backend/. deploy-package/apps/backend/
+          rm -rf deploy-package/apps/backend/vendor deploy-package/apps/backend/node_modules
+          rm -rf deploy-package/apps/backend/storage/logs
+
+          cp -R apps/frontend/dist deploy-package/apps/frontend/dist
+          cp restart.sh deploy-package/restart.sh
+          chmod +x deploy-package/restart.sh
+
+          cd deploy-package
+          zip -qr ../deploy.zip . \
+            -x "*/.env" "*/.env.*" "*/node_modules/*" "*/vendor/*" \
+            -x "*/storage/logs/*" "*.map" "*/.git/*" "*/.github/*"
 
       - name: Install SSH tooling
         run: sudo apt-get update && sudo apt-get install -y sshpass unzip
@@ -71,9 +79,9 @@ jobs:
             -o StrictHostKeyChecking=no \
             -P "$SSH_PORT" \
             deploy.zip \
-            "$SSH_USER@$SSH_HOST:deploy-lanyardbogor.zip"
+            "$SSH_USER@$SSH_HOST:deploy-lanyarddepok.zip"
 
-      - name: Extract and restart
+      - name: Install Laravel dependencies and restart applications
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
@@ -85,7 +93,7 @@ jobs:
             -p "$SSH_PORT" \
             "$SSH_USER@$SSH_HOST" \
             "APP_NAME='$APP_NAME' APP_PORT='$APP_PORT' REMOTE_PATH='$REMOTE_PATH' bash -s" <<'REMOTE_SCRIPT'
-          set -e
+          set -euo pipefail
 
           if [ -d "$HOME/$REMOTE_PATH" ]; then
             APP_DIR="$HOME/$REMOTE_PATH"
@@ -95,74 +103,22 @@ jobs:
 
           mkdir -p "$APP_DIR"
           cd "$APP_DIR"
+          unzip -oq "$HOME/deploy-lanyarddepok.zip"
+          rm -f "$HOME/deploy-lanyarddepok.zip"
 
-          unzip -oq "$HOME/deploy-lanyardbogor.zip"
-          rm -f "$HOME/deploy-lanyardbogor.zip"
-          chmod +x restart.sh 2>/dev/null || true
+          cd "$APP_DIR/apps/backend"
+          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+          php artisan migrate --force
+          php artisan storage:link || true
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
 
-          PORT="$APP_PORT" APP_NAME="$APP_NAME" ./restart.sh
+          cd "$APP_DIR"
+          chmod +x restart.sh
+          APP_NAME="$APP_NAME" APP_PORT="$APP_PORT" REMOTE_PATH="$REMOTE_PATH" ./restart.sh
 
-          echo "=== Health check ==="
           sleep 3
-          ROUTES="/ /produk /blog"
-          if command -v curl >/dev/null 2>&1; then
-            for ROUTE in $ROUTES; do
-              if curl -fsS "http://127.0.0.1:$APP_PORT$ROUTE" >/dev/null; then
-                echo "Health check passed on http://127.0.0.1:$APP_PORT$ROUTE"
-              else
-                echo "Health check failed on http://127.0.0.1:$APP_PORT$ROUTE"
-                echo "=== PM2 list ==="
-                pm2 list || true
-                echo "=== PM2 describe $APP_NAME ==="
-                pm2 describe "$APP_NAME" || true
-                echo "=== PM2 logs $APP_NAME ==="
-                pm2 logs "$APP_NAME" --lines 160 --nostream || true
-                exit 1
-              fi
-            done
-
-            echo "=== Login route check ==="
-            LOGIN_BODY="$(mktemp)"
-            LOGIN_STATUS="$(curl -sS -o "$LOGIN_BODY" -w "%{http_code}" \
-              -H "Content-Type: application/json" \
-              -H "Origin: http://127.0.0.1:$APP_PORT" \
-              -X POST \
-              --data '{"email":"diagnostic@example.invalid","password":"not-a-real-password"}' \
-              "http://127.0.0.1:$APP_PORT/api/auth/login" || true)"
-            if [ "$LOGIN_STATUS" = "401" ]; then
-              echo "Login route check passed with expected 401."
-            else
-              echo "Login route check failed. Expected 401, got $LOGIN_STATUS"
-              echo "=== Response body ==="
-              cat "$LOGIN_BODY" || true
-              echo "=== PM2 list ==="
-              pm2 list || true
-              echo "=== PM2 describe $APP_NAME ==="
-              pm2 describe "$APP_NAME" || true
-              echo "=== PM2 logs $APP_NAME ==="
-              pm2 logs "$APP_NAME" --lines 220 --nostream || true
-              exit 1
-            fi
-          else
-            for ROUTE in $ROUTES; do
-              APP_ROUTE="$ROUTE" node -e "fetch('http://127.0.0.1:' + process.env.APP_PORT + process.env.APP_ROUTE).then(r => { if (!r.ok) process.exit(1) }).catch(() => process.exit(1))" || {
-                echo "Health check failed on http://127.0.0.1:$APP_PORT$ROUTE"
-                pm2 list || true
-                pm2 describe "$APP_NAME" || true
-                pm2 logs "$APP_NAME" --lines 160 --nostream || true
-                exit 1
-              }
-              echo "Health check passed on http://127.0.0.1:$APP_PORT$ROUTE"
-            done
-
-            echo "=== Login route check ==="
-            LOGIN_STATUS="$(node -e "fetch('http://127.0.0.1:' + process.env.APP_PORT + '/api/auth/login', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:' + process.env.APP_PORT }, body: JSON.stringify({ email: 'diagnostic@example.invalid', password: 'not-a-real-password' }) }).then(async (response) => { console.log(response.status); if (response.status !== 401) { console.error(await response.text()); process.exit(1); } }).catch((error) => { console.error(error); process.exit(1); })")" || {
-              echo "Login route check failed."
-              pm2 list || true
-              pm2 describe "$APP_NAME" || true
-              pm2 logs "$APP_NAME" --lines 220 --nostream || true
-              exit 1
-            }
-            echo "Login route check passed with expected $LOGIN_STATUS."
-          fi
+          curl -fsS "http://127.0.0.1:$APP_PORT/" >/dev/null
+          echo "Astro health check passed on port $APP_PORT."
           REMOTE_SCRIPT

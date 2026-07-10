@@ -1,0 +1,32 @@
+---
+import '../styles/global.css';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+
+type Props = {
+  title?: string;
+  description?: string;
+};
+
+const {
+  title = 'Lanyard Depok: Cetak Custom No Worry Ongkir',
+  description = 'Cetak lanyard custom Depok untuk kantor, sekolah, komunitas, dan event dengan proses mudah.',
+} = Astro.props;
+---
+
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/webp" href="/uploads/lanyarddepok-favicon.webp" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <SiteHeader />
+    <main>
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>

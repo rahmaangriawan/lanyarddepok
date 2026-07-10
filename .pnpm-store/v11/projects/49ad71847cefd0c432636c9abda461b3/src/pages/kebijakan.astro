@@ -1,0 +1,245 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import '../styles/legal.css';
+
+export const prerender = true;
+
+const updatedAt = '9 Juli 2026';
+const whatsappUrl = 'https://wa.me/6282210200700?text=Halo%20Lanyard%20Depok%2C%20saya%20ingin%20bertanya%20tentang%20kebijakan%20privasi.';
+const email = 'info@lanyarddepok.com';
+
+const sections = [
+  {
+    id: 'data-dikumpulkan',
+    title: 'Data yang Kami Kumpulkan',
+    body: [
+      'Kami dapat mengumpulkan data yang Anda kirimkan melalui formulir kontak, WhatsApp, email, atau komunikasi lain dengan tim Lanyard Depok.',
+      'Data tersebut dapat meliputi nama, email, nomor WhatsApp, pesan, kebutuhan pesanan, file desain atau logo yang Anda kirimkan, serta informasi teknis yang diperlukan untuk proses quotation dan produksi.',
+    ],
+  },
+  {
+    id: 'tujuan-penggunaan',
+    title: 'Tujuan Penggunaan Data',
+    body: [
+      'Data digunakan untuk menindaklanjuti pertanyaan, membuat quotation, memproses desain atau mockup, mengatur produksi, menghubungi pelanggan, serta membantu proses pengiriman pesanan.',
+    ],
+    items: [
+      'Memberikan konsultasi bahan, desain, dan estimasi harga.',
+      'Mengirimkan quotation, mockup, invoice, atau informasi pesanan.',
+      'Mengelola komunikasi pelanggan melalui WhatsApp, email, atau telepon.',
+      'Meningkatkan kualitas layanan dan administrasi internal.',
+    ],
+  },
+  {
+    id: 'penyimpanan-dashboard',
+    title: 'Penyimpanan di Backend dan Dashboard',
+    body: [
+      'Data inquiry yang dikirim melalui formulir website dapat tersimpan di backend dan dashboard admin Lanyard Depok agar tim dapat menindaklanjuti pesan dengan rapi.',
+      'Akses ke data tersebut dibatasi untuk pihak internal yang membutuhkan informasi tersebut untuk melayani pelanggan.',
+    ],
+  },
+  {
+    id: 'komunikasi',
+    title: 'Komunikasi WhatsApp dan Email',
+    body: [
+      'Dengan menghubungi kami atau mengirim formulir, Anda memahami bahwa tim Lanyard Depok dapat menghubungi Anda kembali melalui WhatsApp, email, atau telepon untuk menindaklanjuti kebutuhan Anda.',
+      'Kami tidak menggunakan kontak pelanggan untuk spam. Komunikasi dilakukan untuk kebutuhan layanan, pesanan, follow-up, atau informasi yang relevan dengan permintaan Anda.',
+    ],
+  },
+  {
+    id: 'pihak-terkait',
+    title: 'Pihak Terkait Layanan',
+    body: [
+      'Dalam beberapa kondisi, informasi tertentu dapat digunakan bersama pihak terkait seperti jasa pengiriman, penyedia layanan hosting, sistem email, atau kanal komunikasi yang diperlukan untuk menjalankan layanan.',
+      'Kami hanya membagikan data seperlunya sesuai tujuan layanan dan tidak menjual data pribadi pelanggan.',
+    ],
+  },
+  {
+    id: 'keamanan',
+    title: 'Keamanan Data',
+    body: [
+      'Kami berupaya menjaga data pelanggan dengan pengelolaan akses yang wajar dan penggunaan sistem yang relevan untuk kebutuhan operasional.',
+      'Walaupun demikian, tidak ada sistem digital yang sepenuhnya bebas risiko. Jika terjadi kendala keamanan yang berdampak pada layanan, kami akan berupaya mengambil langkah penanganan yang sesuai.',
+    ],
+  },
+  {
+    id: 'retensi-data',
+    title: 'Retensi Data',
+    body: [
+      'Data pelanggan dapat disimpan selama diperlukan untuk kebutuhan administrasi, riwayat pesanan, layanan pelanggan, pencatatan transaksi, atau kepatuhan operasional.',
+      'Pelanggan dapat menghubungi kami jika ingin memperbarui atau meminta penghapusan data tertentu, selama tidak bertentangan dengan kebutuhan administrasi atau kewajiban pencatatan yang wajar.',
+    ],
+  },
+  {
+    id: 'hak-pengguna',
+    title: 'Hak Pengguna',
+    body: [
+      'Anda dapat meminta koreksi data, bertanya tentang penggunaan data, atau mengajukan permintaan penghapusan data yang tidak lagi diperlukan untuk layanan.',
+      'Permintaan dapat dikirim melalui WhatsApp 0822-1020-0700 atau email info@lanyarddepok.com.',
+    ],
+  },
+  {
+    id: 'cookies-analytics',
+    title: 'Cookies dan Analytics',
+    body: [
+      'Website dapat menggunakan teknologi umum seperti cookies, log server, atau analytics jika fitur tersebut diaktifkan untuk memahami performa website dan meningkatkan pengalaman pengguna.',
+      'Jika integrasi analytics diaktifkan, data yang digunakan bersifat agregat dan dipakai untuk membaca performa website, bukan untuk menjual data pribadi pelanggan.',
+    ],
+  },
+  {
+    id: 'perubahan-kebijakan',
+    title: 'Perubahan Kebijakan',
+    body: [
+      'Kebijakan privasi dapat diperbarui dari waktu ke waktu agar tetap sesuai dengan kebutuhan layanan dan operasional Lanyard Depok.',
+      'Tanggal pembaruan terakhir akan ditampilkan di halaman ini.',
+    ],
+  },
+  {
+    id: 'kontak',
+    title: 'Kontak Privasi',
+    body: [
+      'Untuk pertanyaan terkait privasi dan penggunaan data, hubungi Lanyard Depok melalui WhatsApp 0822-1020-0700 atau email info@lanyarddepok.com. Lokasi layanan kami berada di Depok, Indonesia.',
+    ],
+  },
+];
+---
+
+<PublicLayout
+  title="Kebijakan Privasi Lanyard Depok"
+  description="Kebijakan privasi Lanyard Depok menjelaskan data yang dikumpulkan, tujuan penggunaan, penyimpanan, komunikasi, cookies, dan kontak privasi."
+>
+  <section class="border-b border-[var(--border)] bg-[#FEF9F6] py-16 text-[var(--foreground)] sm:py-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <p class="inline-flex items-center gap-3 rounded-full bg-[var(--muted)] px-5 py-3 text-sm font-bold text-[var(--primary)]">
+        <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V5l8-3 8 3z"/><path d="m9 12 2 2 4-5"/></svg>
+        Kebijakan Privasi
+      </p>
+      <h1 class="mt-6 max-w-3xl text-[2.65rem] font-bold leading-[1.08] tracking-normal text-[var(--foreground)] sm:text-[3.4rem] lg:text-[4rem]">
+        Cara Lanyard Depok mengelola data pelanggan.
+      </h1>
+      <p class="mt-6 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">
+        Kebijakan ini menjelaskan data yang kami kumpulkan saat Anda menghubungi kami, meminta quotation, atau menggunakan layanan Lanyard Depok.
+      </p>
+      <p class="mt-6 w-fit rounded-full border border-[var(--border)] bg-white px-4 py-2 text-sm font-bold text-[var(--primary)]">
+        Terakhir diperbarui: {updatedAt}
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-white py-16 text-[var(--foreground)] sm:py-20">
+    <div class="legal-layout mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <nav class="legal-mobile-dots" aria-label="Navigasi daftar isi mobile">
+        {sections.map((section) => (
+          <a class="legal-mobile-dot" href={`#${section.id}`} data-legal-nav={section.id}>
+            <span class="sr-only">{section.title}</span>
+          </a>
+        ))}
+      </nav>
+
+      <aside class="legal-sidebar">
+        <div class="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
+          <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Daftar Isi</p>
+          <nav class="mt-5 grid gap-2">
+            {sections.map((section) => (
+              <a class="legal-nav-link" href={`#${section.id}`} data-legal-nav={section.id}>{section.title}</a>
+            ))}
+          </nav>
+        </div>
+      </aside>
+
+      <div class="grid gap-5">
+        {sections.map((section, index) => (
+          <article id={section.id} data-legal-section class="scroll-mt-28 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[0_14px_34px_rgba(124,80,63,0.04)] sm:p-8">
+            <div class="flex items-start gap-4">
+              <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[var(--secondary)] text-sm font-extrabold text-[var(--primary)]">{String(index + 1).padStart(2, '0')}</span>
+              <div class="min-w-0">
+                <h2 class="text-2xl font-bold leading-tight text-[var(--foreground)]">{section.title}</h2>
+                <div class="mt-4 space-y-4 text-sm leading-7 text-[var(--muted-foreground)] sm:text-base sm:leading-8">
+                  {section.body.map((paragraph) => <p>{paragraph}</p>)}
+                </div>
+                {section.items && (
+                  <ul class="mt-5 grid gap-3">
+                    {section.items.map((item) => (
+                      <li class="flex gap-3 text-sm font-semibold leading-6 text-[var(--foreground)]">
+                        <span class="mt-1 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[var(--secondary)] text-[var(--primary)]">
+                          <svg aria-hidden="true" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </article>
+        ))}
+
+        <div class="rounded-2xl border border-[var(--border)] bg-[#FEF9F6] p-6 sm:p-8">
+          <h2 class="text-2xl font-bold leading-tight text-[var(--foreground)]">Ada pertanyaan tentang privasi?</h2>
+          <p class="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted-foreground)] sm:text-base">
+            Hubungi tim Lanyard Depok untuk koreksi data, pertanyaan penggunaan data, atau permintaan lain terkait privasi pelanggan.
+          </p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a class="btn-primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer">Chat WhatsApp</a>
+            <a class="btn-secondary text-[var(--primary)]" href={`mailto:${email}`}>Kirim Email</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const legalSections = Array.from(document.querySelectorAll('[data-legal-section]'));
+    const legalNavLinks = Array.from(document.querySelectorAll('[data-legal-nav]'));
+    const legalMobileDots = document.querySelector('.legal-mobile-dots');
+
+    const setActiveLegalNav = (id) => {
+      legalNavLinks.forEach((link) => {
+        link.classList.toggle('is-active', link.getAttribute('data-legal-nav') === id);
+      });
+    };
+
+    legalNavLinks.forEach((link) => {
+      link.addEventListener('click', () => {
+        const targetId = link.getAttribute('data-legal-nav');
+        if (targetId) setActiveLegalNav(targetId);
+      });
+    });
+
+    if (legalSections.length > 0) {
+      let ticking = false;
+
+      const updateLegalNav = () => {
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        const readingLine = viewportHeight * 0.32;
+        const visibleSections = legalSections
+          .map((section) => ({ section, rect: section.getBoundingClientRect() }))
+          .filter(({ rect }) => rect.bottom > viewportHeight * 0.18 && rect.top < viewportHeight * 0.58);
+
+        legalMobileDots?.classList.toggle('is-visible', visibleSections.length > 0);
+
+        if (visibleSections.length > 0) {
+          const active = visibleSections.sort(
+            (a, b) => Math.abs(a.rect.top - readingLine) - Math.abs(b.rect.top - readingLine)
+          )[0];
+
+          if (active?.section?.id) setActiveLegalNav(active.section.id);
+        }
+
+        ticking = false;
+      };
+
+      const requestLegalNavUpdate = () => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(updateLegalNav);
+      };
+
+      setActiveLegalNav(legalSections[0].id);
+      updateLegalNav();
+      window.addEventListener('scroll', requestLegalNavUpdate, { passive: true });
+      window.addEventListener('resize', requestLegalNavUpdate);
+      window.addEventListener('load', updateLegalNav);
+    }
+  </script>
+</PublicLayout>

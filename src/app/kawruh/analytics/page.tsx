@@ -250,11 +250,11 @@ const generateMockAnalytics = (range: string) => {
 
   // GSC Pages
   const gscPages = [
-    { page: "https://lanyardbogor.com/", clicks: Math.round(totalClicks * 0.44), impressions: Math.round(totalImpressions * 0.41), ctr: 0.049, position: 1.8 },
-    { page: "https://lanyardbogor.com/produk/lanyard-tisue", clicks: Math.round(totalClicks * 0.21), impressions: Math.round(totalImpressions * 0.23), ctr: 0.042, position: 2.5 },
-    { page: "https://lanyardbogor.com/produk/lanyard-nilon", clicks: Math.round(totalClicks * 0.15), impressions: Math.round(totalImpressions * 0.16), ctr: 0.039, position: 3.1 },
-    { page: "https://lanyardbogor.com/lanyard-calculator", clicks: Math.round(totalClicks * 0.1), impressions: Math.round(totalImpressions * 0.09), ctr: 0.047, position: 2.0 },
-    { page: "https://lanyardbogor.com/blog/cara-desain-lanyard", clicks: Math.round(totalClicks * 0.05), impressions: Math.round(totalImpressions * 0.06), ctr: 0.035, position: 4.1 },
+    { page: "https://lanyarddepok.com/", clicks: Math.round(totalClicks * 0.44), impressions: Math.round(totalImpressions * 0.41), ctr: 0.049, position: 1.8 },
+    { page: "https://lanyarddepok.com/produk/lanyard-tisue", clicks: Math.round(totalClicks * 0.21), impressions: Math.round(totalImpressions * 0.23), ctr: 0.042, position: 2.5 },
+    { page: "https://lanyarddepok.com/produk/lanyard-nilon", clicks: Math.round(totalClicks * 0.15), impressions: Math.round(totalImpressions * 0.16), ctr: 0.039, position: 3.1 },
+    { page: "https://lanyarddepok.com/lanyard-calculator", clicks: Math.round(totalClicks * 0.1), impressions: Math.round(totalImpressions * 0.09), ctr: 0.047, position: 2.0 },
+    { page: "https://lanyarddepok.com/blog/cara-desain-lanyard", clicks: Math.round(totalClicks * 0.05), impressions: Math.round(totalImpressions * 0.06), ctr: 0.035, position: 4.1 },
   ];
 
   // GSC Devices
@@ -883,7 +883,7 @@ export default function AnalyticsPage() {
                           <tbody className="divide-y divide-gray-50">
                             {analyticsData.searchConsole.pages.map((p: any, idx: number) => {
                               // display relative page name
-                              const pageName = p.page.replace("https://lanyardbogor.com", "") || "/";
+                              const pageName = p.page.replace("https://lanyarddepok.com", "") || "/";
                               return (
                                 <tr key={idx} className="hover:bg-gray-50/30">
                                   <td className="py-2.5 px-2 text-gray-800 truncate max-w-[160px] font-mono" title={p.page}>

@@ -1,0 +1,1336 @@
+---
+import PublicLayout from '../../layouts/PublicLayout.astro';
+import { injectAutoLinks, parseAutoLinkLimit, parseAutoLinks } from '../../lib/auto-links';
+import { api, mediaUrl, PUBLIC_API_BASES, type Comment, type Post } from '../../lib/api';
+import '../../styles/blog.css';
+
+export const prerender = false;
+
+const slug = Astro.params.slug || '';
+const previewId = Astro.url.searchParams.get('preview');
+const { post } = await api.post(slug, previewId ? { preview: previewId } : undefined);
+
+if (!post) return Astro.redirect('/blog', 302);
+
+const postsResponse = await api.posts({ limit: 8 });
+const settingsResponse = await api.publicSettings();
+const postsPayload = postsResponse.posts;
+const allPosts = Array.isArray(postsPayload) ? postsPayload : postsPayload.data || [];
+const relatedPosts = allPosts.filter((item) => item.id !== post.id).slice(0, 3);
+const currentUrl = Astro.url.href;
+const encodedUrl = encodeURIComponent(currentUrl);
+const encodedTitle = encodeURIComponent(post.title);
+const commentApiUrls = PUBLIC_API_BASES.map((baseUrl) => `${baseUrl}/comments`);
+const authorName = 'Admin Tes';
+const fallbackImage = '/uploads/blog-hero-lanyarddepok.webp';
+const autoLinks = parseAutoLinks(settingsResponse.settings.seo_auto_links);
+const autoLinksLimit = parseAutoLinkLimit(settingsResponse.settings.seo_auto_links_limit);
+const approvedComments = (post.comments || []) as Comment[];
+const imageAliases = [
+  {
+    match: 'sablon-vs-printing-lanyard-depok',
+    src: '/storage/1792/perbedaan-lanyard-sablon-vs-printing.webp',
+  },
+];
+
+const firstImageFromContent = (html?: string | null) => {
+  const match = html?.match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i);
+  return match?.[1] || null;
+};
+
+const stripHtml = (html?: string | null) =>
+  (html || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const formatDate = (value?: string | null) =>
+  value
+    ? new Intl.DateTimeFormat('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: 'Asia/Jakarta',
+      }).format(new Date(value))
+    : '';
+
+const publishedDate = formatDate(post.createdAt);
+const readingMinutes = Math.max(1, Math.ceil(stripHtml(post.content).split(/\s+/).filter(Boolean).length / 220));
+
+const resolveBlogImage = (src?: string | null) => {
+  if (!src) return fallbackImage;
+
+  const normalized = decodeURIComponent(src).toLowerCase();
+  const alias = imageAliases.find((item) => normalized.includes(item.match));
+
+  if (alias) return alias.src;
+
+  if (
+    src.startsWith('/storage/') ||
+    src.startsWith('/uploads/') ||
+    src.startsWith('/media/') ||
+    src.startsWith('/images/')
+  ) {
+    return src;
+  }
+
+  return mediaUrl(src);
+};
+
+const addHeadingIds = (html: string) => {
+  const usedIds = new Map<string, number>();
+
+  return html.replace(/<(h[23])([^>]*)>([\s\S]*?)<\/\1>/gi, (match, tag, attrs, inner) => {
+    if (/\sid=["'][^"']+["']/i.test(attrs)) return match;
+
+    const text = stripHtml(inner);
+    if (!text) return match;
+
+    const baseId =
+      text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'bagian-artikel';
+    const count = usedIds.get(baseId) || 0;
+    usedIds.set(baseId, count + 1);
+    const id = count === 0 ? baseId : `${baseId}-${count + 1}`;
+
+    return `<${tag}${attrs} id="${id}">${inner}</${tag}>`;
+  });
+};
+
+const extractToc = (html: string) => {
+  const items: Array<{ id: string; text: string; depth: number }> = [];
+
+  for (const match of html.matchAll(/<(h[23])\b[^>]*\sid=["']([^"']+)["'][^>]*>([\s\S]*?)<\/\1>/gi)) {
+    items.push({
+      id: match[2],
+      text: stripHtml(match[3]),
+      depth: match[1].toLowerCase() === 'h3' ? 3 : 2,
+    });
+  }
+
+  return items.slice(0, 8);
+};
+
+const rewriteImages = (html: string) =>
+  html.replace(/(<img\b[^>]*\bsrc=["'])([^"']+)(["'][^>]*>)/gi, (_match, prefix, src, suffix) => {
+    return `${prefix}${resolveBlogImage(src)}${suffix}`;
+  });
+
+const rawArticleContent = (post.content || '')
+  .replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>/i, '')
+  .replace(/<div>\s*<p>\s*Bagikan artikel\s*<\/p>[\s\S]*?<button[\s\S]*?<\/button>\s*<\/div>\s*<\/div>/i, '');
+const contentHtml = rewriteImages(
+  addHeadingIds(
+    injectAutoLinks(rawArticleContent, autoLinks, autoLinksLimit),
+  ),
+);
+const tocItems = extractToc(contentHtml);
+const featuredImage = resolveBlogImage(post.featuredImage || firstImageFromContent(post.content));
+const postThumbnail = (item: Post) => resolveBlogImage(item.featuredImage || firstImageFromContent(item.content));
+const encodedMedia = encodeURIComponent(new URL(featuredImage, Astro.url).href);
+const shareLinks = [
+  {
+    label: 'Facebook',
+    href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}%0A%0A${encodedUrl}`,
+    icon: 'facebook',
+  },
+  {
+    label: 'Threads',
+    href: `https://www.threads.net/intent/post?text=${encodedTitle}%0A%0A${encodedUrl}`,
+    icon: 'threads',
+  },
+  {
+    label: 'Pinterest',
+    href: `https://www.pinterest.com/pin/create/button/?url=${encodedUrl}&media=${encodedMedia}&description=${encodedTitle}`,
+    icon: 'pinterest',
+  },
+];
+---
+
+<PublicLayout title={post.metaTitle || post.title} description={post.metaDescription || ''}>
+  <article class="blog-post-page">
+    {previewId && (
+      <div style="background:#fef3c7;border-bottom:1px solid #f59e0b;color:#92400e;text-align:center;padding:0.75rem 1rem;font-size:0.85rem;font-weight:700;">
+        Mode pratinjau — halaman draf ini hanya dapat dilihat oleh Administrator.
+      </div>
+    )}
+    <section class="blog-post-hero">
+      <div class="blog-post-shell">
+        <nav aria-label="Breadcrumb" class="blog-breadcrumb">
+          <a href="/">Beranda</a>
+          <span>/</span>
+          <a href="/blog">Blog</a>
+          {post.category && (
+            <>
+              <span>/</span>
+              <a href={`/blog/kategori/${post.category.slug}`}>{post.category.name}</a>
+            </>
+          )}
+        </nav>
+
+        <header class="blog-hero-grid">
+          <div class="blog-hero-copy">
+            <h1>{post.title}</h1>
+            {post.metaDescription && <p class="blog-hero-excerpt">{post.metaDescription}</p>}
+            <div class="blog-post-meta">
+              <a href="/blog/author/admin" class="blog-author-inline">
+                <span>{authorName.charAt(0)}</span>
+                {authorName}
+              </a>
+              {publishedDate && (
+                <span>
+                  <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/><rect x="3" y="5" width="18" height="16" rx="2"/></svg>
+                  {publishedDate}
+                </span>
+              )}
+              <span>
+                <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                {readingMinutes} menit baca
+              </span>
+            </div>
+          </div>
+
+          <div class="blog-featured-frame">
+            <img class="blog-featured-image" src={featuredImage} alt={post.title} fetchpriority="high" decoding="async" />
+          </div>
+        </header>
+      </div>
+    </section>
+
+    <main class="blog-post-shell blog-content-layout">
+      <div class="blog-main-column">
+        <div class="content-prose" set:html={contentHtml} />
+
+        <section class="blog-author-box" aria-label="Tentang penulis">
+          <div class="blog-author-avatar">{authorName.charAt(0)}</div>
+          <div>
+            <div class="blog-author-heading">
+              <h2>{authorName}</h2>
+              <span>Penulis</span>
+            </div>
+            <p>Tim Lanyard Depok menulis panduan seputar lanyard custom, kebutuhan event, dan branding perusahaan.</p>
+          </div>
+        </section>
+
+        <section class="blog-share-panel" aria-label="Bagikan artikel">
+          <div>
+            <h2>Bagikan artikel</h2>
+            <p>Kirim referensi ini ke tim atau simpan link-nya untuk diskusi desain lanyard.</p>
+          </div>
+          <div class="blog-share-actions">
+            {shareLinks.map((link) => (
+              <a href={link.href} target="_blank" rel="noopener noreferrer" aria-label={`Bagikan ke ${link.label}`}>
+                {link.icon === 'facebook' && (
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 22v-8.7h2.9l.4-3.4h-3.3V7.8c0-1 .3-1.7 1.7-1.7H17v-3c-.3 0-1.5-.1-2.7-.1-2.7 0-4.5 1.6-4.5 4.6v2.6H6.7v3.4h3.1V22h3.7Z"></path></svg>
+                )}
+                {link.icon === 'threads' && (
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12.2 22C6.6 22 3.4 18.2 3.4 12S6.6 2 12.2 2c3.5 0 6 1.5 7.4 4.4l-1.8.9c-1-2.1-2.9-3.3-5.6-3.3-4.3 0-6.8 3-6.8 8s2.5 8 6.8 8c3.6 0 5.8-1.8 5.8-4.4 0-1.4-.7-2.4-1.8-3-.7 2.5-2.3 3.8-4.6 3.8-2.4 0-4-1.4-4-3.4s1.8-3.4 4.4-3.4c.9 0 1.8.2 2.5.5-.2-1.7-1.2-2.6-2.9-2.6-1.1 0-1.9.4-2.5 1.3L7.5 7.7c1-1.4 2.4-2.1 4.2-2.1 2.9 0 4.6 1.8 4.9 4.9 2.1.9 3.4 2.7 3.4 5.1 0 3.9-3.1 6.4-7.8 6.4Zm-.5-7.4c1.4 0 2.4-.9 2.8-2.7-.7-.4-1.5-.6-2.4-.6-1.4 0-2.4.6-2.4 1.6s.8 1.7 2 1.7Z"></path></svg>
+                )}
+                {link.icon === 'pinterest' && (
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12.2 2C6.8 2 4 5.5 4 9.3c0 1.8 1 4 2.5 4.7.3.1.4.1.5-.2l.4-1.5c.1-.2 0-.3-.1-.5-.5-.6-.8-1.4-.8-2.3 0-2.7 2.1-5.4 5.6-5.4 3 0 5.1 2.1 5.1 5 0 3.4-1.7 5.7-3.9 5.7-1.2 0-2.1-1-1.8-2.2.3-1.4 1-2.9 1-3.9 0-.9-.5-1.7-1.5-1.7-1.2 0-2.1 1.2-2.1 2.8 0 1 .3 1.7.3 1.7l-1.4 6c-.4 1.8-.1 4.2 0 4.4.1.1.2.1.3 0 .1-.2 1.8-2.3 2.3-4l.8-3c.4.8 1.6 1.5 2.9 1.5 3.8 0 6.5-3.5 6.5-7.9C20.6 5 17.4 2 12.2 2Z"></path></svg>
+                )}
+              </a>
+            ))}
+            <button type="button" data-copy-share={currentUrl} aria-label="Salin link artikel">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"/><path d="M14 11a5 5 0 0 0-7.1 0l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1"/></svg>
+            </button>
+          </div>
+        </section>
+
+        <section class="blog-comments" aria-labelledby="blogCommentsTitle">
+          <h2 id="blogCommentsTitle">Komentar ({approvedComments.length})</h2>
+
+          {approvedComments.length === 0 ? (
+            <div class="blog-comments-empty">Belum ada komentar. Jadilah yang pertama memberikan tanggapan.</div>
+          ) : (
+            <div class="blog-comment-list">
+              {approvedComments.map((comment) => (
+                <article class="blog-comment-card">
+                  <div class="blog-comment-avatar">{comment.name.charAt(0)}</div>
+                  <div class="blog-comment-body">
+                    <div class="blog-comment-meta">
+                      <h3>{comment.name}</h3>
+                      {comment.createdAt && <time>{formatDate(comment.createdAt)}</time>}
+                    </div>
+                    <p>{comment.content}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+
+          <form class="blog-comment-form" data-comment-form>
+            <h3>Tinggalkan Komentar</h3>
+            <p>Email Anda tidak akan dipublikasikan. Komentar tampil setelah disetujui admin.</p>
+            <div class="blog-comment-fields">
+              <label>
+                <span>Nama Lengkap</span>
+                <input required minlength="2" maxlength="120" name="name" type="text" autocomplete="name" placeholder="Masukkan nama Anda..." />
+              </label>
+              <label>
+                <span>Alamat Email</span>
+                <input required maxlength="190" name="email" type="email" autocomplete="email" placeholder="nama@email.com..." />
+              </label>
+            </div>
+            <label>
+              <span>Isi Komentar</span>
+              <textarea required minlength="3" name="content" rows="5" placeholder="Tulis pendapat atau pertanyaan Anda di sini..."></textarea>
+            </label>
+            <p class="blog-comment-status" data-comment-status hidden></p>
+            <button type="submit" data-comment-submit>
+              <span data-comment-submit-label>Kirim Komentar</span>
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            </button>
+          </form>
+        </section>
+      </div>
+
+      <aside class="blog-sidebar">
+        <div class="blog-sidebar-sticky">
+          {tocItems.length > 0 && (
+            <details class="blog-sidebar-card blog-toc">
+              <summary>
+                <span>
+                  <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+                  Daftar Isi
+                </span>
+                <svg aria-hidden="true" class="blog-summary-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+              </summary>
+              <nav aria-label="Daftar isi artikel">
+                {tocItems.map((item) => (
+                  <a href={`#${item.id}`} class:list={[item.depth === 3 && 'is-child']}>{item.text}</a>
+                ))}
+              </nav>
+            </details>
+          )}
+
+          {relatedPosts.length > 0 && (
+            <section class="blog-sidebar-card">
+              <h2>Artikel Populer</h2>
+              <div class="blog-popular-list">
+                {relatedPosts.map((item) => (
+                  <a href={`/blog/${item.slug}`} class="blog-popular-item">
+                    <img src={postThumbnail(item)} alt={item.title} loading="lazy" decoding="async" />
+                    <span>
+                      <strong>{item.title}</strong>
+                      <time>{formatDate(item.createdAt)}</time>
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section class="blog-sidebar-cta">
+            <div class="blog-cta-icon">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h.01"/><path d="M12 9h.01"/><path d="M16 9h.01"/></svg>
+            </div>
+            <h2>Butuh Lanyard Custom?</h2>
+            <p>Tim kami siap membantu kebutuhan lanyard custom dengan desain rapi dan harga resmi.</p>
+            <a href="https://wa.me/6282210200700?text=Halo%20Lanyard%20Depok%2C%20saya%20mau%20konsultasi%20lanyard%20custom.">Konsultasi Sekarang</a>
+          </section>
+        </div>
+      </aside>
+    </main>
+  </article>
+</PublicLayout>
+
+<script define:vars={{ commentApiUrls, postId: post.id }}>
+  const showCopyToast = (event, message = 'Salin Berhasil') => {
+    document.querySelectorAll('.blog-copy-toast').forEach((toast) => toast.remove());
+
+    const toast = document.createElement('span');
+    toast.className = 'blog-copy-toast';
+    toast.textContent = message;
+    toast.setAttribute('role', 'status');
+
+    document.body.append(toast);
+
+    const target = event.currentTarget;
+    const rect = target?.getBoundingClientRect?.();
+    const x = event.clientX || (rect ? rect.left + rect.width / 2 : window.innerWidth / 2);
+    const y = event.clientY || (rect ? rect.top + rect.height / 2 : window.innerHeight / 2);
+    const gap = 12;
+    const maxLeft = window.innerWidth - toast.offsetWidth - gap;
+    const maxTop = window.innerHeight - toast.offsetHeight - gap;
+
+    toast.style.left = `${Math.max(gap, Math.min(x + gap, maxLeft))}px`;
+    toast.style.top = `${Math.max(gap, Math.min(y - toast.offsetHeight - gap, maxTop))}px`;
+    toast.dataset.visible = 'true';
+
+    window.setTimeout(() => {
+      toast.dataset.visible = 'false';
+      window.setTimeout(() => toast.remove(), 180);
+    }, 1400);
+  };
+
+  const copyTextToClipboard = async (text) => {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await Promise.race([
+          navigator.clipboard.writeText(text),
+          new Promise((_, reject) => window.setTimeout(() => reject(new Error('Clipboard timeout')), 900)),
+        ]);
+        return true;
+      } catch {
+        // Fall through to the legacy copy path.
+      }
+    }
+
+    const field = document.createElement('textarea');
+    field.value = text;
+    field.setAttribute('readonly', '');
+    field.style.left = '-9999px';
+    field.style.position = 'fixed';
+    field.style.top = '0';
+    document.body.append(field);
+    field.select();
+
+    try {
+      return document.execCommand('copy');
+    } catch {
+      return false;
+    } finally {
+      field.remove();
+    }
+  };
+
+  document.querySelectorAll('[data-copy-share]').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      const url = button.getAttribute('data-copy-share') || window.location.href;
+      copyTextToClipboard(url);
+      button.setAttribute('data-copied', 'true');
+      showCopyToast(event);
+      window.setTimeout(() => button.removeAttribute('data-copied'), 1400);
+    });
+  });
+
+  const commentForm = document.querySelector('[data-comment-form]');
+
+  if (commentForm) {
+    const status = commentForm.querySelector('[data-comment-status]');
+    const submit = commentForm.querySelector('[data-comment-submit]');
+    const submitLabel = commentForm.querySelector('[data-comment-submit-label]');
+
+    const setCommentStatus = (type, message) => {
+      if (!status) return;
+      status.hidden = false;
+      status.textContent = message;
+      status.dataset.status = type;
+    };
+
+    const setCommentLoading = (loading) => {
+      if (submit) submit.disabled = loading;
+      if (submitLabel) submitLabel.textContent = loading ? 'Mengirim...' : 'Kirim Komentar';
+    };
+
+    commentForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setCommentLoading(true);
+      if (status) status.hidden = true;
+
+      const formData = new FormData(commentForm);
+      const payload = {
+        postId,
+        name: String(formData.get('name') || '').trim(),
+        email: String(formData.get('email') || '').trim(),
+        content: String(formData.get('content') || '').trim(),
+      };
+
+      let lastError = 'Gagal mengirim komentar. Silakan coba lagi.';
+
+      for (const url of commentApiUrls) {
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+          const data = await response.json().catch(() => ({}));
+
+          if (!response.ok) {
+            lastError = data?.message || data?.error || lastError;
+            continue;
+          }
+
+          commentForm.reset();
+          setCommentStatus('success', data?.message || 'Komentar berhasil dikirim dan menunggu persetujuan admin.');
+          setCommentLoading(false);
+          return;
+        } catch {
+          continue;
+        }
+      }
+
+      setCommentStatus('error', lastError);
+      setCommentLoading(false);
+    });
+  }
+</script>
+
+<style is:global>
+  .blog-post-page {
+    background: #fbfaf8;
+    border-bottom: 1px solid var(--border);
+    color: var(--foreground);
+  }
+
+  .blog-post-shell {
+    margin-inline: auto;
+    max-width: 1240px;
+    width: min(100% - 2rem, 1240px);
+  }
+
+  .blog-post-hero {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    padding: 4.5rem 0 3.25rem;
+    position: relative;
+  }
+
+  .blog-breadcrumb,
+  .blog-hero-grid {
+    position: relative;
+    z-index: 1;
+  }
+
+  .blog-breadcrumb {
+    align-items: center;
+    color: var(--muted-foreground);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 0.75rem;
+    font-weight: 800;
+    gap: 0.55rem;
+    line-height: 1.5;
+  }
+
+  .blog-breadcrumb a:last-child {
+    color: var(--foreground);
+  }
+
+  .blog-breadcrumb span {
+    color: color-mix(in srgb, var(--muted-foreground) 38%, #fff);
+  }
+
+  .blog-hero-grid {
+    align-items: center;
+    display: grid;
+    gap: 3rem;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.72fr);
+    margin-top: 2.1rem;
+  }
+
+  .blog-hero-copy h1 {
+    color: var(--foreground);
+    font-size: clamp(2.2rem, 3.35vw, 3.45rem);
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.05;
+    margin: 0;
+    max-width: 820px;
+  }
+
+  .blog-hero-excerpt {
+    color: var(--muted-foreground);
+    font-size: clamp(0.92rem, 1.05vw, 1rem);
+    font-weight: 600;
+    line-height: 1.75;
+    margin: 1.25rem 0 0;
+    max-width: 680px;
+  }
+
+  .blog-post-meta {
+    align-items: center;
+    color: var(--muted-foreground);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem 1.1rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    margin-top: 1.3rem;
+  }
+
+  .blog-post-meta :where(a, span) {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.42rem;
+  }
+
+  .blog-post-meta svg {
+    fill: none;
+    height: 1rem;
+    stroke: var(--primary);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+    width: 1rem;
+  }
+
+  .blog-author-inline {
+    color: var(--foreground);
+    transition: color 160ms ease;
+  }
+
+  .blog-author-inline:hover {
+    color: var(--primary);
+  }
+
+  .blog-author-inline span {
+    background: var(--secondary);
+    border-radius: 999px;
+    color: var(--primary);
+    display: inline-grid;
+    font-size: 0.65rem;
+    height: 1.5rem;
+    place-items: center;
+    width: 1.5rem;
+  }
+
+  .blog-featured-frame {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 1.1rem;
+    overflow: hidden;
+  }
+
+  .blog-featured-image {
+    aspect-ratio: 16 / 9;
+    background: var(--muted);
+    display: block;
+    height: auto;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  .blog-content-layout {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    padding: 3rem 0 5.5rem;
+  }
+
+  .blog-main-column,
+  .blog-sidebar-sticky {
+    min-width: 0;
+  }
+
+  .content-prose {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 1.1rem;
+    color: var(--muted-foreground);
+    font-size: 1.02rem;
+    line-height: 1.78;
+    overflow: hidden;
+    padding: clamp(1.35rem, 3vw, 2.15rem);
+  }
+
+  .content-prose :where(h1, h2, h3, h4, h5, h6) {
+    color: var(--foreground);
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.16;
+    margin: 1.8em 0 0.72em;
+    scroll-margin-top: 7rem;
+  }
+
+  .content-prose :where(h1, h2) {
+    font-size: clamp(1.65rem, 2.4vw, 2.12rem);
+  }
+
+  .content-prose :where(h3) {
+    font-size: clamp(1.35rem, 2vw, 1.65rem);
+  }
+
+  .content-prose :where(p, ul, ol) {
+    margin: 0 0 1.2em;
+  }
+
+  .content-prose p:first-of-type {
+    color: color-mix(in srgb, var(--foreground) 62%, var(--muted-foreground));
+    font-size: clamp(1.02rem, 1.25vw, 1.12rem);
+    line-height: 1.75;
+  }
+
+  .content-prose :where(a) {
+    color: var(--primary);
+    font-weight: 800;
+  }
+
+  .content-prose :where(a.blog-auto-link) {
+    box-decoration-break: clone;
+    color: var(--primary);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--primary) 58%, transparent);
+    text-decoration-thickness: 0.1em;
+    text-underline-offset: 0.18em;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .content-prose :where(a.blog-auto-link:hover) {
+    color: var(--foreground);
+  }
+
+  .content-prose :where(strong) {
+    color: var(--foreground);
+  }
+
+  .content-prose :where(ul, ol) {
+    padding-left: 1.25rem;
+  }
+
+  .content-prose :where(img) {
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    display: block;
+    height: auto;
+    margin: 2.25rem auto;
+    max-width: 100%;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  .content-prose :where(blockquote) {
+    border-left: 4px solid var(--primary);
+    color: var(--foreground);
+    font-size: clamp(1.18rem, 2vw, 1.55rem);
+    font-weight: 900;
+    line-height: 1.35;
+    margin: 2.25rem 0;
+    padding: 0.15rem 0 0.15rem 1.35rem;
+  }
+
+  .content-prose :where(table) {
+    border-collapse: collapse;
+    display: block;
+    margin: 1.75rem 0;
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .content-prose :where(th, td) {
+    border: 1px solid var(--border);
+    padding: 0.85rem 1rem;
+    text-align: left;
+  }
+
+  .content-prose :where(th) {
+    background: var(--muted);
+    color: var(--foreground);
+  }
+
+  .blog-author-box,
+  .blog-share-panel,
+  .blog-comments {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 1.1rem;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    padding: 1.45rem;
+  }
+
+  .blog-author-box,
+  .blog-share-panel {
+    display: grid;
+  }
+
+  .blog-author-box {
+    align-items: center;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .blog-author-avatar {
+    background: var(--muted);
+    border-radius: 1rem;
+    color: var(--primary);
+    display: grid;
+    font-size: 1.2rem;
+    font-weight: 900;
+    height: 3.4rem;
+    place-items: center;
+    width: 3.4rem;
+  }
+
+  .blog-author-heading {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .blog-author-heading h2,
+  .blog-share-panel h2,
+  .blog-sidebar-card h2,
+  .blog-sidebar-cta h2 {
+    color: var(--foreground);
+    font-size: 1.08rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .blog-author-heading span {
+    background: var(--muted);
+    border-radius: 999px;
+    color: var(--primary);
+    font-size: 0.68rem;
+    font-weight: 900;
+    padding: 0.25rem 0.55rem;
+  }
+
+  .blog-author-box p,
+  .blog-share-panel p,
+  .blog-sidebar-cta p {
+    color: var(--muted-foreground);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.7;
+    margin: 0.45rem 0 0;
+  }
+
+  .blog-share-panel {
+    align-items: center;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .blog-share-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    justify-content: flex-end;
+  }
+
+  .blog-share-actions :where(a, button) {
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    color: var(--muted-foreground);
+    display: inline-flex;
+    height: 2.55rem;
+    justify-content: center;
+    transition: border-color 160ms ease, color 160ms ease, transform 160ms ease;
+    width: 2.55rem;
+  }
+
+  .blog-share-actions :where(a, button):hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-1px);
+  }
+
+  .blog-share-actions svg {
+    fill: none;
+    height: 1rem;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.9;
+    width: 1rem;
+  }
+
+  .blog-share-actions svg[fill="currentColor"] {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .blog-share-actions [data-copied="true"] {
+    background: var(--secondary);
+    border-color: var(--secondary);
+    color: var(--primary);
+  }
+
+  .blog-copy-toast {
+    background: var(--foreground);
+    border-radius: 999px;
+    box-shadow: 0 14px 34px rgba(24, 24, 24, 0.16);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1;
+    opacity: 0;
+    padding: 0.55rem 0.75rem;
+    pointer-events: none;
+    position: fixed;
+    transform: translateY(0.35rem) scale(0.96);
+    transition: opacity 160ms ease, transform 160ms ease;
+    white-space: nowrap;
+    z-index: 80;
+  }
+
+  .blog-copy-toast[data-visible="true"] {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .blog-comments {
+    display: block;
+    margin-top: 2rem;
+  }
+
+  .blog-comments > h2 {
+    color: var(--foreground);
+    font-size: clamp(1.4rem, 2vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .blog-comments-empty {
+    background: #fbfaf8;
+    border: 1px solid var(--border);
+    border-radius: 0.9rem;
+    color: var(--muted-foreground);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.7;
+    margin-top: 1rem;
+    padding: 1rem;
+  }
+
+  .blog-comment-list {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 1rem;
+  }
+
+  .blog-comment-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    display: flex;
+    gap: 0.8rem;
+    padding: 1rem;
+  }
+
+  .blog-comment-avatar {
+    background: var(--secondary);
+    border-radius: 0.85rem;
+    color: var(--primary);
+    display: grid;
+    flex: 0 0 auto;
+    font-size: 0.9rem;
+    font-weight: 900;
+    height: 2.55rem;
+    place-items: center;
+    width: 2.55rem;
+  }
+
+  .blog-comment-body {
+    min-width: 0;
+  }
+
+  .blog-comment-meta {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.75rem;
+  }
+
+  .blog-comment-meta h3 {
+    color: var(--foreground);
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  .blog-comment-meta time {
+    color: var(--muted-foreground);
+    font-size: 0.76rem;
+    font-weight: 800;
+  }
+
+  .blog-comment-body p {
+    color: var(--muted-foreground);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.7;
+    margin: 0.35rem 0 0;
+  }
+
+  .blog-comment-form {
+    border-top: 1px solid var(--border);
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.35rem;
+    padding-top: 1.35rem;
+  }
+
+  .blog-comment-form h3 {
+    color: var(--foreground);
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0;
+  }
+
+  .blog-comment-form > p {
+    color: var(--muted-foreground);
+    font-size: 0.88rem;
+    font-weight: 600;
+    line-height: 1.7;
+    margin: -0.5rem 0 0;
+  }
+
+  .blog-comment-fields {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .blog-comment-form label {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .blog-comment-form label span {
+    color: var(--foreground);
+    font-size: 0.82rem;
+    font-weight: 900;
+  }
+
+  .blog-comment-form :where(input, textarea) {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 0.85rem;
+    color: var(--foreground);
+    font: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    padding: 0.85rem 1rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+    width: 100%;
+  }
+
+  .blog-comment-form input {
+    min-height: 3rem;
+  }
+
+  .blog-comment-form textarea {
+    line-height: 1.65;
+    resize: vertical;
+  }
+
+  .blog-comment-form :where(input, textarea):focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 12%, transparent);
+  }
+
+  .blog-comment-status {
+    border-radius: 0.85rem;
+    font-size: 0.86rem;
+    font-weight: 800;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0.8rem 1rem;
+  }
+
+  .blog-comment-status[data-status="success"] {
+    background: color-mix(in srgb, #16a34a 10%, #fff);
+    border: 1px solid color-mix(in srgb, #16a34a 22%, #fff);
+    color: #166534;
+  }
+
+  .blog-comment-status[data-status="error"] {
+    background: color-mix(in srgb, #dc2626 9%, #fff);
+    border: 1px solid color-mix(in srgb, #dc2626 20%, #fff);
+    color: #991b1b;
+  }
+
+  .blog-comment-form button {
+    align-items: center;
+    background: var(--secondary);
+    border: 0;
+    border-radius: 0.85rem;
+    color: var(--foreground);
+    display: inline-flex;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 900;
+    gap: 0.55rem;
+    justify-content: center;
+    min-height: 3rem;
+    padding: 0 1.15rem;
+    transition: opacity 160ms ease, transform 160ms ease;
+    width: fit-content;
+  }
+
+  .blog-comment-form button:hover {
+    transform: translateY(-1px);
+  }
+
+  .blog-comment-form button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+    transform: none;
+  }
+
+  .blog-comment-form button svg {
+    fill: none;
+    height: 1rem;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.9;
+    width: 1rem;
+  }
+
+  .blog-sidebar-sticky {
+    display: grid;
+    gap: 1.25rem;
+    position: sticky;
+    top: 6.25rem;
+  }
+
+  .blog-sidebar-card,
+  .blog-sidebar-cta {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 1.1rem;
+    padding: 1.25rem;
+  }
+
+  .blog-toc {
+    padding: 0;
+  }
+
+  .blog-toc summary {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    font-size: 1.02rem;
+    font-weight: 900;
+    justify-content: space-between;
+    list-style: none;
+    padding: 1.25rem;
+  }
+
+  .blog-toc summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .blog-toc summary span {
+    align-items: center;
+    color: var(--foreground);
+    display: flex;
+    gap: 0.65rem;
+  }
+
+  .blog-toc summary span svg {
+    background: var(--muted);
+    border-radius: 0.75rem;
+    box-sizing: content-box;
+    color: var(--primary);
+    height: 1rem;
+    padding: 0.55rem;
+    width: 1rem;
+  }
+
+  .blog-toc svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .blog-summary-chevron {
+    color: var(--muted-foreground);
+    height: 1rem;
+    transition: transform 160ms ease;
+    width: 1rem;
+  }
+
+  .blog-toc[open] .blog-summary-chevron {
+    transform: rotate(180deg);
+  }
+
+  .blog-toc nav {
+    border-top: 1px solid var(--border);
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.85rem 1rem 1rem;
+  }
+
+  .blog-toc nav a {
+    border-radius: 0.65rem;
+    color: var(--muted-foreground);
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 800;
+    line-height: 1.45;
+    padding: 0.48rem 0.6rem;
+  }
+
+  .blog-toc nav a:hover {
+    background: var(--muted);
+    color: var(--primary);
+  }
+
+  .blog-toc nav a.is-child {
+    margin-left: 0.8rem;
+  }
+
+  .blog-popular-list {
+    display: grid;
+    gap: 0.95rem;
+    margin-top: 1.1rem;
+  }
+
+  .blog-popular-item {
+    display: grid;
+    gap: 0.8rem;
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+    min-height: 4.25rem;
+  }
+
+  .blog-popular-item img {
+    aspect-ratio: 1 / 1;
+    background: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    height: 4.25rem;
+    object-fit: cover;
+    width: 4.25rem;
+  }
+
+  .blog-popular-item span {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+  }
+
+  .blog-popular-item strong {
+    color: var(--foreground);
+    display: -webkit-box;
+    font-size: 0.83rem;
+    font-weight: 900;
+    line-height: 1.35;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .blog-popular-item time {
+    color: var(--muted-foreground);
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 800;
+    margin-top: 0.45rem;
+  }
+
+  .blog-sidebar-cta {
+    background: #fff;
+  }
+
+  .blog-cta-icon {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 0.85rem;
+    color: var(--primary);
+    display: grid;
+    height: 2.8rem;
+    margin-bottom: 1.05rem;
+    place-items: center;
+    width: 2.8rem;
+  }
+
+  .blog-cta-icon svg {
+    fill: none;
+    height: 1.2rem;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.9;
+    width: 1.2rem;
+  }
+
+  .blog-sidebar-cta a {
+    align-items: center;
+    background: var(--secondary);
+    border-radius: 0.75rem;
+    color: var(--foreground);
+    display: inline-flex;
+    font-size: 0.82rem;
+    font-weight: 900;
+    justify-content: center;
+    margin-top: 1.15rem;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+  }
+
+  @media (max-width: 1023px) {
+    .blog-hero-grid,
+    .blog-content-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .blog-sidebar {
+      order: -1;
+    }
+
+    .blog-sidebar-sticky {
+      position: static;
+    }
+
+    .blog-sidebar-cta,
+    .blog-sidebar-card:not(.blog-toc) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .blog-post-shell {
+      width: min(100% - 1.25rem, 1240px);
+    }
+
+    .blog-post-hero {
+      padding: 3.25rem 0 2rem;
+    }
+
+    .blog-hero-grid {
+      gap: 1.65rem;
+      margin-top: 1.55rem;
+    }
+
+    .blog-hero-copy h1 {
+      font-size: clamp(2rem, 10vw, 2.85rem);
+    }
+
+    .blog-content-layout {
+      padding: 1.25rem 0 4.25rem;
+    }
+
+    .content-prose,
+    .blog-author-box,
+    .blog-share-panel,
+    .blog-comments {
+      border-radius: 0.95rem;
+    }
+
+    .blog-author-box,
+    .blog-share-panel {
+      grid-template-columns: 1fr;
+    }
+
+    .blog-comment-fields {
+      grid-template-columns: 1fr;
+    }
+
+    .blog-share-actions {
+      justify-content: flex-start;
+    }
+  }
+</style>

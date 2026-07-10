@@ -1,36 +1,50 @@
 "use client";
 
-import { AnimatedMarqueeHero } from "@/components/ui/hero-3";
+import HeroSection from "@/components/ui/hero-section-9";
 
 const WHATSAPP_URL =
-  "https://wa.me/6282210200700?text=Halo%20Lanyard%20Bogor%2C%20saya%20ingin%20minta%20penawaran%20harga%20lanyard%20custom.";
+  "https://wa.me/6282210200700?text=Halo%20Lanyard%20Depok%2C%20saya%20ingin%20minta%20penawaran%20harga%20lanyard%20custom.";
 
 const HERO_IMAGES = [
-  "/uploads/hero-lanyard-slider-01-marquee.webp",
-  "/uploads/hero-lanyard-slider-02-marquee.webp",
-  "/uploads/hero-lanyard-slider-03-marquee.webp",
-  "/uploads/hero-lanyard-slider-04-marquee.webp",
-  "/uploads/hero-lanyard-slider-05-marquee.webp",
-  "/uploads/hero-lanyard-slider-06-marquee.webp",
-  "/uploads/hero-lanyard-slider-07-marquee.webp",
+  "/uploads/hero-lanyard-slider-01.webp",
+  "/uploads/hero-lanyard-slider-02.webp",
+  "/uploads/hero-lanyard-slider-03.webp",
+];
+
+const HERO_IMAGE_ALTS = [
+  "Contoh lanyard custom untuk perusahaan dan event",
+  "Detail bahan tali lanyard custom",
+  "Pilihan desain lanyard custom Lanyard Depok",
 ];
 
 export default function HomeHero() {
   return (
-    <AnimatedMarqueeHero
-      className="border-b border-gray-100"
-      tagline="Pionir No. #1"
+    <HeroSection
+      eyebrow="Lanyard Custom Depok"
       title={
         <>
-          Print Tali Lanyard Custom
+          Media Branding
           <br />
-          untuk Brand Anda
+          Yang Selalu Terlihat
         </>
       }
-      description="Cetak lanyard custom untuk perusahaan, sekolah, komunitas, dan event dengan tampilan rapi, material nyaman, dan proses pemesanan yang fleksibel."
-      ctaText="Minta Quotation"
-      ctaHref={WHATSAPP_URL}
+      subtitle="Cetak lanyard custom untuk kantor, sekolah, komunitas, dan event dengan bahan nyaman, visual rapi, dan pemesanan cepat."
+      actions={[
+        {
+          text: "Minta Quotation",
+          href: WHATSAPP_URL,
+          variant: "default",
+          className: "rounded-full px-7 font-bold",
+        },
+        {
+          text: "Lihat Produk",
+          href: "/produk",
+          variant: "outline",
+          className: "rounded-full px-7 font-bold",
+        },
+      ]}
       images={HERO_IMAGES}
+      imageAlts={HERO_IMAGE_ALTS}
     />
   );
 }

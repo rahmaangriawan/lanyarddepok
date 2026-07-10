@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: `Artikel Kategori ${category.name}`,
       description,
       path: `/blog/kategori/${category.slug}`,
-      image: "/uploads/blog-hero-lanyardbogor.webp",
+      image: "/uploads/blog-hero-lanyarddepok.webp",
     }),
   };
 }

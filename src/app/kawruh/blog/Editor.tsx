@@ -1014,7 +1014,7 @@ export default function BlogEditor({ editId }: { editId?: number }) {
 
     // 7. Internal link
     const hasInternalLink =
-      /<a\s+(?:[^>]*?\s+)?href=["'](?:\/|https?:\/\/(?:www\.)?(?:lanyardbogor\.co\.id|bogorlanyard\.com))/i.test(
+      /<a\s+(?:[^>]*?\s+)?href=["'](?:\/|https?:\/\/(?:www\.)?(?:lanyarddepok\.co\.id|bogorlanyard\.com))/i.test(
         content,
       );
 
@@ -1079,7 +1079,7 @@ export default function BlogEditor({ editId }: { editId?: number }) {
         id: "hasInternalLink",
         label: "Internal link",
         passed: hasInternalLink,
-        tip: "Tambahkan tautan (link) internal ke halaman lain dalam situs lanyardbogor.com.",
+        tip: "Tambahkan tautan (link) internal ke halaman lain dalam situs lanyarddepok.com.",
       },
       {
         id: "hasFeaturedImage",
@@ -1253,12 +1253,29 @@ export default function BlogEditor({ editId }: { editId?: number }) {
                   />
                 </div>
                 {(title || slug) && (
-                  <p className="text-[10px] text-gray-400 font-medium mt-1">
-                    URL artikel: lanyardbogor.com/blog/
-                    <span className="text-gray-500">
-                      {autoSlug || "contoh-artikel-blog"}
-                    </span>
-                  </p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-[10px] text-gray-400 font-medium">
+                      URL artikel: lanyarddepok.com/blog/
+                      <span className="text-gray-500">
+                        {autoSlug || "contoh-artikel-blog"}
+                      </span>
+                    </p>
+                    {editId && (
+                      <a
+                        href={
+                          published
+                            ? `/blog/${autoSlug}`
+                            : `/blog/${autoSlug}/?preview-${editId}`
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-0.5 text-[10px] font-bold text-brand-red hover:text-brand-red/80"
+                      >
+                        <Icon icon="lucide:external-link" className="h-3 w-3" />
+                        Preview
+                      </a>
+                    )}
+                  </div>
                 )}
               </div>
               <div>
@@ -1766,7 +1783,7 @@ export default function BlogEditor({ editId }: { editId?: number }) {
                   </label>
                   <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 space-y-1">
                     <p className="text-[10px] text-green-700 font-medium truncate">
-                      lanyardbogor.com &rsaquo; blog &rsaquo;{" "}
+                      lanyarddepok.com &rsaquo; blog &rsaquo;{" "}
                       {autoSlug || "contoh-artikel-blog"}
                     </p>
                     <p className="text-sm font-bold text-blue-700 leading-tight truncate">

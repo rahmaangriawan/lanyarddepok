@@ -307,7 +307,7 @@ export default function CitiesEditor({ editId }: { editId?: number }) {
     const hasHeading = /<h[23]/i.test(content);
     
     // 7. Internal link
-    const hasInternalLink = /<a\s+(?:[^>]*?\s+)?href=["'](?:\/|https?:\/\/(?:www\.)?(?:lanyardbogor\.co\.id|bogorlanyard\.com))/i.test(content);
+    const hasInternalLink = /<a\s+(?:[^>]*?\s+)?href=["'](?:\/|https?:\/\/(?:www\.)?(?:lanyarddepok\.co\.id|bogorlanyard\.com))/i.test(content);
     
     // 8. Featured image selected
     const hasFeaturedImage = !!featuredImage;
@@ -368,7 +368,7 @@ export default function CitiesEditor({ editId }: { editId?: number }) {
         id: "hasInternalLink",
         label: "Internal link",
         passed: hasInternalLink,
-        tip: "Tambahkan tautan (link) internal ke halaman lain dalam situs lanyardbogor.com."
+        tip: "Tambahkan tautan (link) internal ke halaman lain dalam situs lanyarddepok.com."
       },
       {
         id: "hasFeaturedImage",
@@ -922,7 +922,7 @@ export default function CitiesEditor({ editId }: { editId?: number }) {
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1.5">Preview di Google</label>
                     <div className="bg-gray-50 rounded-lg border border-gray-200 p-3 space-y-1">
-                      <p className="text-[10px] text-green-700 font-medium truncate">lanyardbogor.com &rsaquo; {autoSlug || "contoh-halaman-kota"}</p>
+                      <p className="text-[10px] text-green-700 font-medium truncate">lanyarddepok.com &rsaquo; {autoSlug || "contoh-halaman-kota"}</p>
                       <p className="text-sm font-bold text-blue-700 leading-tight truncate">{metaTitle || title || "Judul halaman Anda akan muncul di sini"}</p>
                       <p className="text-[11px] text-gray-500 leading-snug line-clamp-2">{metaDescription || "Masukkan meta description untuk melihat preview di hasil pencarian Google."}</p>
                     </div>

@@ -151,7 +151,7 @@ export default function KawruhLayout({ children }: { children: React.ReactNode }
         {/* Mobile Top Bar */}
         <div className="md:hidden fixed top-0 left-0 w-full bg-white text-gray-900 h-16 flex items-center justify-between px-4 z-40 shadow-sm border-b border-gray-100">
           <Link href="/kawruh" className="flex items-center space-x-2">
-            <img src="/uploads/lanyardbogor-logo.webp" alt="Logo" className="h-8 w-auto" />
+            <img src="/uploads/lanyarddepok-logo.webp" alt="Logo" className="h-8 w-auto" />
           </Link>
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -179,7 +179,7 @@ export default function KawruhLayout({ children }: { children: React.ReactNode }
             {/* Header / Branding */}
             <div className="px-5 py-4 border-b border-gray-100 shrink-0 flex items-center justify-between">
               <Link href="/kawruh" className="flex items-center">
-                <img src="/uploads/lanyardbogor-logo.webp" alt="Logo" className="h-9 w-auto" />
+                <img src="/uploads/lanyarddepok-logo.webp" alt="Logo" className="h-9 w-auto" />
               </Link>
               <button
                 onClick={() => setSidebarOpen(false)}

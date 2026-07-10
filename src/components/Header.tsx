@@ -16,16 +16,16 @@ import { getProductListingHref } from "@/lib/product-links";
 
 const NAV_ITEMS = [
   { label: "Beranda", href: "/" },
-  { label: "Produk", href: "/produk" },
   { label: "Promo", href: "/promo" },
-  { label: "Cara Pemesanan", href: "/cara-pemesanan" },
-  { label: "Blog", href: "/blog" },
+  { label: "Produk", href: "/produk" },
   { label: "FAQ", href: "/faq" },
+  { label: "Blog", href: "/blog" },
+  { label: "Cara Pemesanan", href: "/cara-pemesanan" },
   { label: "Kontak", href: "/kontak" },
 ];
 
 const WHATSAPP_URL =
-  "https://wa.me/6282210200700?text=Halo%20Lanyard%20Bogor%2C%20saya%20ingin%20minta%20penawaran%20harga%20lanyard%20custom.";
+  "https://wa.me/6282210200700?text=Halo%20Lanyard%20Depok%2C%20saya%20ingin%20minta%20penawaran%20harga%20lanyard%20custom.";
 
 function isActivePath(pathname: string | null, href: string) {
   if (!pathname) return false;
@@ -127,16 +127,16 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-public-border/70 bg-white/95 shadow-sm shadow-black/[0.03] backdrop-blur">
       <nav aria-label="Navigasi utama">
-        <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between gap-3 px-4 py-3 lg:px-8">
+        <div className="mx-auto flex max-w-[1344px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
           <Link
             href="/"
             onClick={closeMenus}
             className="flex min-w-0 items-center gap-3"
-            aria-label="Lanyard Bogor"
+            aria-label="Lanyard Depok"
           >
             <Image
-              src="/uploads/lanyardbogor-logo-mobile.webp"
-              alt="Lanyard Bogor Logo"
+              src="/uploads/lanyarddepok-logo-mobile.webp"
+              alt="Lanyard Depok Logo"
               width={148}
               height={36}
               className="shrink-0 object-contain"

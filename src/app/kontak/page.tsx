@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   }),
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyardbogor.com";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://lanyarddepok.com";
 
 const mapsSearchUrl =
   "https://www.google.com/maps/search/?api=1&query=Kabupaten%20Bogor%2C%20Jawa%20Barat";
@@ -42,7 +42,7 @@ const jsonLd = {
         name: "Lanyard Bogor",
         logo: {
           "@type": "ImageObject",
-          url: `${siteUrl}/uploads/lanyardbogor-logo.webp`,
+          url: `${siteUrl}/uploads/lanyarddepok-logo.webp`,
         },
       },
     },
@@ -52,7 +52,7 @@ const jsonLd = {
       name: "Lanyard Bogor",
       image: `${siteUrl}/uploads/lanyard-bogor-hero-1782129081107.webp`,
       telephone: "+6282210200700",
-      email: "info@lanyardbogor.com",
+      email: "info@lanyarddepok.com",
       url: siteUrl,
       address: {
         "@type": "PostalAddress",
@@ -101,8 +101,8 @@ const contactCards = [
     icon: "lucide:mail",
     title: "Email",
     description: "Kirim detail kebutuhan Anda",
-    value: "info@lanyardbogor.com",
-    href: "mailto:info@lanyardbogor.com",
+    value: "info@lanyarddepok.com",
+    href: "mailto:info@lanyarddepok.com",
   },
   {
     icon: "lucide:clock-3",

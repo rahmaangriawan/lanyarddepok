@@ -1,0 +1,744 @@
+---
+import PublicLayout from '../layouts/PublicLayout.astro';
+import { api, mediaUrl } from '../lib/api';
+import '../styles/home.css';
+
+const { products } = await api.products(4);
+const featuredProducts = products;
+
+const partnerLogos = [
+  { id: 1, name: 'Bank Indonesia', src: '/images/logos/bank-indonesia.svg', alt: 'Bank Indonesia', href: 'https://www.bi.go.id', width: 112, height: 32 },
+  { id: 2, name: 'Telkomsel', src: '/images/logos/telkomsel.svg', alt: 'Telkomsel', href: 'https://www.telkomsel.com', width: 96, height: 32 },
+  { id: 3, name: 'Kemenkes RI', src: '/images/logos/kemenkes.svg', alt: 'Kemenkes RI', href: 'https://www.kemkes.go.id', width: 96, height: 32 },
+  { id: 4, name: 'BCA', src: '/images/logos/bca.svg', alt: 'BCA', href: 'https://www.bca.co.id', width: 96, height: 32 },
+  { id: 5, name: 'Universitas Indonesia', src: '/images/logos/universitas-indonesia.png', alt: 'Universitas Indonesia', href: 'https://www.ui.ac.id', width: 104, height: 32 },
+  { id: 6, name: 'BUMN', src: '/images/logos/bumn.svg', alt: 'BUMN', href: 'https://www.bumn.go.id', width: 80, height: 32 },
+  { id: 7, name: 'Biznet', src: '/images/logos/biznet.svg', alt: 'Biznet', href: 'https://www.biznetnetworks.com', width: 96, height: 32 },
+  { id: 8, name: 'Komdigi', src: '/images/logos/komdigi.svg', alt: 'Komdigi', href: 'https://www.kominfo.go.id', width: 96, height: 32 },
+];
+
+const deterministicShuffle = (items) => [...items].sort((a, b) => {
+  const aScore = (a.id * 37 + a.name.length * 11) % 97;
+  const bScore = (b.id * 37 + b.name.length * 11) % 97;
+  return aScore - bScore || a.id - b.id;
+});
+
+const distributeLogos = (allLogos, columnCount) => {
+  const safeColumnCount = Math.max(1, Math.min(columnCount, allLogos.length));
+  const shuffled = deterministicShuffle(allLogos);
+
+  return Array.from({ length: safeColumnCount }, (_, columnIndex) => {
+    const offset = columnIndex % shuffled.length;
+    return [...shuffled.slice(offset), ...shuffled.slice(0, offset)];
+  });
+};
+
+const partnerLogoMobileColumns = distributeLogos(partnerLogos, 2);
+const partnerLogoDesktopColumns = distributeLogos(partnerLogos, 5);
+
+const benefitItems = [
+  { title: 'Hasil Cetak Tajam', description: 'Detail rapi, nyaman dipakai, dan siap mengikuti kebutuhan brand Anda.', icon: 'printer' },
+  { title: 'Material Nyaman', description: 'Bahan halus, kuat, dan nyaman dipakai untuk aktivitas harian.', icon: 'clipboard' },
+  { title: 'Desain Fleksibel', description: 'Custom warna, logo, dan finishing sesuai identitas brand Anda.', icon: 'pen' },
+  { title: 'Proses Cepat', description: 'Alur produksi efisien dari mockup sampai pengiriman.', icon: 'refresh' },
+];
+
+const testimonialReviews = [
+  {
+    id: 1,
+    name: 'Rizky Pratama',
+    affiliation: 'Event Officer, Bank Indonesia',
+    quote: 'Hasil printing tajam, bahan nyaman dipakai, dan pengerjaan lanyard untuk event kami selesai cepat.',
+    imageSrc: '/images/testimonials/rizky-pratama.webp',
+    thumbnailSrc: '/images/testimonials/rizky-pratama.webp',
+  },
+  {
+    id: 2,
+    name: 'Dewi Lestari',
+    affiliation: 'Marketing Communication, Telkomsel',
+    quote: 'Desain sesuai request dan hasilnya rapi. Timnya responsif dari mockup sampai pengiriman.',
+    imageSrc: '/images/testimonials/dewi-lestari.webp',
+    thumbnailSrc: '/images/testimonials/dewi-lestari.webp',
+  },
+  {
+    id: 3,
+    name: 'Farhan Ramadhan',
+    affiliation: 'Koordinator Acara, Universitas Indonesia',
+    quote: 'Pesanan untuk event kampus memuaskan. Warna cerah, bahan tebal, dan semuanya tepat waktu.',
+    imageSrc: '/images/testimonials/farhan-ramadhan.webp',
+    thumbnailSrc: '/images/testimonials/farhan-ramadhan.webp',
+  },
+  {
+    id: 4,
+    name: 'Septiana Andini',
+    affiliation: 'Procurement Specialist, BCA',
+    quote: 'Pelayanan ramah, cetakan rapi, dan pengiriman aman sampai tujuan. Prosesnya terasa mudah.',
+    imageSrc: '/images/testimonials/septiana-andini.webp',
+    thumbnailSrc: '/images/testimonials/septiana-andini.webp',
+  },
+  {
+    id: 5,
+    name: 'Amanda Putri',
+    affiliation: 'Humas Kesehatan, Kemenkes RI',
+    quote: 'Pemesanan lanyard instansi dalam jumlah besar selesai tepat waktu dengan kualitas yang seragam.',
+    imageSrc: '/images/testimonials/amanda-putri.webp',
+    thumbnailSrc: '/images/testimonials/amanda-putri.webp',
+  },
+];
+
+const testimonialSliderReviews = testimonialReviews.map((review) => ({
+  ...review,
+  imageSrc: mediaUrl(review.imageSrc),
+  thumbnailSrc: mediaUrl(review.thumbnailSrc),
+}));
+
+const faqItems = [
+  {
+    question: 'Bagaimana cara pesan lanyard custom di Lanyard Depok?',
+    answer:
+      'Kirim kebutuhan Anda melalui WhatsApp, mulai dari jumlah, bahan, ukuran, warna, dan logo. Tim kami akan bantu rekomendasi spesifikasi, membuat estimasi harga, lalu menyiapkan mockup sebelum produksi.',
+  },
+  {
+    question: 'Berapa minimum order lanyard custom?',
+    answer:
+      'Minimum order fleksibel mulai dari 50 pcs untuk kebutuhan event, kantor, sekolah, komunitas, dan instansi. Untuk jumlah lebih besar, harga satuan bisa lebih hemat.',
+  },
+  {
+    question: 'Berapa lama proses produksi lanyard?',
+    answer:
+      'Estimasi produksi umumnya 1 sampai 3 hari kerja setelah desain disetujui, bergantung pada jumlah pesanan dan antrean produksi. Kebutuhan mendesak bisa dikonsultasikan lebih dulu.',
+  },
+  {
+    question: 'Apakah desain atau mockup bisa dibantu?',
+    answer:
+      'Bisa. Anda cukup mengirim logo, warna brand, dan referensi desain. Tim kami bantu membuat mockup agar tampilan lanyard lebih jelas sebelum naik cetak.',
+  },
+  {
+    question: 'Bagaimana sistem pembayarannya?',
+    answer:
+      'Pemesanan diproses setelah pembayaran tanda jadi sesuai invoice. Pelunasan dilakukan sebelum pesanan dikirim atau mengikuti kesepakatan untuk kebutuhan instansi.',
+  },
+  {
+    question: 'Apakah ada garansi jika hasil cetak bermasalah?',
+    answer:
+      'Ada. Jika ditemukan cacat produksi dari sisi kami, segera laporkan maksimal 3 hari setelah barang diterima agar tim kami bisa membantu pengecekan dan solusi terbaik.',
+  },
+  {
+    question: 'Apakah bisa kirim ke area Depok dan luar kota?',
+    answer:
+      'Bisa. Pesanan dapat dikirim ke area Depok, Jabodetabek, dan kota lain di Indonesia. Opsi pengiriman akan disesuaikan dengan jumlah pesanan, alamat tujuan, dan kebutuhan waktu Anda.',
+  },
+];
+
+const stripHtml = (value) => value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+
+const truncateText = (value, maxLength = 72) => {
+  if (value.length <= maxLength) return value;
+
+  return `${value.slice(0, maxLength).trimEnd()}...`;
+};
+
+const normalizeBrandText = (value) => value.replace(/\bBogor\b/g, 'Depok');
+
+const getProductDescription = (product) => {
+  const description =
+    product.metaDescription ||
+    product.shortDescription ||
+    product.shortDesc ||
+    product.description ||
+    product.longDesc ||
+    product.specs ||
+    product.category?.name ||
+    'Pilihan lanyard custom untuk kebutuhan brand dan event Anda.';
+
+  return normalizeBrandText(truncateText(stripHtml(description)));
+};
+
+const getProductListingHref = (product) => {
+  if (product.slug) return `/produk/${product.slug}`;
+
+  const searchValue = product.name || product.sku || 'Produk Lanyard';
+
+  return `/produk?search=${encodeURIComponent(searchValue)}`;
+};
+
+const showcaseItems = featuredProducts.slice(0, 4).map((product) => ({
+  title: normalizeBrandText(product.name || 'Produk Lanyard'),
+  description: getProductDescription(product),
+  image: product.featuredImage || '/uploads/featured-lanyard-polyester-main.webp',
+  href: getProductListingHref(product),
+}));
+---
+
+<PublicLayout>
+  <section id="hero" class="relative w-full overflow-hidden border-b border-[var(--border)] bg-white py-20 text-[var(--foreground)] sm:py-0">
+    <div class="mx-auto grid min-h-[calc(100dvh-88px)] max-w-7xl grid-cols-1 items-center gap-12 px-4 sm:-translate-y-[10px] sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10 lg:px-8">
+      <div class="flex flex-col items-center text-center lg:items-start lg:text-left">
+        <p class="mb-5 text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Lanyard Custom Depok</p>
+        <h1 class="max-w-3xl text-4xl font-bold leading-[1.08] tracking-normal text-[var(--foreground)] sm:text-[3.2rem] lg:text-[3.2rem]">
+          Media Branding<br />
+          Yang Selalu Terlihat
+        </h1>
+        <p class="mt-6 max-w-xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg">Cetak lanyard custom untuk kantor, sekolah, komunitas, dan event dengan bahan nyaman, visual rapi, dan pemesanan cepat.</p>
+        <div class="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+          <a class="btn-primary" href="https://wa.me/6282210200700?text=Halo%20Lanyard%20Depok%2C%20saya%20mau%20minta%20quotation.">Minta Quotation</a>
+          <a class="btn-secondary" href="/produk">Lihat Produk</a>
+        </div>
+      </div>
+      <div class="relative mx-auto flex w-full max-w-full snap-x gap-3 overflow-x-auto pb-4 sm:block sm:h-[520px] sm:max-w-[620px] sm:overflow-visible sm:pb-0 lg:max-w-none">
+        <div aria-hidden="true" class="hidden sm:block absolute left-[8%] top-[12%] z-20 rounded-full border border-[var(--border)] bg-white/90 px-3 py-1.5 text-xs font-bold text-[var(--primary)] shadow-sm backdrop-blur">Sublimasi</div>
+        <div aria-hidden="true" class="hidden sm:block absolute right-[6%] top-[18%] z-20 rounded-full border border-[var(--border)] bg-white/90 px-3 py-1.5 text-xs font-bold text-[var(--primary)] shadow-sm backdrop-blur">Polyester</div>
+        <div aria-hidden="true" class="hidden sm:block absolute bottom-[15%] left-[28%] z-20 rounded-full border border-[var(--border)] bg-white/90 px-3 py-1.5 text-xs font-bold text-[var(--primary)] shadow-sm backdrop-blur">Custom logo</div>
+
+        <div class="relative h-72 w-[78vw] shrink-0 snap-center overflow-hidden rounded-2xl bg-[var(--card)] shadow-xl ring-1 ring-[var(--border)] sm:absolute sm:left-1/2 sm:top-0 sm:h-72 sm:w-72 sm:-translate-x-1/2">
+          <img class="h-full w-full object-cover" src={mediaUrl('/uploads/hero-lanyard-slider-01.webp')} alt="Contoh lanyard custom untuk perusahaan dan event" fetchpriority="high" decoding="async" />
+        </div>
+
+        <div class="relative h-72 w-[78vw] shrink-0 snap-center overflow-hidden rounded-2xl bg-[var(--card)] shadow-xl ring-1 ring-[var(--border)] sm:absolute sm:right-0 sm:top-[32%] sm:h-60 sm:w-60">
+          <img class="h-full w-full object-cover" src={mediaUrl('/uploads/hero-lanyard-slider-02.webp')} alt="Detail bahan tali lanyard custom" decoding="async" />
+        </div>
+
+        <div class="relative h-72 w-[78vw] shrink-0 snap-center overflow-hidden rounded-2xl bg-[var(--card)] shadow-xl ring-1 ring-[var(--border)] sm:absolute sm:bottom-0 sm:left-0 sm:h-56 sm:w-56">
+          <img class="h-full w-full object-cover" src={mediaUrl('/uploads/hero-lanyard-slider-03.webp')} alt="Pilihan desain lanyard custom Lanyard Depok" decoding="async" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-b border-[var(--border)] bg-white py-20 sm:py-24">
+    <div class="mx-auto flex max-w-7xl flex-col items-center gap-8 px-4 text-center sm:px-6 lg:px-8">
+      <div class="max-w-2xl">
+        <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Partner & Klien</p>
+        <h2 class="mt-4 text-[2rem] font-bold leading-[1.08] tracking-normal text-[var(--foreground)] sm:text-[2.4rem] lg:text-[2.75rem]">Dipercaya Brand &amp; Instansi</h2>
+        <p class="mx-auto mt-4 max-w-xl text-base leading-7 text-[var(--muted-foreground)]">Dipilih untuk kebutuhan lanyard custom perusahaan, sekolah, komunitas, dan event.</p>
+      </div>
+
+      <div class="grid w-full max-w-5xl grid-cols-2 justify-items-center gap-3 sm:gap-4 md:hidden" data-partner-logo-grid>
+        {partnerLogoMobileColumns.map((columnLogos, columnIndex) => (
+          <div class="partner-logo-card" data-partner-logo-card data-column-index={columnIndex} style={`--partner-column-index: ${columnIndex}`}>
+            {columnLogos.map((logo, logoIndex) => (
+              logo.href ? (
+                <a
+                  href={logo.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={logo.name}
+                  class:list={['partner-logo-slot', logoIndex === 0 && 'is-active']}
+                  data-logo-slot
+                  tabindex={logoIndex === 0 ? undefined : '-1'}
+                >
+                  <img class="partner-logo-image" src={mediaUrl(logo.src)} alt={logo.alt} width={logo.width} height={logo.height} loading="lazy" />
+                </a>
+              ) : (
+                <span class:list={['partner-logo-slot', logoIndex === 0 && 'is-active']} data-logo-slot>
+                  <img class="partner-logo-image" src={mediaUrl(logo.src)} alt={logo.alt} width={logo.width} height={logo.height} loading="lazy" />
+                </span>
+              )
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <div class="hidden w-full max-w-5xl justify-items-center gap-4 md:grid md:grid-cols-5" data-partner-logo-grid>
+        {partnerLogoDesktopColumns.map((columnLogos, columnIndex) => (
+          <div class="partner-logo-card" data-partner-logo-card data-column-index={columnIndex} style={`--partner-column-index: ${columnIndex}`}>
+            {columnLogos.map((logo, logoIndex) => (
+              logo.href ? (
+                <a
+                  href={logo.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={logo.name}
+                  class:list={['partner-logo-slot', logoIndex === 0 && 'is-active']}
+                  data-logo-slot
+                  tabindex={logoIndex === 0 ? undefined : '-1'}
+                >
+                  <img class="partner-logo-image" src={mediaUrl(logo.src)} alt={logo.alt} width={logo.width} height={logo.height} loading="lazy" />
+                </a>
+              ) : (
+                <span class:list={['partner-logo-slot', logoIndex === 0 && 'is-active']} data-logo-slot>
+                  <img class="partner-logo-image" src={mediaUrl(logo.src)} alt={logo.alt} width={logo.width} height={logo.height} loading="lazy" />
+                </span>
+              )
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const reduceLogoMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const logoCards = Array.from(document.querySelectorAll('[data-partner-logo-card]'));
+
+    if (!reduceLogoMotion.matches) {
+      const logoCardStates = logoCards.map((card) => {
+        const slots = Array.from(card.querySelectorAll('[data-logo-slot]'));
+        let activeIndex = slots.findIndex((slot) => slot.classList.contains('is-active'));
+        if (activeIndex < 0) activeIndex = 0;
+
+        return {
+          card,
+          slots,
+          activeIndex,
+          columnIndex: Number(card.getAttribute('data-column-index') || 0),
+          exitTimer: 0,
+        };
+      }).filter((state) => state.slots.length > 1);
+
+      const setLogoSlot = (state, nextIndex) => {
+        const { slots } = state;
+        if (slots.length < 2 || nextIndex === state.activeIndex) return;
+
+        const previousSlot = slots[state.activeIndex];
+        const nextSlot = slots[nextIndex];
+
+        previousSlot.classList.remove('is-active');
+        previousSlot.classList.add('is-exiting');
+        if (previousSlot instanceof HTMLAnchorElement) previousSlot.tabIndex = -1;
+
+        nextSlot.classList.add('is-active');
+        nextSlot.classList.remove('is-exiting');
+        if (nextSlot instanceof HTMLAnchorElement) nextSlot.removeAttribute('tabindex');
+
+        state.activeIndex = nextIndex;
+        window.clearTimeout(state.exitTimer);
+        state.exitTimer = window.setTimeout(() => {
+          previousSlot.classList.remove('is-exiting');
+        }, 300);
+      };
+
+      let currentTime = 0;
+      const cycleInterval = 2000;
+
+      window.setInterval(() => {
+        currentTime += 100;
+
+        logoCardStates.forEach((state) => {
+          const adjustedTime = (currentTime + state.columnIndex * 200) % (cycleInterval * state.slots.length);
+          const nextIndex = Math.floor(adjustedTime / cycleInterval);
+          setLogoSlot(state, nextIndex);
+        });
+      }, 100);
+    }
+  </script>
+  <section class="border-b border-[var(--border)] bg-white py-20 sm:py-24">
+    <div class="mx-auto grid max-w-7xl gap-5 px-4 sm:px-6 lg:grid-cols-[0.95fr_1.95fr] lg:px-8">
+      <article class="relative flex min-h-[20rem] flex-col overflow-hidden rounded-2xl bg-[var(--primary)] p-8 text-[var(--primary-foreground)] shadow-sm sm:p-10">
+        <div aria-hidden="true" class="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,var(--secondary),transparent_32%)] opacity-20"></div>
+        <div class="relative z-10 flex h-full flex-col gap-5">
+          <p class="max-w-none whitespace-nowrap text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary-foreground)]/80 sm:max-w-40 sm:whitespace-normal">Kenapa Memilih Lanyard Depok?</p>
+          <h2 class="max-w-sm text-[1.7rem] font-bold leading-[1.08] tracking-normal sm:text-[2.4rem] lg:text-[2.4rem]">Kualitas yang terlihat, pelayanan yang terasa.</h2>
+          <p class="max-w-sm text-sm font-medium leading-6 text-[var(--primary-foreground)]/85">Kami mengutamakan hasil terbaik di setiap detail, didukung layanan yang mudah dan responsif.</p>
+          <a href="/kontak" aria-label="Hubungi Lanyard Depok" class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--primary-foreground)] text-[var(--primary)] shadow-sm transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[var(--primary-foreground)]/70">
+            <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+      </article>
+      <div class="grid gap-5 md:grid-cols-2">
+        {benefitItems.map((item) => (
+          <article class="flex min-h-[10rem] items-center gap-6 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-7 shadow-xs sm:min-h-[11rem] sm:p-8">
+            <div class="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-[var(--secondary)] text-[var(--primary)]">
+              {item.icon === 'printer' && (
+                <svg aria-hidden="true" class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/><path d="M18 12h.01"/></svg>
+              )}
+              {item.icon === 'clipboard' && (
+                <svg aria-hidden="true" class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h6"/><path d="M9 3h6v4H9z"/><path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-5"/></svg>
+              )}
+              {item.icon === 'pen' && (
+                <svg aria-hidden="true" class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m12 20 9-9-4-4-9 9-2 6z"/><path d="m15 9 4 4"/><path d="M6 4v4"/><path d="M4 6h4"/><path d="M18 16v3"/><path d="M16.5 17.5h3"/></svg>
+              )}
+              {item.icon === 'refresh' && (
+                <svg aria-hidden="true" class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.2"/><path d="M3 12A9 9 0 0 1 18.5 5.8"/><path d="M18 2v4h4"/><path d="M6 22v-4H2"/></svg>
+              )}
+            </div>
+            <div class="min-w-0">
+              <h3 class="text-lg font-bold leading-tight tracking-normal text-[var(--foreground)]">{item.title}</h3>
+              <p class="mt-3 max-w-[15rem] text-sm leading-6 text-[var(--muted-foreground)]">{item.description}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="border-b border-[var(--border)] bg-white py-20 text-[var(--foreground)] sm:py-24">
+    <div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.82fr_1.18fr] lg:gap-12 lg:px-8">
+      <div class="flex min-w-0 flex-col">
+        <div>
+          <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Pilihan Produk</p>
+          <h2 class="mt-6 max-w-xl text-[2rem] font-bold leading-[1.08] tracking-normal text-[var(--foreground)] sm:text-[2.4rem] lg:text-[2.75rem]">Beragam pilihan untuk <span class="text-[var(--primary)]">kebutuhan Anda.</span></h2>
+          <p class="mt-4 max-w-md text-base leading-7 text-[var(--muted-foreground)]">Temukan lanyard yang sesuai dengan acara, identitas, dan kebutuhan Anda.</p>
+          <a href="/produk" style="color: var(--primary-foreground)" class="mt-8 inline-flex min-h-12 items-center justify-center gap-4 rounded-full bg-[var(--primary)] px-7 text-sm font-bold shadow-sm transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 focus:ring-offset-[var(--background)]">
+            <span>Lihat Semua Produk</span>
+            <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </div>
+
+        <div class="mt-16 lg:mt-20">
+          <div class="relative aspect-[4/3] min-h-[15rem] sm:min-h-[18rem]">
+            <img class="h-full w-full object-contain" src={mediaUrl('/uploads/featured-products-showcase-lanyarddepok-v2.webp')} alt="Pilihan lanyard custom Lanyard Depok" loading="lazy" decoding="async" />
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-3">
+        {showcaseItems.length > 0 ? showcaseItems.map((product, index) => (
+          <a href={product.href} class="featured-product-card group grid overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] transition hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--primary)_40%,var(--border))] md:grid-cols-[0.85fr_1fr]">
+            <div class="relative min-h-[9rem] overflow-hidden md:min-h-[7.5rem]">
+              <img class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" src={mediaUrl(product.image)} alt={product.title} loading="lazy" decoding="async" />
+            </div>
+
+            <div class="flex min-h-[7.5rem] items-center gap-4 p-4 sm:p-5">
+              <div class="min-w-0 flex-1">
+                <div class="text-lg font-extrabold leading-none text-[var(--primary)]">{String(index + 1).padStart(2, '0')}</div>
+                <span class="mt-2.5 block h-0.5 w-7 rounded-full bg-[var(--primary)]"></span>
+                <h3 class="mt-3 text-lg font-bold leading-tight tracking-normal text-[var(--foreground)]">{product.title}</h3>
+                <p class="mt-2 max-w-sm text-xs leading-5 text-[var(--muted-foreground)]">{product.description}</p>
+              </div>
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--primary)] text-[var(--primary)] transition group-hover:bg-[var(--primary)] group-hover:text-[var(--primary-foreground)]">
+                <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </span>
+            </div>
+          </a>
+        )) : (
+          <div class="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 text-sm leading-6 text-[var(--muted-foreground)]">
+            Produk belum tersedia dari API. Jalankan sinkronisasi produk di dashboard admin agar data spreadsheet tampil di section ini.
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <section class="border-b border-[var(--border)] bg-white py-20 text-[var(--foreground)] sm:py-24">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="mx-auto mb-8 max-w-3xl text-center">
+        <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Testimoni Klien</p>
+        <h2 class="mt-6 text-[2rem] font-bold leading-[1.08] tracking-normal text-[var(--foreground)] sm:text-[2.4rem] lg:text-[2.75rem]">Dipercaya untuk kebutuhan lanyard berbagai instansi.</h2>
+        <p class="mx-auto mt-4 max-w-2xl text-base leading-7 text-[var(--muted-foreground)]">Cerita singkat dari klien yang memakai lanyard custom untuk event, identitas tim, dan kebutuhan branding.</p>
+      </div>
+
+      <div class="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] text-[var(--foreground)]" data-testimonial-slider data-active-index="0">
+        <div class="grid gap-6 p-5 sm:p-6 lg:grid-cols-[0.72fr_1fr_1.15fr] lg:gap-8 lg:p-7">
+          <div class="order-3 flex flex-col justify-between gap-5 lg:order-1">
+            <div>
+              <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Testimoni</p>
+              <p class="mt-3 text-2xl font-extrabold leading-none text-[var(--foreground)]">
+                <span data-testimonial-current>{String(1).padStart(2, '0')}</span>
+                <span class="mx-2 text-[var(--muted-foreground)]">/</span>
+                <span class="text-[var(--muted-foreground)]">{String(testimonialSliderReviews.length).padStart(2, '0')}</span>
+              </p>
+            </div>
+
+            <div class="flex gap-2 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-visible" data-testimonial-thumbnails>
+              {testimonialSliderReviews.map((review, index) => (
+                <button
+                  type="button"
+                  class:list={[
+                    'relative h-16 w-14 shrink-0 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--background)] transition hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 focus:ring-offset-[var(--background)] sm:h-20 sm:w-16',
+                    index === 0 ? 'opacity-100 ring-2 ring-[var(--primary)]' : 'opacity-70',
+                  ]}
+                  aria-label={`Lihat testimoni ${review.name}`}
+                  aria-pressed={index === 0 ? 'true' : 'false'}
+                  data-testimonial-thumb
+                  data-testimonial-index={index}
+                >
+                  <img class="absolute inset-0 h-full w-full object-cover" src={review.thumbnailSrc} alt={review.name} loading="lazy" decoding="async" />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div class="relative order-1 min-h-[18rem] overflow-hidden rounded-2xl bg-[var(--background)] lg:order-2 lg:min-h-[22rem]">
+            <img class="absolute inset-0 h-full w-full object-cover transition duration-300" src={testimonialSliderReviews[0].imageSrc} alt={testimonialSliderReviews[0].name} loading="lazy" decoding="async" data-testimonial-image />
+          </div>
+
+          <div class="order-2 flex min-h-[15rem] flex-col justify-between gap-8 lg:order-3">
+            <div class="min-h-[12rem] overflow-hidden">
+              <div class="transition duration-300" data-testimonial-copy>
+                <p class="text-sm font-bold text-[var(--primary)]" data-testimonial-affiliation>{testimonialSliderReviews[0].affiliation}</p>
+                <h3 class="mt-2 text-2xl font-bold leading-tight tracking-normal text-[var(--foreground)]" data-testimonial-name>{testimonialSliderReviews[0].name}</h3>
+                <blockquote class="mt-5 max-w-xl text-xl font-normal leading-[1.35] tracking-normal text-[var(--foreground)] sm:text-2xl" data-testimonial-quote>"{testimonialSliderReviews[0].quote}"</blockquote>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--primary)] text-[var(--primary)] transition hover:bg-[var(--secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 focus:ring-offset-[var(--background)]" aria-label="Testimoni sebelumnya" data-testimonial-prev>
+                <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+              </button>
+              <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2 focus:ring-offset-[var(--background)]" aria-label="Testimoni berikutnya" data-testimonial-next>
+                <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script define:vars={{ testimonialReviews: testimonialSliderReviews }}>
+    const testimonialSlider = document.querySelector('[data-testimonial-slider]');
+
+    if (testimonialSlider && testimonialReviews.length > 0) {
+      const reduceTestimonialMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const currentNode = testimonialSlider.querySelector('[data-testimonial-current]');
+      const imageNode = testimonialSlider.querySelector('[data-testimonial-image]');
+      const copyNode = testimonialSlider.querySelector('[data-testimonial-copy]');
+      const affiliationNode = testimonialSlider.querySelector('[data-testimonial-affiliation]');
+      const nameNode = testimonialSlider.querySelector('[data-testimonial-name]');
+      const quoteNode = testimonialSlider.querySelector('[data-testimonial-quote]');
+      const thumbNodes = Array.from(testimonialSlider.querySelectorAll('[data-testimonial-thumb]'));
+      const previousButton = testimonialSlider.querySelector('[data-testimonial-prev]');
+      const nextButton = testimonialSlider.querySelector('[data-testimonial-next]');
+      let activeTestimonialIndex = Number(testimonialSlider.dataset.activeIndex || 0);
+
+      const formatTestimonialNumber = (value) => String(value).padStart(2, '0');
+
+      const setCopyOpacity = (opacity) => {
+        if (copyNode instanceof HTMLElement) copyNode.style.opacity = String(opacity);
+        if (imageNode instanceof HTMLElement) imageNode.style.opacity = String(opacity);
+      };
+
+      const renderTestimonial = (index) => {
+        activeTestimonialIndex = (index + testimonialReviews.length) % testimonialReviews.length;
+        testimonialSlider.dataset.activeIndex = String(activeTestimonialIndex);
+        const activeReview = testimonialReviews[activeTestimonialIndex];
+
+        if (currentNode) currentNode.textContent = formatTestimonialNumber(activeTestimonialIndex + 1);
+        if (imageNode instanceof HTMLImageElement) {
+          imageNode.src = activeReview.imageSrc;
+          imageNode.alt = activeReview.name;
+        }
+        if (affiliationNode) affiliationNode.textContent = activeReview.affiliation;
+        if (nameNode) nameNode.textContent = activeReview.name;
+        if (quoteNode) quoteNode.textContent = `"${activeReview.quote}"`;
+
+        thumbNodes.forEach((thumb, thumbIndex) => {
+          const isActive = thumbIndex === activeTestimonialIndex;
+          thumb.classList.toggle('opacity-100', isActive);
+          thumb.classList.toggle('opacity-70', !isActive);
+          thumb.classList.toggle('ring-2', isActive);
+          thumb.classList.toggle('ring-[var(--primary)]', isActive);
+          thumb.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+      };
+
+      const showTestimonial = (index) => {
+        if (reduceTestimonialMotion.matches) {
+          renderTestimonial(index);
+          return;
+        }
+
+        setCopyOpacity(0);
+        window.setTimeout(() => {
+          renderTestimonial(index);
+          setCopyOpacity(1);
+        }, 160);
+      };
+
+      previousButton?.addEventListener('click', () => showTestimonial(activeTestimonialIndex - 1));
+      nextButton?.addEventListener('click', () => showTestimonial(activeTestimonialIndex + 1));
+      thumbNodes.forEach((thumb) => {
+        thumb.addEventListener('click', () => {
+          const index = Number(thumb.getAttribute('data-testimonial-index'));
+          if (Number.isFinite(index) && index !== activeTestimonialIndex) showTestimonial(index);
+        });
+      });
+
+      renderTestimonial(activeTestimonialIndex);
+    }
+  </script>
+
+  <section class="border-b border-[var(--border)] bg-white py-20 text-[var(--foreground)] sm:py-24">
+    <div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.86fr_1.14fr] lg:gap-12 lg:px-8">
+      <div class="flex min-w-0 flex-col">
+        <div>
+          <p class="text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Pertanyaan Umum</p>
+          <h2 class="mt-6 max-w-xl text-[2rem] font-bold leading-[1.08] tracking-normal text-[var(--foreground)] sm:text-[2.4rem] lg:text-[2.75rem]">Hal yang sering ditanyakan sebelum pesan lanyard custom.</h2>
+          <p class="mt-4 max-w-md text-base leading-7 text-[var(--muted-foreground)]">Jawaban singkat seputar proses pemesanan, produksi, desain, pembayaran, dan garansi.</p>
+        </div>
+
+        <div class="mt-10 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]">
+          <div class="relative aspect-[4/3] min-h-[15rem]">
+            <img class="absolute inset-0 h-full w-full object-cover" src={mediaUrl('/uploads/pengiriman-packaging-lanyarddepok.webp')} alt="Pengemasan dan pengiriman lanyard custom Lanyard Depok" loading="lazy" decoding="async" />
+          </div>
+        </div>
+      </div>
+
+      <div class="grid content-start gap-3" data-faq-accordion>
+        {faqItems.map((item, index) => {
+          const isOpen = index === 0;
+          const contentId = `homepage-faq-content-${index}`;
+
+          return (
+            <article class="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]" data-faq-item>
+              <button
+                type="button"
+                class="flex w-full items-center justify-between gap-5 p-5 text-left sm:p-6"
+                aria-expanded={isOpen ? 'true' : 'false'}
+                aria-controls={contentId}
+                data-faq-button
+              >
+                <span class="text-base font-extrabold leading-snug tracking-normal text-[var(--foreground)] sm:text-lg">{item.question}</span>
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--primary)] text-[var(--primary)]">
+                  <svg aria-hidden="true" class:list={['h-5 w-5 transition-transform duration-300', isOpen && 'rotate-180']} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-faq-chevron><path d="m6 9 6 6 6-6"/></svg>
+                </span>
+              </button>
+
+              <div id={contentId} class:list={['grid transition-all duration-300 ease-out', isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]']} data-faq-panel>
+                <div class="overflow-hidden">
+                  <p class="border-t border-[var(--border)] px-5 py-5 text-sm leading-6 text-[var(--muted-foreground)] sm:px-6">{item.answer}</p>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const faqAccordion = document.querySelector('[data-faq-accordion]');
+
+    if (faqAccordion) {
+      const faqItems = Array.from(faqAccordion.querySelectorAll('[data-faq-item]'));
+
+      const setFaqItemOpen = (item, isOpen) => {
+        const button = item.querySelector('[data-faq-button]');
+        const panel = item.querySelector('[data-faq-panel]');
+        const chevron = item.querySelector('[data-faq-chevron]');
+
+        button?.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        panel?.classList.toggle('grid-rows-[1fr]', isOpen);
+        panel?.classList.toggle('grid-rows-[0fr]', !isOpen);
+        chevron?.classList.toggle('rotate-180', isOpen);
+      };
+
+      faqItems.forEach((item) => {
+        const button = item.querySelector('[data-faq-button]');
+        button?.addEventListener('click', () => {
+          const isOpen = button.getAttribute('aria-expanded') === 'true';
+
+          faqItems.forEach((faqItem) => setFaqItemOpen(faqItem, false));
+          setFaqItemOpen(item, !isOpen);
+        });
+      });
+    }
+  </script>
+
+  <style>
+    .partner-logo-card {
+      align-items: center;
+      animation: partner-logo-card-in 450ms ease-out forwards;
+      animation-delay: calc(var(--partner-column-index, 0) * 80ms);
+      background: color-mix(in srgb, var(--card) 70%, transparent);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      display: flex;
+      height: 4rem;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      opacity: 0;
+      transform: translateY(28px);
+      width: 8rem;
+      transition:
+        border-color 180ms ease,
+        box-shadow 180ms ease;
+    }
+
+    .partner-logo-card:hover {
+      border-color: color-mix(in srgb, var(--primary) 36%, var(--border));
+      box-shadow: 0 16px 40px rgb(31 31 31 / 8%);
+    }
+
+    .partner-logo-slot {
+      align-items: center;
+      display: flex;
+      filter: blur(8px);
+      inset: 0;
+      justify-content: center;
+      opacity: 0;
+      padding: 0 1rem;
+      pointer-events: none;
+      position: absolute;
+      transform: translateY(10%);
+      transition:
+        filter 500ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 500ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .partner-logo-slot.is-active {
+      filter: blur(0);
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .partner-logo-slot.is-exiting {
+      filter: blur(6px);
+      opacity: 0;
+      transform: translateY(-20%);
+      transition:
+        filter 300ms ease-in,
+        opacity 300ms ease-in,
+        transform 300ms ease-in;
+    }
+
+    .partner-logo-image {
+      filter: grayscale(1);
+      height: auto;
+      max-height: 70%;
+      max-width: 78%;
+      object-fit: contain;
+      opacity: 0.75;
+      transition:
+        filter 300ms ease,
+        opacity 300ms ease;
+      width: auto;
+    }
+
+    .partner-logo-slot:hover .partner-logo-image,
+    .partner-logo-slot:focus-visible .partner-logo-image {
+      filter: grayscale(0);
+      opacity: 1;
+    }
+
+    @media (min-width: 768px) {
+      .partner-logo-card {
+        height: 6rem;
+        width: 12rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .partner-logo-card {
+        animation: none;
+        opacity: 1;
+        transform: none;
+      }
+
+      .partner-logo-slot {
+        filter: none;
+        transition: none;
+        transform: none;
+      }
+
+      .partner-logo-slot:not(.is-active) {
+        display: none;
+      }
+
+      .partner-logo-image {
+        transition: none;
+      }
+    }
+
+    @keyframes partner-logo-card-in {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</PublicLayout>

@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ||
-  "https://lanyardbogor.com";
+  "https://lanyarddepok.com";
 
 export const SITE_NAME = "Lanyard Bogor";
-export const DEFAULT_OG_IMAGE = "/uploads/lanyardbogor-logo.webp";
+export const DEFAULT_OG_IMAGE = "/uploads/lanyarddepok-logo.webp";
 
 export function absoluteUrl(path = "/"): string {
   if (path.startsWith("http://") || path.startsWith("https://")) {
@@ -25,7 +25,7 @@ export function getRequestSiteUrl(request: Request): string {
     return SITE_URL;
   }
 
-  const host = request.headers.get("host") || "lanyardbogor.com";
+  const host = request.headers.get("host") || "lanyarddepok.com";
   const protocol = request.headers.get("x-forwarded-proto") || "https";
   return `${protocol}://${host}`.replace(/\/+$/, "");
 }
