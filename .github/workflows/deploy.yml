@@ -220,8 +220,7 @@ jobs:
           php artisan view:cache
 
           cd "$APP_DIR"
-          chmod +x restart.sh
-          APP_NAME="$APP_NAME" APP_PORT="$APP_PORT" REMOTE_PATH="$REMOTE_PATH" ./restart.sh
+          APP_NAME="$APP_NAME" APP_PORT="$APP_PORT" REMOTE_PATH="$REMOTE_PATH" bash ./restart.sh
 
           sleep 3
           curl -fsS "http://127.0.0.1:$APP_PORT/" >/dev/null
