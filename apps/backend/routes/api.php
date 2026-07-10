@@ -11,60 +11,17 @@ use App\Models\Portfolio;
 use App\Models\Post;
 use App\Models\Product;
 use App\Models\Setting;
-use App\Support\HtmlSanitizer;
+use App\Support\PublicApi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-if (! function_exists('settings_map')) {
-    function settings_map(?array $keys = null): array
-    {
-        return Setting::query()
-            ->when($keys, fn ($query) => $query->whereIn('key', $keys))
-            ->pluck('value', 'key')
-            ->all();
-    }
-}
-
-if (! function_exists('public_json')) {
-    function public_json(array $payload, int $seconds = 600)
-    {
-        return response()->json($payload)
-            ->header('Cache-Control', "public, s-maxage={$seconds}, stale-while-revalidate=300");
-    }
-}
-
-if (! function_exists('sanitize_public_content')) {
-    function sanitize_public_content($model)
-    {
-        if ($model && isset($model->content)) {
-            $model->content = HtmlSanitizer::clean($model->content);
-        }
-
-        return $model;
-    }
-}
-
-if (! function_exists('slug_from')) {
-    function slug_from(string $value): string
-    {
-        return Str::slug($value) ?: Str::random(8);
-    }
-}
-
-if (! function_exists('normalize_depok_text')) {
-    function normalize_depok_text(?string $value): ?string
-    {
-        return is_string($value) ? str_replace(['lanyardbogor', 'Lanyard Bogor', 'Bogor'], ['lanyarddepok', 'Lanyard Depok', 'Depok'], $value) : $value;
-    }
-}
-
 Route::get('/health', fn () => ['ok' => true, 'app' => 'lanyarddepok-laravel']);
 
 Route::get('/turnstile-config', function () {
-    $settings = settings_map(['turnstile_homepage_enabled', 'turnstile_site_key']);
+    $settings = PublicApi::settings(['turnstile_homepage_enabled', 'turnstile_site_key']);
 
     return [
         'enabled' => ($settings['turnstile_homepage_enabled'] ?? 'false') === 'true',
@@ -73,9 +30,9 @@ Route::get('/turnstile-config', function () {
 });
 
 Route::get('/public-settings', function () {
-    return public_json([
+    return PublicApi::json([
         'success' => true,
-        'settings' => settings_map(['seo_auto_links', 'seo_auto_links_limit']),
+        'settings' => PublicApi::settings(['seo_auto_links', 'seo_auto_links_limit']),
     ], 300);
 });
 
@@ -102,17 +59,17 @@ Route::get('/products', function (Request $request) {
             ->when($request->integer('limit') > 0, fn ($builder) => $builder->limit($request->integer('limit')))
             ->get()
             ->map(function (Product $product) {
-                $product->name = normalize_depok_text($product->name);
-                $product->description = normalize_depok_text($product->description);
-                $product->shortDescription = normalize_depok_text($product->shortDescription);
-                $product->metaTitle = normalize_depok_text($product->metaTitle);
-                $product->metaDescription = normalize_depok_text($product->metaDescription);
+                $product->name = PublicApi::normalizeText($product->name);
+                $product->description = PublicApi::normalizeText($product->description);
+                $product->shortDescription = PublicApi::normalizeText($product->shortDescription);
+                $product->metaTitle = PublicApi::normalizeText($product->metaTitle);
+                $product->metaDescription = PublicApi::normalizeText($product->metaDescription);
 
                 return $product;
             });
     }, collect(), false);
 
-    return public_json(['success' => true, 'products' => $products]);
+    return PublicApi::json(['success' => true, 'products' => $products]);
 });
 
 Route::get('/products/{slug}', function (string $slug) {
@@ -122,13 +79,13 @@ Route::get('/products/{slug}', function (string $slug) {
         ->where(fn ($query) => $query->where('slug', $slug)->orWhere('sku', $slug))
         ->firstOrFail();
 
-    return public_json(['success' => true, 'product' => $product]);
+    return PublicApi::json(['success' => true, 'product' => $product]);
 });
 
 Route::get('/categories', function (Request $request) {
     $type = $request->query('type', 'PRODUCT');
 
-    return public_json([
+    return PublicApi::json([
         'success' => true,
         'categories' => rescue(
             fn () => Category::query()
@@ -145,7 +102,7 @@ Route::get('/categories', function (Request $request) {
 Route::get('/posts', function (Request $request) {
     $limit = max(1, min($request->integer('limit') ?: 10, 50));
 
-    return public_json([
+    return PublicApi::json([
         'success' => true,
         'posts' => rescue(
             fn () => Post::query()
@@ -176,17 +133,17 @@ Route::get('/posts/{slug}', function (string $slug, Request $request) {
 
     $post = $query->firstOrFail();
 
-    return public_json(['success' => true, 'post' => sanitize_public_content($post)]);
+    return PublicApi::json(['success' => true, 'post' => PublicApi::sanitizeContent($post)]);
 });
 
-Route::get('/pages/{slug}', fn (string $slug) => public_json([
+Route::get('/pages/{slug}', fn (string $slug) => PublicApi::json([
     'success' => true,
-    'page' => sanitize_public_content(Page::query()->where('published', true)->where('slug', $slug)->firstOrFail()),
+    'page' => PublicApi::sanitizeContent(Page::query()->where('published', true)->where('slug', $slug)->firstOrFail()),
 ]));
 
-Route::get('/city-pages/{slug}', fn (string $slug) => public_json([
+Route::get('/city-pages/{slug}', fn (string $slug) => PublicApi::json([
     'success' => true,
-    'cityPage' => sanitize_public_content(CityPage::query()->where('published', true)->where('slug', $slug)->firstOrFail()),
+    'cityPage' => PublicApi::sanitizeContent(CityPage::query()->where('published', true)->where('slug', $slug)->firstOrFail()),
 ]));
 
 Route::post('/comments', function (Request $request) {
@@ -221,7 +178,7 @@ Route::post('/inquiries', function (Request $request) {
         'turnstileToken' => ['nullable', 'string'],
     ]);
 
-    $settings = settings_map(['turnstile_homepage_enabled', 'turnstile_secret_key']);
+    $settings = PublicApi::settings(['turnstile_homepage_enabled', 'turnstile_secret_key']);
     if (($settings['turnstile_homepage_enabled'] ?? 'false') === 'true') {
         $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
             'secret' => $settings['turnstile_secret_key'] ?? '',
@@ -257,7 +214,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('cms')->group(function () {
         'recentActivity' => Post::query()->latest('createdAt')->limit(5)->get(['id', 'title', 'slug', 'published', 'featuredImage', 'createdAt']),
     ]);
 
-    Route::get('/settings', fn () => ['success' => true, 'settings' => settings_map()]);
+    Route::get('/settings', fn () => ['success' => true, 'settings' => PublicApi::settings()]);
     Route::post('/settings', function (Request $request) {
         foreach ($request->all() as $key => $value) {
             Setting::updateOrCreate(['key' => $key], ['value' => (string) $value]);
