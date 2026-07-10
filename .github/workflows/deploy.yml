@@ -240,5 +240,6 @@ jobs:
 
           sleep 3
           curl -fsS "http://127.0.0.1:$APP_PORT/" >/dev/null
+          curl -fsS "http://127.0.0.1:8080/api/posts?limit=1" >/dev/null
           echo "Astro health check passed on port $APP_PORT."
           REMOTE_SCRIPT

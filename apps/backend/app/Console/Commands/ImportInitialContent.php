@@ -13,8 +13,10 @@ class ImportInitialContent extends Command
 
     public function handle(): int
     {
-        if (! $this->option('force') && DB::table('post')->exists()) {
-            $this->line('Initial content already exists; import skipped.');
+        $publishedPosts = DB::table('post')->where('published', true)->count();
+
+        if (! $this->option('force') && $publishedPosts >= 6) {
+            $this->line('Initial public content already exists; import skipped.');
 
             return self::SUCCESS;
         }
