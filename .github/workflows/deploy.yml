@@ -65,7 +65,7 @@ jobs:
 
           cd deploy-package
           zip -qr ../deploy.zip . \
-            -x "*/.env" "*/.env.*" "*/node_modules/*" "*/vendor/*" \
+            -x "*/.env" "*/.env.*" "*/node_modules/*" \
             -x "*/storage/logs/*" "*.map" "*/.git/*" "*/.github/*"
 
       - name: Install SSH tooling
