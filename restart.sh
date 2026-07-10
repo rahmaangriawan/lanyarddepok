@@ -7,7 +7,7 @@ if [ -d "$HOME/.nvm" ]; then
 fi
 
 APP_NAME="${APP_NAME:-lanyarddepok.com}"
-APP_PORT="${APP_PORT:-3006}"
+APP_PORT="${APP_PORT:-3007}"
 REMOTE_PATH="${REMOTE_PATH:-htdocs/lanyarddepok.com}"
 
 if [ -d "$HOME/$REMOTE_PATH" ]; then
@@ -20,6 +20,7 @@ fi
 
 cd "$APP_DIR"
 export PORT="$APP_PORT"
+export HOST="127.0.0.1"
 export NODE_ENV=production
 
 echo "=== Restarting Astro frontend ==="

@@ -9,7 +9,7 @@ on:
 env:
   APP_NAME: lanyarddepok.com
   REMOTE_PATH: htdocs/lanyarddepok.com
-  APP_PORT: "3006"
+  APP_PORT: "3007"
   PUBLIC_SITE_URL: https://lanyarddepok.com
   PUBLIC_BACKEND_URL: https://lanyarddepok.com
   PUBLIC_API_BASE_URL: https://lanyarddepok.com/api
