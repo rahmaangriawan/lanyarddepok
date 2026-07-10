@@ -109,6 +109,10 @@ jobs:
           unzip -q "$HOME/deploy-lanyarddepok.zip" -d "$STAGING_DIR"
           rm -f "$HOME/deploy-lanyarddepok.zip"
 
+          if [ -f "$APP_DIR/apps/backend/.env" ] && [ ! -f "$APP_DIR/backend.env" ]; then
+            cp "$APP_DIR/apps/backend/.env" "$APP_DIR/backend.env"
+          fi
+
           ensure_backend_storage() {
             STORAGE_DIR="$APP_DIR/apps/backend/storage"
             STORAGE_BACKUP=""
@@ -184,13 +188,18 @@ jobs:
 
           rm -rf "$STAGING_DIR"
 
+          if [ ! -f "$APP_DIR/apps/backend/.env" ] && [ -f "$APP_DIR/backend.env" ]; then
+            mkdir -p "$APP_DIR/apps/backend"
+            cp "$APP_DIR/backend.env" "$APP_DIR/apps/backend/.env"
+          fi
+
           if [ ! -f "$APP_DIR/apps/backend/.env" ] && [ -f "$APP_DIR/shared/backend.env" ]; then
             mkdir -p "$APP_DIR/apps/backend"
             cp "$APP_DIR/shared/backend.env" "$APP_DIR/apps/backend/.env"
           fi
 
           if [ ! -f "$APP_DIR/apps/backend/.env" ]; then
-            echo "Laravel environment file not found. Create $APP_DIR/apps/backend/.env and rerun deploy."
+            echo "Laravel environment file not found. Create $APP_DIR/backend.env or $APP_DIR/apps/backend/.env and rerun deploy."
             exit 1
           fi
 
