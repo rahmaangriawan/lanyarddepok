@@ -52,13 +52,14 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf deploy-package deploy.zip
-          mkdir -p deploy-package/apps/frontend deploy-package/apps/backend
+          mkdir -p deploy-package/apps/frontend deploy-package/apps/backend deploy-package/initial-media
 
           cp -R apps/backend/. deploy-package/apps/backend/
           rm -rf deploy-package/apps/backend/vendor deploy-package/apps/backend/node_modules
           rm -rf deploy-package/apps/backend/storage/logs
 
           cp -R apps/frontend/dist deploy-package/apps/frontend/dist
+          cp -R deploy/initial-media/. deploy-package/initial-media/
           cp restart.sh deploy-package/restart.sh
           chmod +x deploy-package/restart.sh
 
@@ -176,6 +177,20 @@ jobs:
 
           ensure_frontend_dist
 
+          # Seed bundled starter media only when the destination file is absent.
+          # This restores a fresh server without overwriting later CMS uploads.
+          ensure_backend_storage
+          if [ -d "$STAGING_DIR/initial-media" ]; then
+            if command -v rsync >/dev/null 2>&1; then
+              rsync -r --ignore-existing \
+                --no-times --no-perms --no-owner --no-group --omit-dir-times \
+                "$STAGING_DIR/initial-media/" \
+                "$APP_DIR/apps/backend/storage/app/public/"
+            else
+              cp -Rn "$STAGING_DIR/initial-media/." "$APP_DIR/apps/backend/storage/app/public/"
+            fi
+          fi
+
           if command -v rsync >/dev/null 2>&1; then
             rsync -r --checksum \
               --no-times --no-perms --no-owner --no-group --omit-dir-times \
@@ -214,6 +229,7 @@ jobs:
           cd "$APP_DIR/apps/backend"
           composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
           php artisan migrate --force
+          php artisan content:import-initial
           php artisan storage:link || true
           php artisan config:cache
           php artisan route:cache
