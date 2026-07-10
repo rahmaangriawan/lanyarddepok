@@ -4,6 +4,8 @@
 /node_modules
 **/node_modules
 **/vendor
+!apps/backend/public/vendor/
+!apps/backend/public/vendor/**
 /.pnp
 .pnp.*
 .pnpm-store/
