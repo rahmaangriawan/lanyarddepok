@@ -157,7 +157,7 @@ jobs:
           chmod -R u+rwX "$APP_DIR/apps" 2>/dev/null || true
 
           if command -v rsync >/dev/null 2>&1; then
-            rsync -r --checksum --inplace \
+            rsync -r --checksum \
               --no-times --no-perms --no-owner --no-group --omit-dir-times \
               --exclude 'apps/backend/.env' \
               --exclude 'apps/backend/storage/' \
