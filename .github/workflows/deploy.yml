@@ -33,8 +33,10 @@ jobs:
         with:
           node-version: "22"
           cache: pnpm
+          cache-dependency-path: apps/frontend/pnpm-lock.yaml
 
       - name: Install frontend dependencies
+        working-directory: apps/frontend
         run: pnpm install --frozen-lockfile
 
       - name: Build Astro frontend
