@@ -80,6 +80,7 @@ class CmsResourceController extends Controller
                 'published' => $request->query('published'),
             ],
             'options' => $this->options($config),
+            'productSync' => $resource === 'products' ? $this->productSyncStatus() : null,
         ]);
     }
 
@@ -524,6 +525,19 @@ class CmsResourceController extends Controller
                 ->orderBy('title')
                 ->get(['id', 'title'])
                 ->map(fn (CityPage $page) => ['value' => $page->id, 'label' => $page->title]),
+        ];
+    }
+
+    private function productSyncStatus(): array
+    {
+        $settings = Setting::query()
+            ->whereIn('key', ['google_service_account_json', 'google_spreadsheet_id', 'google_spreadsheet_range', 'google_products_last_synced_at'])
+            ->pluck('value', 'key');
+
+        return [
+            'configured' => filled($settings->get('google_service_account_json')) && filled($settings->get('google_spreadsheet_id')),
+            'range' => $settings->get('google_spreadsheet_range') ?: 'Sheet1!A:Z',
+            'lastSyncedAt' => $settings->get('google_products_last_synced_at'),
         ];
     }
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Cms\CmsResourceController;
 use App\Http\Controllers\Cms\DashboardController;
 use App\Http\Controllers\Cms\UtilityPageController;
+use App\Http\Controllers\Cms\ProductSyncController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -66,6 +67,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('kawruh')->group(functi
     Route::redirect('/portofolio', '/kawruh/portfolio');
     Route::get('/profile', [UtilityPageController::class, 'profile'])->name('cms.profile');
     Route::get('/media-picker', [CmsResourceController::class, 'mediaPicker'])->name('cms.media-picker');
+    Route::post('/products/sync', ProductSyncController::class)->name('cms.products.sync');
     Route::get('/{resource}', [CmsResourceController::class, 'index'])->name('cms.index');
     Route::get('/{resource}/create', [CmsResourceController::class, 'create'])->name('cms.create');
     Route::post('/{resource}/bulk', [CmsResourceController::class, 'bulk'])->name('cms.bulk');

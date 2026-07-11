@@ -197,6 +197,23 @@
       <p class="page__description">{{ $config['description'] }}</p>
     </div>
     <div class="page__actions">
+      @if($resource === 'products')
+        <div class="text-end">
+          <form method="post" action="{{ route('cms.products.sync') }}" onsubmit="this.querySelector('button').disabled = true; this.querySelector('button').textContent = 'Menyinkronkan...';">
+            @csrf
+            <button class="button button--outline button--neutral" type="submit" @disabled(! ($productSync['configured'] ?? false))>Sinkronkan Spreadsheet</button>
+          </form>
+          <p class="mt-1 text-xs text-muted-foreground">
+            @if($productSync['lastSyncedAt'] ?? null)
+              Terakhir: {{ \Illuminate\Support\Carbon::parse($productSync['lastSyncedAt'])->translatedFormat('d M Y H:i') }}
+            @elseif($productSync['configured'] ?? false)
+              Siap membaca {{ $productSync['range'] }}
+            @else
+              Lengkapi credential dan Spreadsheet ID di CMS Settings.
+            @endif
+          </p>
+        </div>
+      @endif
       <a class="button button--primary" href="{{ $createUrl }}">Tambah {{ $config['singular'] }}</a>
     </div>
   </header>

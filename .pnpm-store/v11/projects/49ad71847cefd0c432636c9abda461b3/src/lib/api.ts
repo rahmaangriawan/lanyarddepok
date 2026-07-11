@@ -55,7 +55,17 @@ export type Post = {
   createdAt?: string;
   updatedAt?: string;
   category?: { id: number; name: string; slug: string } | null;
+  author?: Author | null;
   comments?: Comment[];
+};
+
+export type Author = {
+  id: number;
+  name: string;
+  slug: string;
+  bio?: string | null;
+  avatar?: string | null;
+  updatedAt?: string | null;
 };
 
 export type Comment = {
@@ -96,6 +106,7 @@ export type PublicSitemap = {
   products: SitemapItem[];
   pages: SitemapItem[];
   cityPages: SitemapItem[];
+  authors: SitemapItem[];
 };
 
 export type Category = {
@@ -210,6 +221,18 @@ export const api = {
       post: null,
     }, { cacheTtlMs: 0 });
   },
+  author: (slug: string, options?: { page?: number; limit?: number }) => {
+    const params = new URLSearchParams();
+    if (options?.page && options.page > 1) params.set('page', String(options.page));
+    if (options?.limit) params.set('limit', String(options.limit));
+    const query = params.toString();
+
+    return request<{ success: boolean; author: Author | null; posts: PaginatedPosts | Post[]; redirectTo?: string }>(`/authors/${encodeURIComponent(slug)}${query ? `?${query}` : ''}`, {
+      success: false,
+      author: null,
+      posts: [],
+    }, { cacheTtlMs: 0 });
+  },
   publicSettings: () =>
     request<{ success: boolean; settings: PublicSettings }>('/public-settings', {
       success: false,
@@ -218,7 +241,7 @@ export const api = {
   sitemap: () =>
     request<{ success: boolean; sitemap: PublicSitemap }>('/sitemap', {
       success: false,
-      sitemap: { posts: [], products: [], pages: [], cityPages: [] },
+      sitemap: { posts: [], products: [], pages: [], cityPages: [], authors: [] },
     }, { cacheTtlMs: 0 }),
   page: (slug: string) =>
     request<{ success: boolean; page: CmsPage | null }>(`/pages/${slug}`, {
