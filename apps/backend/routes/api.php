@@ -31,7 +31,7 @@ Route::get('/turnstile-config', function () {
 });
 
 Route::get('/public-settings', function () {
-    return PublicApi::json([
+    return PublicApi::noStoreJson([
         'success' => true,
         'settings' => PublicApi::settings([
             'site_title',
@@ -53,11 +53,11 @@ Route::get('/public-settings', function () {
             'seo_auto_links',
             'seo_auto_links_limit',
         ]),
-    ], 300);
+    ]);
 });
 
 Route::get('/sitemap', function () {
-    return PublicApi::json([
+    return PublicApi::noStoreJson([
         'success' => true,
         'sitemap' => [
             'posts' => Post::query()
@@ -83,7 +83,7 @@ Route::get('/sitemap', function () {
                 ->orderByDesc('updatedAt')
                 ->get(['slug', 'updatedAt']),
         ],
-    ], 3600);
+    ]);
 });
 
 Route::get('/products', function (Request $request) {
@@ -119,7 +119,7 @@ Route::get('/products', function (Request $request) {
             });
     }, collect(), false);
 
-    return PublicApi::json(['success' => true, 'products' => $products]);
+    return PublicApi::noStoreJson(['success' => true, 'products' => $products]);
 });
 
 Route::get('/products/{slug}', function (string $slug) {
@@ -129,7 +129,7 @@ Route::get('/products/{slug}', function (string $slug) {
         ->where(fn ($query) => $query->where('slug', $slug)->orWhere('sku', $slug))
         ->firstOrFail();
 
-    return PublicApi::json(['success' => true, 'product' => $product]);
+    return PublicApi::noStoreJson(['success' => true, 'product' => $product]);
 });
 
 Route::get('/categories', function (Request $request) {
@@ -152,7 +152,7 @@ Route::get('/categories', function (Request $request) {
 Route::get('/posts', function (Request $request) {
     $limit = max(1, min($request->integer('limit') ?: 10, 50));
 
-    return PublicApi::json([
+    return PublicApi::noStoreJson([
         'success' => true,
         'posts' => rescue(
             fn () => Post::query()
@@ -189,15 +189,15 @@ Route::get('/posts/{slug}', function (string $slug, Request $request) {
 
     $post = $query->firstOrFail();
 
-    return PublicApi::json(['success' => true, 'post' => PublicApi::sanitizeContent($post)]);
+    return PublicApi::noStoreJson(['success' => true, 'post' => PublicApi::sanitizeContent($post)]);
 });
 
-Route::get('/pages/{slug}', fn (string $slug) => PublicApi::json([
+Route::get('/pages/{slug}', fn (string $slug) => PublicApi::noStoreJson([
     'success' => true,
     'page' => PublicApi::sanitizeContent(Page::query()->where('published', true)->where('slug', $slug)->firstOrFail()),
 ]));
 
-Route::get('/city-pages/{slug}', fn (string $slug) => PublicApi::json([
+Route::get('/city-pages/{slug}', fn (string $slug) => PublicApi::noStoreJson([
     'success' => true,
     'cityPage' => PublicApi::sanitizeContent(CityPage::query()->where('published', true)->where('slug', $slug)->firstOrFail()),
 ]));

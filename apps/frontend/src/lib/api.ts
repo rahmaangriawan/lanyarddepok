@@ -125,11 +125,16 @@ export type PublicSettings = {
   social_tiktok?: string;
 };
 
-async function request<T>(path: string, fallback: T): Promise<T> {
+type RequestOptions = {
+  cacheTtlMs?: number;
+};
+
+async function request<T>(path: string, fallback: T, options: RequestOptions = {}): Promise<T> {
   const cached = requestCache.get(path);
   const now = Date.now();
+  const cacheTtlMs = options.cacheTtlMs ?? REQUEST_CACHE_TTL_MS;
 
-  if (cached && cached.expiresAt > now) {
+  if (cacheTtlMs > 0 && cached && cached.expiresAt > now) {
     return cached.value as T;
   }
 
@@ -139,17 +144,22 @@ async function request<T>(path: string, fallback: T): Promise<T> {
 
     try {
       const response = await fetch(`${apiBase}${path}`, {
-        headers: { Accept: 'application/json' },
+        headers: {
+          Accept: 'application/json',
+          ...(cacheTtlMs === 0 ? { 'Cache-Control': 'no-cache' } : {}),
+        },
         signal: controller.signal,
       });
 
       if (!response.ok) continue;
 
       const value = await response.json();
-      requestCache.set(path, {
-        expiresAt: now + REQUEST_CACHE_TTL_MS,
-        value,
-      });
+      if (cacheTtlMs > 0) {
+        requestCache.set(path, {
+          expiresAt: now + cacheTtlMs,
+          value,
+        });
+      }
 
       return value;
     } catch {
@@ -167,7 +177,7 @@ export const api = {
     request<{ success: boolean; products: Product[] }>(`/products${limit ? `?limit=${limit}` : ''}`, {
       success: false,
       products: [],
-    }),
+    }, { cacheTtlMs: 0 }),
   categories: (type?: string) =>
     request<{ success: boolean; categories: Category[] }>(`/categories${type ? `?type=${encodeURIComponent(type)}` : ''}`, {
       success: false,
@@ -177,7 +187,7 @@ export const api = {
     request<{ success: boolean; product: Product | null }>(`/products/${slug}`, {
       success: false,
       product: null,
-    }),
+    }, { cacheTtlMs: 0 }),
   posts: (options?: { limit?: number; page?: number }) => {
     const params = new URLSearchParams();
     if (options?.limit) params.set('limit', String(options.limit));
@@ -187,7 +197,7 @@ export const api = {
     return request<{ success: boolean; posts: PaginatedPosts | Post[] }>(`/posts${query ? `?${query}` : ''}`, {
       success: false,
       posts: [],
-    });
+    }, { cacheTtlMs: 0 });
   },
   post: (slug: string, options?: { preview?: string; expires?: string; signature?: string }) => {
     const params = new URLSearchParams();
@@ -198,28 +208,28 @@ export const api = {
     return request<{ success: boolean; post: Post | null }>(`/posts/${slug}${query ? `?${query}` : ''}`, {
       success: false,
       post: null,
-    });
+    }, { cacheTtlMs: 0 });
   },
   publicSettings: () =>
     request<{ success: boolean; settings: PublicSettings }>('/public-settings', {
       success: false,
       settings: {},
-    }),
+    }, { cacheTtlMs: 0 }),
   sitemap: () =>
     request<{ success: boolean; sitemap: PublicSitemap }>('/sitemap', {
       success: false,
       sitemap: { posts: [], products: [], pages: [], cityPages: [] },
-    }),
+    }, { cacheTtlMs: 0 }),
   page: (slug: string) =>
     request<{ success: boolean; page: CmsPage | null }>(`/pages/${slug}`, {
       success: false,
       page: null,
-    }),
+    }, { cacheTtlMs: 0 }),
   cityPage: (slug: string) =>
     request<{ success: boolean; cityPage: CmsPage | null }>(`/city-pages/${slug}`, {
       success: false,
       cityPage: null,
-    }),
+    }, { cacheTtlMs: 0 }),
 };
 
 export function mediaUrl(path?: string | null) {

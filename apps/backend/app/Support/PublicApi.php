@@ -28,6 +28,15 @@ final class PublicApi
             ->header('Cache-Control', "public, s-maxage={$seconds}, stale-while-revalidate=300");
     }
 
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public static function noStoreJson(array $payload): JsonResponse
+    {
+        return response()->json($payload)
+            ->header('Cache-Control', 'no-store, private');
+    }
+
     public static function sanitizeContent(mixed $model): mixed
     {
         if ($model && isset($model->content)) {

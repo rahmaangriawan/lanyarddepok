@@ -58,7 +58,10 @@ export function urlsetResponse(entries: SitemapEntry[]): Response {
     .join('\n')}\n</urlset>\n`;
 
   return new Response(body, {
-    headers: { 'Content-Type': 'application/xml; charset=utf-8' },
+    headers: {
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': 'no-cache, must-revalidate',
+    },
   });
 }
 
@@ -68,6 +71,9 @@ export function sitemapIndexResponse(paths: string[], siteUrl = resolveSiteUrl()
     .join('\n')}\n</sitemapindex>\n`;
 
   return new Response(body, {
-    headers: { 'Content-Type': 'application/xml; charset=utf-8' },
+    headers: {
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': 'no-cache, must-revalidate',
+    },
   });
 }

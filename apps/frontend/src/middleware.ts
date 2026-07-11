@@ -26,5 +26,9 @@ export const onRequest = defineMiddleware(async (_context, next) => {
     response.headers.set(key, value);
   }
 
+  if (response.headers.get('Content-Type')?.includes('text/html')) {
+    response.headers.set('Cache-Control', 'no-cache, must-revalidate');
+  }
+
   return response;
 });
