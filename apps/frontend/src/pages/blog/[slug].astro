@@ -31,7 +31,11 @@ const relatedPosts = allPosts.filter((item) => item.id !== post.id).slice(0, 3);
 const encodedUrl = encodeURIComponent(currentUrl);
 const encodedTitle = encodeURIComponent(post.title);
 const commentApiUrls = PUBLIC_API_BASES.map((baseUrl) => `${baseUrl}/comments`);
-const authorName = 'Admin Tes';
+const author = post.author;
+const authorName = author?.name || 'Tim Lanyard Depok';
+const authorBio = author?.bio?.trim() || 'Tim Lanyard Depok menulis panduan seputar lanyard custom, kebutuhan event, dan branding perusahaan.';
+const authorUrl = author?.slug ? `/penulis/${encodeURIComponent(author.slug)}` : null;
+const authorAvatar = author?.avatar ? mediaUrl(author.avatar) : null;
 const fallbackImage = '/uploads/blog-hero-lanyarddepok.webp';
 const autoLinks = parseAutoLinks(settingsResponse.settings.seo_auto_links);
 const autoLinksLimit = parseAutoLinkLimit(settingsResponse.settings.seo_auto_links_limit);
@@ -149,6 +153,13 @@ const articleSchema = createBlogPostingSchema({
   datePublished: post.createdAt,
   dateModified: post.updatedAt,
   category: post.category?.name,
+  author: authorUrl
+    ? {
+        name: authorName,
+        url: absoluteUrl(authorUrl),
+        imageUrl: authorAvatar ? absoluteUrl(authorAvatar) : null,
+      }
+    : null,
 });
 const articlePublishedTime = normalizeIsoDate(post.createdAt);
 const articleModifiedTime = normalizeIsoDate(post.updatedAt);
@@ -211,10 +222,12 @@ const shareLinks = [
             <h1>{post.title}</h1>
             {post.metaDescription && <p class="blog-hero-excerpt">{post.metaDescription}</p>}
             <div class="blog-post-meta">
-              <a href="/blog/author/admin" class="blog-author-inline">
-                <span>{authorName.charAt(0)}</span>
+              <span class="blog-author-inline">
+                <span class="blog-author-inline-avatar">
+                  {authorAvatar ? <img src={authorAvatar} alt="" /> : authorName.charAt(0)}
+                </span>
                 {authorName}
-              </a>
+              </span>
               {publishedDate && (
                 <span>
                   <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/><rect x="3" y="5" width="18" height="16" rx="2"/></svg>
@@ -240,13 +253,16 @@ const shareLinks = [
         <div class="content-prose" set:html={contentHtml} />
 
         <section class="blog-author-box" aria-label="Tentang penulis">
-          <div class="blog-author-avatar">{authorName.charAt(0)}</div>
+          <div class="blog-author-avatar">
+            {authorAvatar ? <img src={authorAvatar} alt={`Foto ${authorName}`} loading="lazy" decoding="async" /> : authorName.charAt(0)}
+          </div>
           <div>
             <div class="blog-author-heading">
               <h2>{authorName}</h2>
               <span>Penulis</span>
             </div>
-            <p>Tim Lanyard Depok menulis panduan seputar lanyard custom, kebutuhan event, dan branding perusahaan.</p>
+            <p>{authorBio}</p>
+            {authorUrl && <a class="blog-author-profile-link" href={authorUrl}>Lihat profil penulis</a>}
           </div>
         </section>
 
@@ -611,14 +627,9 @@ const shareLinks = [
 
   .blog-author-inline {
     color: var(--foreground);
-    transition: color 160ms ease;
   }
 
-  .blog-author-inline:hover {
-    color: var(--primary);
-  }
-
-  .blog-author-inline span {
+  .blog-author-inline-avatar {
     background: var(--secondary);
     border-radius: 999px;
     color: var(--primary);
@@ -626,7 +637,14 @@ const shareLinks = [
     font-size: 0.65rem;
     height: 1.5rem;
     place-items: center;
+    overflow: hidden;
     width: 1.5rem;
+  }
+
+  .blog-author-inline-avatar img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
   }
 
   .blog-featured-frame {
@@ -830,7 +848,14 @@ const shareLinks = [
     font-weight: 900;
     height: 3.4rem;
     place-items: center;
+    overflow: hidden;
     width: 3.4rem;
+  }
+
+  .blog-author-avatar img {
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
   }
 
   .blog-author-heading {
@@ -868,6 +893,16 @@ const shareLinks = [
     font-weight: 600;
     line-height: 1.7;
     margin: 0.45rem 0 0;
+  }
+
+  .blog-author-profile-link {
+    color: var(--primary);
+    display: inline-flex;
+    font-size: 0.86rem;
+    font-weight: 700;
+    margin-top: 0.8rem;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
   }
 
   .blog-share-panel {

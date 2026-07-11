@@ -125,6 +125,10 @@ class CmsResourceController extends Controller
                 ]);
             }
         } else {
+            if ($resource === 'posts') {
+                $data['authorId'] = $request->user()->id;
+            }
+
             $config['model']::create($data);
         }
 
@@ -349,7 +353,7 @@ class CmsResourceController extends Controller
             'filepath' => $path,
             'mimetype' => $file->getMimeType() ?: 'application/octet-stream',
             'size' => $file->getSize(),
-            'url' => Storage::url($path),
+            'url' => Storage::disk('public')->url($path),
         ]);
     }
 

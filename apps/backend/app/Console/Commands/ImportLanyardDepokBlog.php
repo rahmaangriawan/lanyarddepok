@@ -341,7 +341,7 @@ class ImportLanyardDepokBlog extends Command
 
             Storage::disk('public')->put($path, $response->body());
 
-            $localUrl = Storage::url($path);
+            $localUrl = Storage::disk('public')->url($path);
             Media::create([
                 'filename' => $filename,
                 'filepath' => 'storage/'.$path,

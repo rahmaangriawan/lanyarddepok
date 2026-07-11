@@ -18,6 +18,7 @@ class Post extends Model
         'published',
         'featuredImage',
         'categoryId',
+        'authorId',
         'metaTitle',
         'metaDescription',
         'createdAt',
@@ -40,5 +41,10 @@ class Post extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class, 'postId');
+    }
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'authorId');
     }
 }

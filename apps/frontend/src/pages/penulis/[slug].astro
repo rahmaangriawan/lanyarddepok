@@ -1,0 +1,143 @@
+---
+import PublicLayout from '../../layouts/PublicLayout.astro';
+import { api, mediaUrl } from '../../lib/api';
+import { absoluteUrl, createAuthorProfileSchema } from '../../lib/seo';
+
+export const prerender = false;
+
+const slug = Astro.params.slug || '';
+const requestedPage = Number(Astro.url.searchParams.get('page') || '1');
+const currentPage = Number.isFinite(requestedPage) && requestedPage > 0 ? Math.floor(requestedPage) : 1;
+const { author, posts: postsPayload, redirectTo } = await api.author(slug, { page: currentPage, limit: 6 });
+
+if (redirectTo) return Astro.redirect(redirectTo, 301);
+if (!author) return new Response(null, { status: 404 });
+
+const posts = Array.isArray(postsPayload) ? postsPayload : postsPayload.data || [];
+const lastPage = Array.isArray(postsPayload) ? 1 : postsPayload.last_page || 1;
+const totalPosts = Array.isArray(postsPayload) ? posts.length : postsPayload.total || posts.length;
+const fallbackBio = 'Tim Lanyard Depok menulis panduan seputar lanyard custom, kebutuhan event, dan branding perusahaan.';
+const bio = author.bio?.trim() || fallbackBio;
+const authorPath = `/penulis/${encodeURIComponent(author.slug)}`;
+const authorUrl = absoluteUrl(authorPath);
+const avatar = author.avatar ? mediaUrl(author.avatar) : null;
+const fallbackImage = '/uploads/featured-products-showcase-lanyarddepok-v2.webp';
+const image = avatar || fallbackImage;
+const title = `${author.name} | Penulis Lanyard Depok`;
+const description = bio.slice(0, 180);
+const authorSchema = createAuthorProfileSchema({
+  url: authorUrl,
+  name: author.name,
+  description,
+  imageUrl: absoluteUrl(image),
+});
+const pageHref = (page: number) => page <= 1 ? authorPath : `${authorPath}?page=${page}`;
+const pageNumbers = Array.from({ length: lastPage }, (_, index) => index + 1);
+const formatDate = (value?: string | null) => value
+  ? new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' }).format(new Date(value))
+  : '';
+---
+
+<PublicLayout
+  title={currentPage > 1 ? `${title} - Halaman ${currentPage}` : title}
+  description={description}
+  canonicalPath={pageHref(currentPage)}
+  ogImage={image}
+  ogImageAlt={`Profil ${author.name}`}
+  structuredData={authorSchema}
+>
+  <section class="author-hero">
+    <div class="author-shell author-hero__inner">
+      <a class="author-breadcrumb" href="/blog">Blog</a>
+      <div class="author-identity">
+        <div class="author-avatar author-avatar--hero">
+          {avatar ? <img src={avatar} alt={`Foto ${author.name}`} fetchpriority="high" decoding="async" /> : author.name.charAt(0)}
+        </div>
+        <div class="author-identity__copy">
+          <p class="author-eyebrow">Penulis Lanyard Depok</p>
+          <h1>{author.name}</h1>
+          <p>{bio}</p>
+          <span class="author-count">{totalPosts} artikel terbit</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="author-posts">
+    <div class="author-shell">
+      <div class="author-section-heading">
+        <div>
+          <p class="author-eyebrow">Artikel oleh {author.name}</p>
+          <h2>Insight terbaru</h2>
+        </div>
+        <a href="/blog">Lihat semua artikel</a>
+      </div>
+
+      {posts.length > 0 ? (
+        <div class="author-post-grid">
+          {posts.map((post) => (
+            <a class="author-post-card" href={`/blog/${encodeURIComponent(post.slug)}`}>
+              <div class="author-post-card__image">
+                <img src={mediaUrl(post.featuredImage || fallbackImage)} alt={post.title} loading="lazy" decoding="async" />
+              </div>
+              <div class="author-post-card__body">
+                <p>{post.category?.name || 'Artikel'}</p>
+                <h3>{post.title}</h3>
+                <span>{formatDate(post.createdAt)}</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div class="author-empty">Belum ada artikel yang diterbitkan oleh penulis ini.</div>
+      )}
+
+      {lastPage > 1 && (
+        <nav class="author-pagination" aria-label="Pagination artikel penulis">
+          <a href={pageHref(Math.max(1, currentPage - 1))} aria-disabled={currentPage <= 1 ? 'true' : 'false'} class:list={{ 'is-disabled': currentPage <= 1 }}>Sebelumnya</a>
+          {pageNumbers.map((page) => <a href={pageHref(page)} aria-current={page === currentPage ? 'page' : undefined} class:list={{ 'is-active': page === currentPage }}>{page}</a>)}
+          <a href={pageHref(Math.min(lastPage, currentPage + 1))} aria-disabled={currentPage >= lastPage ? 'true' : 'false'} class:list={{ 'is-disabled': currentPage >= lastPage }}>Berikutnya</a>
+        </nav>
+      )}
+    </div>
+  </section>
+</PublicLayout>
+
+<style>
+  .author-shell { margin: 0 auto; max-width: 80rem; padding: 0 1rem; }
+  .author-hero { border-bottom: 1px solid var(--border); background: #fff; padding: 4rem 0; }
+  .author-breadcrumb { color: var(--primary); font-size: .9rem; font-weight: 700; text-decoration: none; }
+  .author-breadcrumb::before { content: 'Kembali ke '; color: var(--muted-foreground); font-weight: 500; }
+  .author-identity { align-items: center; display: grid; gap: 1.5rem; grid-template-columns: auto minmax(0, 1fr); margin-top: 2rem; max-width: 52rem; }
+  .author-avatar { align-items: center; background: var(--secondary); border: 1px solid var(--border); border-radius: 50%; color: var(--primary); display: flex; font-size: 2.3rem; font-weight: 700; justify-content: center; overflow: hidden; }
+  .author-avatar--hero { height: 7rem; width: 7rem; }
+  .author-avatar img { height: 100%; object-fit: cover; width: 100%; }
+  .author-eyebrow { color: var(--primary); font-size: .78rem; font-weight: 700; letter-spacing: 0; margin: 0; text-transform: uppercase; }
+  .author-identity h1, .author-section-heading h2 { color: var(--foreground); font-weight: 700; letter-spacing: 0; margin: .45rem 0 0; }
+  .author-identity h1 { font-size: clamp(2.05rem, 4vw, 3.4rem); line-height: 1.08; }
+  .author-identity__copy > p:not(.author-eyebrow) { color: var(--muted-foreground); font-size: 1rem; line-height: 1.75; margin: 1rem 0 0; }
+  .author-count { color: var(--muted-foreground); display: inline-flex; font-size: .86rem; font-weight: 700; margin-top: 1rem; }
+  .author-posts { background: #fff; padding: 4rem 0 5rem; }
+  .author-section-heading { align-items: end; display: flex; gap: 1rem; justify-content: space-between; margin-bottom: 2rem; }
+  .author-section-heading h2 { font-size: clamp(1.75rem, 3vw, 2.35rem); line-height: 1.14; }
+  .author-section-heading > a { color: var(--primary); font-size: .9rem; font-weight: 700; text-decoration: underline; text-underline-offset: .2em; }
+  .author-post-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .author-post-card { border: 1px solid var(--border); border-radius: 1rem; color: inherit; overflow: hidden; text-decoration: none; transition: border-color .16s ease, transform .16s ease; }
+  .author-post-card:hover { border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); transform: translateY(-2px); }
+  .author-post-card__image { background: var(--muted); overflow: hidden; }
+  .author-post-card__image img { aspect-ratio: 16 / 10; display: block; object-fit: cover; transition: transform .3s ease; width: 100%; }
+  .author-post-card:hover .author-post-card__image img { transform: scale(1.02); }
+  .author-post-card__body { padding: 1.1rem; }
+  .author-post-card__body p { color: var(--primary); font-size: .72rem; font-weight: 700; margin: 0; text-transform: uppercase; }
+  .author-post-card__body h3 { color: var(--foreground); display: -webkit-box; font-size: 1.12rem; font-weight: 700; letter-spacing: 0; line-height: 1.35; margin: .5rem 0 .9rem; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+  .author-post-card__body span { color: var(--muted-foreground); font-size: .8rem; font-weight: 600; }
+  .author-empty { border: 1px dashed var(--border); border-radius: 1rem; color: var(--muted-foreground); padding: 2rem; text-align: center; }
+  .author-pagination { align-items: center; display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-top: 2.5rem; }
+  .author-pagination a { align-items: center; border: 1px solid var(--border); border-radius: .65rem; color: var(--foreground); display: inline-flex; font-size: .88rem; font-weight: 700; justify-content: center; min-height: 2.5rem; padding: 0 .8rem; text-decoration: none; }
+  .author-pagination a.is-active { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .author-pagination a.is-disabled { opacity: .45; pointer-events: none; }
+  @media (min-width: 640px) { .author-shell { padding: 0 1.5rem; } .author-hero { padding: 5rem 0; } }
+  @media (min-width: 1024px) { .author-shell { padding: 0 2rem; } }
+  @media (max-width: 720px) { .author-section-heading { align-items: start; flex-direction: column; } .author-post-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 460px) { .author-identity { align-items: start; grid-template-columns: 1fr; } .author-avatar--hero { height: 5.5rem; width: 5.5rem; } }
+</style>

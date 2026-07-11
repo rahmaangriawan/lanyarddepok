@@ -25,6 +25,9 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'slug',
+        'bio',
+        'avatar',
         'email',
         'password',
         'role',
@@ -56,6 +59,11 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class, 'userId');
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'authorId');
     }
 
     public function isAdmin(): bool

@@ -6,6 +6,7 @@ const childSitemaps = [
   '/sitemap-posts.xml',
   '/sitemap-products.xml',
   '/sitemap-pages.xml',
+  '/sitemap-authors.xml',
 ];
 
 export const GET: APIRoute = () => sitemapIndexResponse(childSitemaps);

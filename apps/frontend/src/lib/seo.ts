@@ -180,6 +180,11 @@ export function createBlogPostingSchema(config: {
   datePublished?: string | null;
   dateModified?: string | null;
   category?: string | null;
+  author?: {
+    name: string;
+    url: string;
+    imageUrl?: string | null;
+  } | null;
 }): JsonLd {
   const siteUrl = resolveSiteUrl();
   const published = normalizeIsoDate(config.datePublished);
@@ -197,8 +202,51 @@ export function createBlogPostingSchema(config: {
     ...(config.category ? { articleSection: config.category } : {}),
     ...(published ? { datePublished: published } : {}),
     ...(modified ? { dateModified: modified } : {}),
-    author: organization(siteUrl),
+    author: config.author
+      ? {
+          '@type': 'Person',
+          '@id': `${config.author.url}#person`,
+          name: config.author.name,
+          url: config.author.url,
+          ...(config.author.imageUrl ? { image: config.author.imageUrl } : {}),
+        }
+      : organization(siteUrl),
     publisher: organization(siteUrl),
+  };
+}
+
+export function createAuthorProfileSchema(config: {
+  url: string;
+  name: string;
+  description: string;
+  imageUrl?: string | null;
+}): JsonLd {
+  const siteUrl = resolveSiteUrl();
+  const personId = `${config.url}#person`;
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'ProfilePage',
+        '@id': `${config.url}#profilepage`,
+        url: config.url,
+        name: `${config.name} | Penulis Lanyard Depok`,
+        description: config.description,
+        inLanguage: 'id-ID',
+        isPartOf: { '@id': `${siteUrl}/#website` },
+        mainEntity: { '@id': personId },
+      },
+      {
+        '@type': 'Person',
+        '@id': personId,
+        name: config.name,
+        url: config.url,
+        description: config.description,
+        ...(config.imageUrl ? { image: config.imageUrl } : {}),
+        worksFor: organization(siteUrl),
+      },
+    ],
   };
 }
 

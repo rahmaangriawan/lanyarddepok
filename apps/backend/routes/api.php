@@ -3,6 +3,7 @@
 use App\Models\Category;
 use App\Models\CityPage;
 use App\Models\Comment;
+use App\Models\AuthorSlugRedirect;
 use App\Models\Inquiry;
 use App\Models\Media;
 use App\Models\Order;
@@ -11,6 +12,7 @@ use App\Models\Portfolio;
 use App\Models\Post;
 use App\Models\Product;
 use App\Models\Setting;
+use App\Models\User;
 use App\Support\PublicApi;
 use App\Support\ArticlePreview;
 use Illuminate\Http\Request;
@@ -81,6 +83,11 @@ Route::get('/sitemap', function () {
             'cityPages' => CityPage::query()
                 ->where('published', true)
                 ->orderByDesc('updatedAt')
+                ->get(['slug', 'updatedAt']),
+            'authors' => User::query()
+                ->whereNotNull('slug')
+                ->whereHas('posts', fn ($query) => $query->where('published', true))
+                ->orderBy('name')
                 ->get(['slug', 'updatedAt']),
         ],
     ]);
@@ -156,8 +163,8 @@ Route::get('/posts', function (Request $request) {
         'success' => true,
         'posts' => rescue(
             fn () => Post::query()
-                ->select(['id', 'title', 'slug', 'featuredImage', 'categoryId', 'createdAt', 'metaTitle', 'metaDescription'])
-                ->with('category:id,name,slug')
+                ->select(['id', 'title', 'slug', 'featuredImage', 'categoryId', 'authorId', 'createdAt', 'updatedAt', 'metaTitle', 'metaDescription'])
+                ->with(['category:id,name,slug', 'author:id,name,slug,bio,avatar'])
                 ->where('published', true)
                 ->when($request->query('category'), fn ($query, $slug) => $query->whereHas('category', fn ($category) => $category->where('slug', $slug)->where('type', 'BLOG')))
                 ->orderByDesc('createdAt')
@@ -168,11 +175,50 @@ Route::get('/posts', function (Request $request) {
     ]);
 });
 
+Route::get('/authors/{slug}', function (string $slug, Request $request) {
+    $author = User::query()
+        ->select(['id', 'name', 'slug', 'bio', 'avatar', 'updatedAt'])
+        ->where('slug', $slug)
+        ->first();
+
+    if (! $author) {
+        $redirect = AuthorSlugRedirect::query()
+            ->with('author:id,slug')
+            ->where('slug', $slug)
+            ->first();
+
+        if ($redirect?->author?->slug) {
+            return PublicApi::noStoreJson([
+                'success' => true,
+                'author' => null,
+                'posts' => [],
+                'redirectTo' => "/penulis/{$redirect->author->slug}",
+            ]);
+        }
+
+        abort(404);
+    }
+
+    $limit = max(1, min($request->integer('limit') ?: 6, 24));
+
+    return PublicApi::noStoreJson([
+        'success' => true,
+        'author' => $author,
+        'posts' => Post::query()
+            ->select(['id', 'title', 'slug', 'featuredImage', 'categoryId', 'authorId', 'createdAt', 'updatedAt', 'metaTitle', 'metaDescription'])
+            ->with(['category:id,name,slug', 'author:id,name,slug,bio,avatar'])
+            ->where('published', true)
+            ->where('authorId', $author->id)
+            ->orderByDesc('createdAt')
+            ->paginate($limit),
+    ]);
+});
+
 Route::get('/posts/{slug}', function (string $slug, Request $request) {
     $previewId = $request->query('preview');
 
     $query = Post::query()
-        ->with(['category:id,name,slug', 'comments' => fn ($query) => $query->where('approved', true)->orderByDesc('createdAt')])
+        ->with(['category:id,name,slug', 'author:id,name,slug,bio,avatar', 'comments' => fn ($query) => $query->where('approved', true)->orderByDesc('createdAt')])
         ->where('slug', $slug);
 
     if ($previewId) {
@@ -315,7 +361,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('cms')->group(function () {
             'filepath' => 'storage/'.$path,
             'mimetype' => $file->getMimeType() ?: 'application/octet-stream',
             'size' => $file->getSize(),
-            'url' => Storage::url($path),
+            'url' => Storage::disk('public')->url($path),
         ]);
 
         return response()->json(['success' => true, 'media' => $media], 201);
