@@ -3,5 +3,4 @@
 @source "../layouts/PublicLayout.astro";
 @source "../components/SiteHeader.astro";
 @source "../components/SiteFooter.astro";
-@source "../pages/produk/index.astro";
-@source "../pages/produk/[slug].astro";
+@source "../pages/produk/**/*.astro";
