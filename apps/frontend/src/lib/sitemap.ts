@@ -53,7 +53,7 @@ export function dedupeEntries(entries: SitemapEntry[]): SitemapEntry[] {
 }
 
 export function urlsetResponse(entries: SitemapEntry[]): Response {
-  const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${dedupeEntries(entries)
+  const body = `<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${dedupeEntries(entries)
     .map((entry) => `  <url><loc>${escapeXml(entry.loc)}</loc>${entry.lastmod ? `<lastmod>${entry.lastmod}</lastmod>` : ''}</url>`)
     .join('\n')}\n</urlset>\n`;
 
@@ -66,7 +66,7 @@ export function urlsetResponse(entries: SitemapEntry[]): Response {
 }
 
 export function sitemapIndexResponse(paths: string[], siteUrl = resolveSiteUrl()): Response {
-  const body = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${paths
+  const body = `<?xml version="1.0" encoding="UTF-8"?>\n<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${paths
     .map((path) => `  <sitemap><loc>${escapeXml(absoluteUrl(path, siteUrl))}</loc></sitemap>`)
     .join('\n')}\n</sitemapindex>\n`;
 

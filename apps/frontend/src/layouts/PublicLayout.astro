@@ -44,6 +44,7 @@ const description = providedDescription || settings.seo_meta_description?.trim()
 const siteName = settings.site_title?.trim() || 'Lanyard Depok';
 const ogImage = mediaUrl(providedOgImage || settings.og_image?.trim() || '/uploads/featured-products-showcase-lanyarddepok-v2.webp');
 const faviconUrl = mediaUrl(settings.site_favicon?.trim() || '/uploads/lanyarddepok-favicon.webp');
+const faviconHref = `${faviconUrl}${faviconUrl.includes('?') ? '&' : '?'}v=brand-20260711`;
 const canonicalUrl = absoluteUrl(canonicalPath, siteUrl);
 const ogImageUrl = absoluteUrl(ogImage, siteUrl);
 const resolvedBingVerification = bingSiteVerification || settings.bing_site_verification?.trim();
@@ -65,10 +66,9 @@ const pageStructuredData = structuredData || createWebPageSchema({
     <meta name="theme-color" content="#ffffff" />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="manifest" href="/site.webmanifest" />
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/webp" href={faviconUrl} />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/webp" href={faviconHref} />
+    <link rel="shortcut icon" type="image/webp" href={faviconHref} />
+    <link rel="apple-touch-icon" href={faviconHref} />
     <meta property="og:type" content={ogType} />
     <meta property="og:locale" content="id_ID" />
     <meta property="og:site_name" content={siteName} />
