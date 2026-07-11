@@ -46,6 +46,15 @@ final class PublicApi
         return $model;
     }
 
+    public static function sanitizeProduct(mixed $model): mixed
+    {
+        if ($model && isset($model->description)) {
+            $model->description = HtmlSanitizer::clean($model->description);
+        }
+
+        return $model;
+    }
+
     public static function normalizeText(?string $value): ?string
     {
         return is_string($value)

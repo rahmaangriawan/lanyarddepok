@@ -152,7 +152,7 @@ Route::get('/products/{slug}', function (string $slug) {
         ->where(fn ($query) => $query->where('slug', $slug)->orWhere('sku', $slug))
         ->firstOrFail();
 
-    return PublicApi::noStoreJson(['success' => true, 'product' => $product]);
+    return PublicApi::noStoreJson(['success' => true, 'product' => PublicApi::sanitizeProduct($product)]);
 });
 
 Route::get('/categories', function (Request $request) {
