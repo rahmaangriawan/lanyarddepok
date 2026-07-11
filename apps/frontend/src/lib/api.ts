@@ -30,6 +30,7 @@ export type Product = {
   slug: string | null;
   specs?: string | null;
   accessories?: string | null;
+  variants?: string[] | null;
   shortDescription?: string | null;
   shortDesc?: string | null;
   longDesc?: string | null;
