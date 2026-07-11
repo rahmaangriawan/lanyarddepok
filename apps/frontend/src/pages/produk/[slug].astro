@@ -17,6 +17,13 @@ if (!product) return Astro.redirect('/produk', 302);
 const stripHtml = (value?: string | null) => (value || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 const productName = product.name || product.sku || 'Produk Lanyard';
 const richDescription = product.description || product.longDesc || '';
+const renderEmphasis = (html: string) => html
+  .split(/(<[^>]+>)/g)
+  .map((part) => part.startsWith('<')
+    ? part
+    : part.replace(/\*\*([^*\n]+)\*\*|\*([^*\n]+)\*/g, '<strong>$1$2</strong>'))
+  .join('');
+const renderedDescription = renderEmphasis(richDescription);
 const shortDescription = stripHtml(product.shortDescription || product.shortDesc || product.metaDescription || richDescription)
   || 'Lanyard custom untuk kebutuhan perusahaan, acara, sekolah, dan komunitas.';
 const productUrl = absoluteUrl(`/produk/${encodeURIComponent(slug)}`);
@@ -85,8 +92,8 @@ const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="max-w-4xl">
           <h2 class="text-2xl font-bold leading-tight sm:text-3xl">Deskripsi Produk</h2>
-          {richDescription ? (
-            <div class="product-description mt-6" set:html={richDescription} />
+          {renderedDescription ? (
+            <div class="product-description mt-6" set:html={renderedDescription} />
           ) : (
             <p class="mt-6 text-base leading-8 text-[var(--muted-foreground)]">{shortDescription}</p>
           )}
