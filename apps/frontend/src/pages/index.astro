@@ -7,7 +7,7 @@ import '../styles/home.css';
 const [{ products }, { settings }, postResponse] = await Promise.all([
   api.products(4),
   api.publicSettings(),
-  api.posts({ limit: 4 }),
+  api.posts({ limit: 4, includeContent: true }),
 ]);
 const featuredProducts = products;
 const homepagePostResponse = postResponse.posts;
@@ -15,7 +15,7 @@ const latestPosts = Array.isArray(homepagePostResponse) ? homepagePostResponse :
 const firstImageFromContent = (html?: string | null) => html?.match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i)?.[1] || null;
 const postThumbnail = (post: (typeof latestPosts)[number]) => post.featuredImage || firstImageFromContent(post.content);
 const postSummary = (post: (typeof latestPosts)[number]) => {
-  const value = post.metaDescription || stripHtml(post.content || '') || 'Baca panduan terbaru seputar lanyard custom dan kebutuhan branding.';
+  const value = stripHtml(post.content || '') || post.metaDescription || 'Baca panduan terbaru seputar lanyard custom dan kebutuhan branding.';
   return value.length > 120 ? `${value.slice(0, 117).trimEnd()}...` : value;
 };
 const formatPostDate = (value?: string) => value

@@ -174,12 +174,17 @@ Route::get('/categories', function (Request $request) {
 
 Route::get('/posts', function (Request $request) {
     $limit = max(1, min($request->integer('limit') ?: 10, 50));
+    $columns = ['id', 'title', 'slug', 'featuredImage', 'categoryId', 'authorId', 'createdAt', 'updatedAt', 'metaTitle', 'metaDescription'];
+
+    if ($request->boolean('include_content')) {
+        $columns[] = 'content';
+    }
 
     return PublicApi::noStoreJson([
         'success' => true,
         'posts' => rescue(
             fn () => Post::query()
-                ->select(['id', 'title', 'slug', 'featuredImage', 'categoryId', 'authorId', 'createdAt', 'updatedAt', 'metaTitle', 'metaDescription'])
+                ->select($columns)
                 ->with(['category:id,name,slug', 'author:id,name,slug,bio,avatar'])
                 ->where('published', true)
                 ->when($request->query('category'), fn ($query, $slug) => $query->whereHas('category', fn ($category) => $category->where('slug', $slug)->where('type', 'BLOG')))

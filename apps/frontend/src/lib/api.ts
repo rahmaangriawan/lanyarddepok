@@ -216,10 +216,11 @@ export const api = {
       success: false,
       product: null,
     }, { cacheTtlMs: 0 }),
-  posts: (options?: { limit?: number; page?: number }) => {
+  posts: (options?: { limit?: number; page?: number; includeContent?: boolean }) => {
     const params = new URLSearchParams();
     if (options?.limit) params.set('limit', String(options.limit));
     if (options?.page && options.page > 1) params.set('page', String(options.page));
+    if (options?.includeContent) params.set('include_content', '1');
     const query = params.toString();
 
     return request<{ success: boolean; posts: PaginatedPosts | Post[] }>(`/posts${query ? `?${query}` : ''}`, {
