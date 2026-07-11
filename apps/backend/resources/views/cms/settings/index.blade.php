@@ -193,6 +193,14 @@
       background: color-mix(in srgb, var(--color-primary) 4%, var(--color-card));
       transition: border-color .16s ease, background .16s ease;
     }
+    .settings-credential-drop.is-saved {
+      border-color: color-mix(in srgb, #16a34a 42%, var(--color-border));
+      background: color-mix(in srgb, #16a34a 7%, var(--color-card));
+    }
+    .settings-credential-drop.is-ready {
+      border-color: color-mix(in srgb, #2563eb 46%, var(--color-border));
+      background: color-mix(in srgb, #2563eb 7%, var(--color-card));
+    }
     .settings-credential-drop:hover,
     .settings-credential-drop.is-dragging {
       border-color: var(--color-primary);
@@ -205,9 +213,48 @@
       overflow: hidden;
       clip: rect(0, 0, 0, 0);
     }
+    .settings-credential-content {
+      display: grid;
+      justify-items: center;
+      gap: .4rem;
+    }
+    .settings-credential-badge {
+      display: none;
+      padding: .2rem .55rem;
+      border-radius: 999px;
+      color: #15803d;
+      background: #dcfce7;
+      font-size: .72rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .settings-credential-drop.is-saved .settings-credential-badge {
+      display: inline-flex;
+    }
+    .settings-credential-action {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2.2rem;
+      margin-top: .25rem;
+      padding: .45rem .8rem;
+      border: 1px solid color-mix(in srgb, var(--color-primary) 28%, var(--color-border));
+      border-radius: .65rem;
+      color: var(--color-primary-emphasis);
+      background: var(--color-card);
+      font-size: .82rem;
+      font-weight: 700;
+    }
     .settings-credential-status {
       color: var(--color-muted-foreground);
       font-size: .85rem;
+    }
+    .settings-credential-status.is-saved {
+      color: #15803d;
+      font-weight: 600;
+    }
+    .settings-credential-status.is-ready {
+      color: #1d4ed8;
+      font-weight: 600;
     }
     .settings-raw-note {
       padding: .9rem 1rem;
@@ -319,16 +366,19 @@
                         @elseif($type === 'textarea')
                           <textarea id="setting-{{ $key }}" class="input min-h-32" name="settings[{{ $key }}]" placeholder="{{ $field['placeholder'] ?? '' }}">{{ $value }}</textarea>
                         @elseif($type === 'credential')
-                          <div class="settings-credential-upload" data-credential-upload>
+                          @php($hasCredential = trim($value) !== '')
+                          <div class="settings-credential-upload" data-credential-upload data-credential-saved="{{ $hasCredential ? 'true' : 'false' }}">
                             <input id="setting-{{ $key }}" type="hidden" name="settings[{{ $key }}]" value="{{ e($value) }}" data-credential-value />
-                            <label class="settings-credential-drop" for="setting-{{ $key }}-file" data-credential-drop>
+                            <label class="settings-credential-drop {{ $hasCredential ? 'is-saved' : '' }}" for="setting-{{ $key }}-file" data-credential-drop>
                               <input id="setting-{{ $key }}-file" type="file" accept="application/json,.json" data-credential-file />
-                              <span>
-                                <strong>Upload file credential JSON</strong>
-                                <span class="mt-1 block text-sm text-muted-foreground">Klik area ini atau seret file service account dari Google Cloud.</span>
+                              <span class="settings-credential-content">
+                                <span class="settings-credential-badge">Tersimpan</span>
+                                <strong data-credential-title>{{ $hasCredential ? 'Credential Google sudah tersimpan' : 'Upload file credential JSON' }}</strong>
+                                <span class="block text-sm text-muted-foreground" data-credential-description>{{ $hasCredential ? 'Gunakan file baru bila ingin mengganti service account yang aktif.' : 'Klik area ini atau seret file service account dari Google Cloud.' }}</span>
+                                <span class="settings-credential-action" data-credential-action>{{ $hasCredential ? 'Ganti credential JSON' : 'Pilih credential JSON' }}</span>
                               </span>
                             </label>
-                            <p class="settings-credential-status" data-credential-status>{{ $value !== '' ? 'Credential tersimpan. Upload file baru untuk mengganti.' : 'Belum ada credential tersimpan.' }}</p>
+                            <p class="settings-credential-status {{ $hasCredential ? 'is-saved' : '' }}" data-credential-status>{{ $hasCredential ? 'Credential aktif tersimpan dan siap digunakan.' : 'Belum ada credential tersimpan.' }}</p>
                           </div>
                         @elseif($type === 'select')
                           <select id="setting-{{ $key }}" class="input" name="settings[{{ $key }}]">
@@ -464,9 +514,39 @@
         var fileInput = field.querySelector('[data-credential-file]');
         var drop = field.querySelector('[data-credential-drop]');
         var status = field.querySelector('[data-credential-status]');
+        var title = field.querySelector('[data-credential-title]');
+        var description = field.querySelector('[data-credential-description]');
+        var action = field.querySelector('[data-credential-action]');
+        var hasSavedCredential = field.getAttribute('data-credential-saved') === 'true';
 
-        function setStatus(message) {
-          if (status) status.textContent = message;
+        function setStatus(message, state) {
+          if (! status) return;
+
+          status.textContent = message;
+          status.classList.toggle('is-saved', state === 'saved');
+          status.classList.toggle('is-ready', state === 'ready');
+        }
+
+        function setCredentialState(state, fileName) {
+          var isSaved = state === 'saved';
+          var isReady = state === 'ready';
+
+          drop.classList.toggle('is-saved', isSaved);
+          drop.classList.toggle('is-ready', isReady);
+
+          if (title) {
+            title.textContent = isSaved ? 'Credential Google sudah tersimpan' : (isReady ? 'Credential baru siap disimpan' : 'Upload file credential JSON');
+          }
+
+          if (description) {
+            description.textContent = isSaved
+              ? 'Gunakan file baru bila ingin mengganti service account yang aktif.'
+              : (isReady ? fileName + ' akan mengganti credential aktif setelah Settings disimpan.' : 'Klik area ini atau seret file service account dari Google Cloud.');
+          }
+
+          if (action) {
+            action.textContent = isSaved || isReady ? 'Ganti credential JSON' : 'Pilih credential JSON';
+          }
         }
 
         function readFile(file) {
@@ -480,7 +560,8 @@
           var reader = new FileReader();
           reader.onload = function () {
             hidden.value = String(reader.result || '');
-            setStatus(file.name + ' siap disimpan.');
+            setCredentialState('ready', file.name);
+            setStatus(file.name + ' siap disimpan. Klik Simpan Settings untuk menerapkan perubahan.', 'ready');
           };
           reader.onerror = function () {
             setStatus('File gagal dibaca. Coba pilih ulang.');
@@ -509,6 +590,8 @@
           event.preventDefault();
           readFile(event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]);
         });
+
+        setCredentialState(hasSavedCredential ? 'saved' : 'empty');
       });
 
       document.querySelectorAll('[data-add-auto-link]').forEach(function (button) {
