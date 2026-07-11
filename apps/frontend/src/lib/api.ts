@@ -44,6 +44,13 @@ export type Product = {
   category?: { id: number; name: string; slug: string } | null;
 };
 
+export type ProductPagination = {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+};
+
 export type Post = {
   id: number;
   title: string;
@@ -184,11 +191,20 @@ async function request<T>(path: string, fallback: T, options: RequestOptions = {
 }
 
 export const api = {
-  products: (limit?: number) =>
-    request<{ success: boolean; products: Product[] }>(`/products${limit ? `?limit=${limit}` : ''}`, {
+  products: (options?: number | { limit?: number; page?: number; q?: string }) => {
+    const normalized = typeof options === 'number' ? { limit: options } : options;
+    const params = new URLSearchParams();
+    if (normalized?.limit) params.set('limit', String(normalized.limit));
+    if (normalized?.page && normalized.page > 1) params.set('page', String(normalized.page));
+    if (normalized?.q?.trim()) params.set('q', normalized.q.trim());
+    const query = params.toString();
+
+    return request<{ success: boolean; products: Product[]; pagination: ProductPagination }>(`/products${query ? `?${query}` : ''}`, {
       success: false,
       products: [],
-    }, { cacheTtlMs: 0 }),
+      pagination: { current_page: 1, last_page: 1, per_page: normalized?.limit || 12, total: 0 },
+    }, { cacheTtlMs: 0 });
+  },
   categories: (type?: string) =>
     request<{ success: boolean; categories: Category[] }>(`/categories${type ? `?type=${encodeURIComponent(type)}` : ''}`, {
       success: false,

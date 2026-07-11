@@ -95,7 +95,8 @@ Route::get('/sitemap', function () {
 });
 
 Route::get('/products', function (Request $request) {
-    $products = rescue(function () use ($request) {
+    $result = rescue(function () use ($request) {
+        $limit = max(1, min($request->integer('limit') ?: 12, 48));
         $query = Product::query()
             ->with('category:id,name,slug')
             ->where('published', true)
@@ -109,13 +110,14 @@ Route::get('/products', function (Request $request) {
                     ->orWhere('sku', 'like', "%{$search}%")
                     ->orWhere('specs', 'like', "%{$search}%")
                     ->orWhere('accessories', 'like', "%{$search}%")
+                    ->orWhere('shortDescription', 'like', "%{$search}%")
+                    ->orWhere('basePrice', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
-        return $query
-            ->when($request->integer('limit') > 0, fn ($builder) => $builder->limit($request->integer('limit')))
-            ->get()
+        $paginator = $query->paginate($limit);
+        $products = collect($paginator->items())
             ->map(function (Product $product) {
                 $product->name = PublicApi::normalizeText($product->name);
                 $product->description = PublicApi::normalizeText($product->description);
@@ -125,9 +127,22 @@ Route::get('/products', function (Request $request) {
 
                 return $product;
             });
-    }, collect(), false);
 
-    return PublicApi::noStoreJson(['success' => true, 'products' => $products]);
+        return [
+            'products' => $products,
+            'pagination' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ],
+        ];
+    }, [
+        'products' => collect(),
+        'pagination' => ['current_page' => 1, 'last_page' => 1, 'per_page' => 12, 'total' => 0],
+    ], false);
+
+    return PublicApi::noStoreJson(['success' => true, ...$result]);
 });
 
 Route::get('/products/{slug}', function (string $slug) {
