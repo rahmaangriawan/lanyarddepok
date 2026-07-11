@@ -24,6 +24,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
 
 class CmsResourceController extends Controller
@@ -347,6 +348,12 @@ class CmsResourceController extends Controller
         $request->validate(['file' => ['required', 'file', 'mimes:jpg,jpeg,png,webp,gif,pdf', 'max:5120']]);
         $file = $request->file('file');
         $path = $file->store('cms', 'public');
+
+        if (! is_string($path) || $path === '' || ! Storage::disk('public')->exists($path)) {
+            throw ValidationException::withMessages([
+                'file' => 'File gagal disimpan ke storage publik. Periksa izin folder storage lalu coba lagi.',
+            ]);
+        }
 
         return Media::create([
             'filename' => $file->getClientOriginalName(),

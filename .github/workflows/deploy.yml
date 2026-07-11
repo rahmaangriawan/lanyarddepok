@@ -227,6 +227,17 @@ jobs:
             "$APP_DIR/apps/backend/storage/framework/views" \
             "$APP_DIR/apps/backend/storage/logs"
 
+          chmod -R u+rwX,g+rwX \
+            "$APP_DIR/apps/backend/storage" \
+            "$APP_DIR/apps/backend/bootstrap/cache"
+
+          STORAGE_WRITE_TEST="$APP_DIR/apps/backend/storage/app/public/.deploy-write-test"
+          if ! touch "$STORAGE_WRITE_TEST"; then
+            echo "Laravel public storage is not writable: $APP_DIR/apps/backend/storage/app/public"
+            exit 1
+          fi
+          rm -f "$STORAGE_WRITE_TEST"
+
           cd "$APP_DIR/apps/backend"
           composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
           php artisan migrate --force

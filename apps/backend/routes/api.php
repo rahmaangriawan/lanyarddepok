@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 Route::get('/health', fn () => ['ok' => true, 'app' => 'lanyarddepok-laravel']);
 
@@ -356,9 +357,16 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('cms')->group(function () {
         $file = $request->file('file');
         $filename = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'-'.Str::uuid().'.'.$file->extension();
         $path = $file->storeAs('uploads', $filename, 'public');
+
+        if (! is_string($path) || $path === '' || ! Storage::disk('public')->exists($path)) {
+            throw ValidationException::withMessages([
+                'file' => 'File gagal disimpan ke storage publik. Periksa izin folder storage lalu coba lagi.',
+            ]);
+        }
+
         $media = Media::create([
             'filename' => $filename,
-            'filepath' => 'storage/'.$path,
+            'filepath' => $path,
             'mimetype' => $file->getMimeType() ?: 'application/octet-stream',
             'size' => $file->getSize(),
             'url' => Storage::disk('public')->url($path),
