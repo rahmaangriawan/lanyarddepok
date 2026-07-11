@@ -227,9 +227,9 @@ jobs:
             "$APP_DIR/apps/backend/storage/framework/views" \
             "$APP_DIR/apps/backend/storage/logs"
 
-          chmod -R u+rwX,g+rwX \
-            "$APP_DIR/apps/backend/storage" \
-            "$APP_DIR/apps/backend/bootstrap/cache"
+          # PHP-FPM may own session/cache files. Only the public upload directory
+          # needs shared write access; changing every runtime file can fail.
+          chmod 0777 "$APP_DIR/apps/backend/storage/app/public"
 
           STORAGE_WRITE_TEST="$APP_DIR/apps/backend/storage/app/public/.deploy-write-test"
           if ! touch "$STORAGE_WRITE_TEST"; then
