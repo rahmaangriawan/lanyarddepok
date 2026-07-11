@@ -4,11 +4,23 @@ import { api, mediaUrl } from '../lib/api';
 import { absoluteUrl, createHomepageSchema, resolveSiteUrl, validExternalUrls } from '../lib/seo';
 import '../styles/home.css';
 
-const [{ products }, { settings }] = await Promise.all([
+const [{ products }, { settings }, postResponse] = await Promise.all([
   api.products(4),
   api.publicSettings(),
+  api.posts({ limit: 4 }),
 ]);
 const featuredProducts = products;
+const homepagePostResponse = postResponse.posts;
+const latestPosts = Array.isArray(homepagePostResponse) ? homepagePostResponse : homepagePostResponse.data || [];
+const firstImageFromContent = (html?: string | null) => html?.match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i)?.[1] || null;
+const postThumbnail = (post: (typeof latestPosts)[number]) => post.featuredImage || firstImageFromContent(post.content);
+const postSummary = (post: (typeof latestPosts)[number]) => {
+  const value = post.metaDescription || stripHtml(post.content || '') || 'Baca panduan terbaru seputar lanyard custom dan kebutuhan branding.';
+  return value.length > 120 ? `${value.slice(0, 117).trimEnd()}...` : value;
+};
+const formatPostDate = (value?: string) => value
+  ? new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(value))
+  : '';
 
 const partnerLogos = [
   { id: 1, name: 'Bank Indonesia', src: '/images/logos/bank-indonesia.svg', alt: 'Bank Indonesia', href: 'https://www.bi.go.id', width: 112, height: 32 },
@@ -663,7 +675,63 @@ const showcaseItems = featuredProducts.slice(0, 4).map((product) => ({
     }
   </script>
 
+  {latestPosts.length > 0 && (
+    <section class="border-b border-[var(--border)] bg-white py-20 text-[var(--foreground)] sm:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div class="max-w-2xl">
+            <h2 class="text-[2rem] font-bold leading-[1.08] tracking-normal sm:text-[2.4rem] lg:text-[2.75rem]">Artikel terbaru</h2>
+            <p class="mt-4 text-base leading-7 text-[var(--muted-foreground)]">Panduan seputar desain, bahan, produksi, dan penggunaan lanyard custom.</p>
+          </div>
+          <a class="inline-flex min-h-11 shrink-0 items-center gap-3 self-start rounded-xl border border-[var(--primary)] px-5 text-sm font-bold text-[var(--primary)] transition hover:bg-[var(--primary)] hover:text-white sm:self-auto" href="/blog">
+            <span>Lihat semua artikel</span>
+            <span aria-hidden="true" class="text-lg leading-none">→</span>
+          </a>
+        </div>
+
+        <div class="mt-10 grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-4">
+          {latestPosts.map((post) => {
+            const thumbnail = postThumbnail(post);
+
+            return (
+              <a class="homepage-blog-card group flex min-h-full flex-col transition hover:opacity-80" href={`/blog/${encodeURIComponent(post.slug)}`}>
+                <div class="mb-4 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--muted)]">
+                  {thumbnail ? (
+                    <img class="aspect-video w-full object-cover transition duration-300 group-hover:scale-[1.02]" src={mediaUrl(thumbnail)} alt={post.title} loading="lazy" decoding="async" />
+                  ) : (
+                    <div class="grid aspect-video place-items-center bg-[var(--secondary)] px-5 text-center text-sm font-bold text-[var(--primary)]">Lanyard Depok</div>
+                  )}
+                </div>
+                <div class="flex items-center gap-2 text-xs font-bold text-[var(--primary)]">
+                  <span>{post.category?.name || 'Artikel'}</span>
+                  {post.createdAt && <span class="font-semibold text-[var(--muted-foreground)]">{formatPostDate(post.createdAt)}</span>}
+                </div>
+                <h3 class="homepage-blog-title mt-2 text-xl font-bold leading-snug tracking-normal">{post.title}</h3>
+                <p class="homepage-blog-summary mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{postSummary(post)}</p>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  )}
+
   <style>
+    .homepage-blog-title,
+    .homepage-blog-summary {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+    }
+
+    .homepage-blog-title {
+      -webkit-line-clamp: 3;
+    }
+
+    .homepage-blog-summary {
+      -webkit-line-clamp: 3;
+    }
+
     .partner-logo-card {
       align-items: center;
       animation: partner-logo-card-in 450ms ease-out forwards;
