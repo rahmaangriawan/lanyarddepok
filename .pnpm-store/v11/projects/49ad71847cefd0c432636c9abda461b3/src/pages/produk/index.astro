@@ -1,12 +1,25 @@
 ---
 import PublicLayout from '../../layouts/PublicLayout.astro';
 import { api, mediaUrl } from '../../lib/api';
+import { absoluteUrl, createCollectionPageSchema } from '../../lib/seo';
 import '../../styles/produk.css';
 
 const { products } = await api.products();
+const pageTitle = 'Produk Lanyard Custom Depok';
+const pageDescription = 'Pilihan lanyard custom untuk kebutuhan kantor, event, sekolah, komunitas, dan branding di Depok.';
+const productCollectionSchema = createCollectionPageSchema({
+  url: absoluteUrl('/produk'),
+  name: pageTitle,
+  description: pageDescription,
+  items: products.map((product) => ({
+    name: product.name || product.sku,
+    url: absoluteUrl(`/produk/${encodeURIComponent(product.slug || product.sku)}`),
+    imageUrl: absoluteUrl(mediaUrl(product.featuredImage)),
+  })),
+});
 ---
 
-<PublicLayout title="Produk Lanyard Custom Depok">
+<PublicLayout title={pageTitle} description={pageDescription} canonicalPath="/produk" structuredData={productCollectionSchema}>
   <section class="bg-white py-20">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <p class="section-eyebrow">Produk</p>

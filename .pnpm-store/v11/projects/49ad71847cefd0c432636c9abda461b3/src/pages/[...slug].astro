@@ -1,6 +1,7 @@
 ---
 import PublicLayout from '../layouts/PublicLayout.astro';
 import { api } from '../lib/api';
+import { absoluteUrl, createWebPageSchema } from '../lib/seo';
 import '../styles/cms.css';
 
 export const prerender = false;
@@ -17,9 +18,20 @@ if (!page) {
 }
 
 if (!page) return Astro.redirect('/', 302);
+
+const pagePath = `/${parts.map((part) => encodeURIComponent(part)).join('/')}`;
+const pageTitle = page.metaTitle || page.title;
+const pageDescription = page.metaDescription || page.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 180);
+const cmsPageSchema = createWebPageSchema({
+  url: absoluteUrl(pagePath),
+  name: pageTitle,
+  description: pageDescription,
+  datePublished: page.createdAt,
+  dateModified: page.updatedAt,
+});
 ---
 
-<PublicLayout title={page.metaTitle || page.title} description={page.metaDescription || ''}>
+<PublicLayout title={pageTitle} description={pageDescription} canonicalPath={pagePath} structuredData={cmsPageSchema}>
   <article class="border-b border-[var(--border)] bg-white px-4 py-20 text-[var(--foreground)] sm:px-6 sm:py-24 lg:px-8">
     <div class="mx-auto max-w-4xl">
       <p class="inline-flex rounded-full bg-[var(--secondary)] px-4 py-2 text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Lanyard Depok</p>

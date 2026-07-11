@@ -1,6 +1,7 @@
 ---
 import PublicLayout from '../../layouts/PublicLayout.astro';
 import { api, mediaUrl } from '../../lib/api';
+import { absoluteUrl, createCollectionPageSchema } from '../../lib/seo';
 import '../../styles/blog.css';
 
 const postsPerPage = 6;
@@ -29,9 +30,27 @@ const pageHref = (page: number) => {
   const query = params.toString();
   return `/blog${query ? `?${query}` : ''}`;
 };
+const pageTitle = 'Blog Lanyard Depok';
+const pageDescription = 'Artikel dan insight seputar lanyard custom, desain, produksi, dan kebutuhan branding di Depok.';
+const canonicalPath = pageHref(currentPage);
+const blogCollectionSchema = createCollectionPageSchema({
+  url: absoluteUrl(canonicalPath),
+  name: currentPage > 1 ? `${pageTitle} - Halaman ${currentPage}` : pageTitle,
+  description: pageDescription,
+  items: posts.map((post) => ({
+    name: post.title,
+    url: absoluteUrl(`/blog/${encodeURIComponent(post.slug)}`),
+    imageUrl: postThumbnail(post) ? absoluteUrl(mediaUrl(postThumbnail(post))) : undefined,
+  })),
+});
 ---
 
-<PublicLayout title="Blog Lanyard Depok">
+<PublicLayout
+  title={currentPage > 1 ? `${pageTitle} - Halaman ${currentPage}` : pageTitle}
+  description={pageDescription}
+  canonicalPath={canonicalPath}
+  structuredData={blogCollectionSchema}
+>
   <section class="border-b border-[var(--border)] bg-white py-20 text-[var(--foreground)] sm:py-24">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <p class="inline-flex rounded-full bg-[var(--secondary)] px-4 py-2 text-xs font-extrabold uppercase leading-5 tracking-normal text-[var(--primary)]">Artikel</p>

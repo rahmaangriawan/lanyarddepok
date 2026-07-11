@@ -2,22 +2,32 @@
 import PublicLayout from '../../layouts/PublicLayout.astro';
 import { injectAutoLinks, parseAutoLinkLimit, parseAutoLinks } from '../../lib/auto-links';
 import { api, mediaUrl, PUBLIC_API_BASES, type Comment, type Post } from '../../lib/api';
+import { absoluteUrl, createBlogPostingSchema, normalizeIsoDate } from '../../lib/seo';
 import '../../styles/blog.css';
 
 export const prerender = false;
 
 const slug = Astro.params.slug || '';
+const currentUrl = absoluteUrl(`/blog/${encodeURIComponent(slug)}`);
 const previewId = Astro.url.searchParams.get('preview');
-const { post } = await api.post(slug, previewId ? { preview: previewId } : undefined);
+const previewExpires = Astro.url.searchParams.get('expires');
+const previewSignature = Astro.url.searchParams.get('signature');
+const { post } = await api.post(slug, previewId ? {
+  preview: previewId,
+  expires: previewExpires || undefined,
+  signature: previewSignature || undefined,
+} : undefined);
 
-if (!post) return Astro.redirect('/blog', 302);
+if (!post) {
+  if (previewId) return new Response(null, { status: 404 });
+  return Astro.redirect('/blog', 302);
+}
 
 const postsResponse = await api.posts({ limit: 8 });
 const settingsResponse = await api.publicSettings();
 const postsPayload = postsResponse.posts;
 const allPosts = Array.isArray(postsPayload) ? postsPayload : postsPayload.data || [];
 const relatedPosts = allPosts.filter((item) => item.id !== post.id).slice(0, 3);
-const currentUrl = Astro.url.href;
 const encodedUrl = encodeURIComponent(currentUrl);
 const encodedTitle = encodeURIComponent(post.title);
 const commentApiUrls = PUBLIC_API_BASES.map((baseUrl) => `${baseUrl}/comments`);
@@ -130,6 +140,18 @@ const contentHtml = rewriteImages(
 );
 const tocItems = extractToc(contentHtml);
 const featuredImage = resolveBlogImage(post.featuredImage || firstImageFromContent(post.content));
+const postDescription = post.metaDescription || stripHtml(contentHtml).slice(0, 180);
+const articleSchema = createBlogPostingSchema({
+  url: currentUrl,
+  headline: post.metaTitle || post.title,
+  description: postDescription,
+  imageUrl: absoluteUrl(featuredImage),
+  datePublished: post.createdAt,
+  dateModified: post.updatedAt,
+  category: post.category?.name,
+});
+const articlePublishedTime = normalizeIsoDate(post.createdAt);
+const articleModifiedTime = normalizeIsoDate(post.updatedAt);
 const postThumbnail = (item: Post) => resolveBlogImage(item.featuredImage || firstImageFromContent(item.content));
 const encodedMedia = encodeURIComponent(new URL(featuredImage, Astro.url).href);
 const shareLinks = [
@@ -151,7 +173,19 @@ const shareLinks = [
 ];
 ---
 
-<PublicLayout title={post.metaTitle || post.title} description={post.metaDescription || ''}>
+<PublicLayout
+  title={post.metaTitle || post.title}
+  description={postDescription}
+  canonicalPath={`/blog/${encodeURIComponent(slug)}`}
+  ogImage={featuredImage}
+  ogImageAlt={post.title}
+  ogType="article"
+  robots={previewId ? 'noindex, nofollow' : 'index, follow'}
+  articlePublishedTime={articlePublishedTime}
+  articleModifiedTime={articleModifiedTime}
+  articleSection={post.category?.name}
+  structuredData={articleSchema}
+>
   <article class="blog-post-page">
     {previewId && (
       <div style="background:#fef3c7;border-bottom:1px solid #f59e0b;color:#92400e;text-align:center;padding:0.75rem 1rem;font-size:0.85rem;font-weight:700;">
@@ -685,7 +719,45 @@ const shareLinks = [
   }
 
   .content-prose :where(ul, ol) {
-    padding-left: 1.25rem;
+    margin-left: 0.25rem;
+    padding-left: 1.35rem;
+  }
+
+  .content-prose :where(ul) {
+    list-style: disc;
+  }
+
+  .content-prose :where(ol) {
+    list-style: decimal;
+  }
+
+  .content-prose :where(ol > li[data-list='bullet']) {
+    list-style-type: disc;
+  }
+
+  .content-prose :where(ol > li[data-list='ordered']) {
+    list-style-type: decimal;
+  }
+
+  .content-prose :where(li) {
+    display: list-item;
+    margin: 0.45rem 0;
+    padding-left: 0.2rem;
+  }
+
+  .content-prose :where(li)::marker {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  .content-prose :where(ul ul) {
+    list-style-type: circle;
+    margin: 0.5rem 0 0.2rem;
+  }
+
+  .content-prose :where(ol ol) {
+    list-style-type: lower-alpha;
+    margin: 0.5rem 0 0.2rem;
   }
 
   .content-prose :where(img) {

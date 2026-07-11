@@ -1,6 +1,7 @@
 ---
 import PublicLayout from '../../layouts/PublicLayout.astro';
 import { api, mediaUrl } from '../../lib/api';
+import { absoluteUrl, createProductSchema } from '../../lib/seo';
 import '../../styles/produk.css';
 
 export const prerender = false;
@@ -12,6 +13,16 @@ if (!product) return Astro.redirect('/produk', 302);
 
 const productName = product.name || product.sku || 'Produk Lanyard';
 const productDescription = product.description || product.shortDescription || product.shortDesc || product.longDesc || product.metaDescription || 'Pilihan lanyard custom untuk kebutuhan brand, event, dan identitas Anda.';
+const productUrl = absoluteUrl(`/produk/${encodeURIComponent(slug)}`);
+const productImage = mediaUrl(product.featuredImage);
+const productSchema = createProductSchema({
+  url: productUrl,
+  name: productName,
+  description: productDescription.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(),
+  imageUrl: absoluteUrl(productImage),
+  sku: product.sku,
+  category: product.category?.name,
+});
 const productDetails = [
   { label: 'Kategori', value: product.category?.name },
   { label: 'Minimum Order', value: product.minOrder },
@@ -21,13 +32,20 @@ const productDetails = [
 ].filter((item) => item.value);
 ---
 
-<PublicLayout title={product.metaTitle || productName || 'Produk Lanyard Depok'} description={product.metaDescription || product.shortDescription || ''}>
+<PublicLayout
+  title={product.metaTitle || productName || 'Produk Lanyard Depok'}
+  description={product.metaDescription || product.shortDescription || productDescription}
+  canonicalPath={`/produk/${encodeURIComponent(slug)}`}
+  ogImage={productImage}
+  ogImageAlt={productName}
+  structuredData={productSchema}
+>
   <section class="border-b border-[var(--border)] bg-white py-20 text-[var(--foreground)] sm:py-24">
     <div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-14 lg:px-8">
       <div class="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--muted)] p-4 shadow-sm">
         <div aria-hidden="true" class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[var(--secondary)] opacity-70 blur-3xl"></div>
         <div aria-hidden="true" class="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-[var(--primary)] opacity-10 blur-3xl"></div>
-        <img class="relative z-10 aspect-[4/3] w-full rounded-xl bg-white object-cover" src={mediaUrl(product.featuredImage)} alt={productName} fetchpriority="high" decoding="async" />
+        <img class="relative z-10 aspect-[4/3] w-full rounded-xl bg-white object-cover" src={productImage} alt={productName} fetchpriority="high" decoding="async" />
       </div>
 
       <div class="min-w-0">

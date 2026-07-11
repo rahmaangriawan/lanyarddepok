@@ -12,6 +12,7 @@ use App\Models\Post;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Support\PublicApi;
+use App\Support\ArticlePreview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -32,8 +33,57 @@ Route::get('/turnstile-config', function () {
 Route::get('/public-settings', function () {
     return PublicApi::json([
         'success' => true,
-        'settings' => PublicApi::settings(['seo_auto_links', 'seo_auto_links_limit']),
+        'settings' => PublicApi::settings([
+            'site_title',
+            'site_description',
+            'site_logo',
+            'site_favicon',
+            'og_image',
+            'contact_phone',
+            'contact_whatsapp',
+            'contact_email',
+            'contact_address',
+            'seo_meta_title',
+            'seo_meta_description',
+            'google_site_verification',
+            'bing_site_verification',
+            'social_instagram',
+            'social_facebook',
+            'social_tiktok',
+            'seo_auto_links',
+            'seo_auto_links_limit',
+        ]),
     ], 300);
+});
+
+Route::get('/sitemap', function () {
+    return PublicApi::json([
+        'success' => true,
+        'sitemap' => [
+            'posts' => Post::query()
+                ->where('published', true)
+                ->orderByDesc('updatedAt')
+                ->get(['slug', 'updatedAt']),
+            'products' => Product::query()
+                ->where('published', true)
+                ->orderByDesc('updatedAt')
+                ->get(['slug', 'sku', 'updatedAt'])
+                ->map(fn (Product $product) => [
+                    'slug' => $product->slug ?: $product->sku,
+                    'updatedAt' => $product->updatedAt,
+                ])
+                ->filter(fn (array $product) => filled($product['slug']))
+                ->values(),
+            'pages' => Page::query()
+                ->where('published', true)
+                ->orderByDesc('updatedAt')
+                ->get(['slug', 'updatedAt']),
+            'cityPages' => CityPage::query()
+                ->where('published', true)
+                ->orderByDesc('updatedAt')
+                ->get(['slug', 'updatedAt']),
+        ],
+    ], 3600);
 });
 
 Route::get('/products', function (Request $request) {
@@ -126,6 +176,12 @@ Route::get('/posts/{slug}', function (string $slug, Request $request) {
         ->where('slug', $slug);
 
     if ($previewId) {
+        abort_unless(ArticlePreview::isValid(
+            (int) $previewId,
+            $slug,
+            $request->query('expires'),
+            $request->query('signature'),
+        ), 404);
         $query->where('id', $previewId);
     } else {
         $query->where('published', true);

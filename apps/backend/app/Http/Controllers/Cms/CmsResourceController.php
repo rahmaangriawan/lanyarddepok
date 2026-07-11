@@ -15,6 +15,7 @@ use App\Models\Post;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Support\HtmlSanitizer;
+use App\Support\ArticlePreview;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -95,6 +96,7 @@ class CmsResourceController extends Controller
                 'published' => true,
                 'approved' => false,
             ],
+            'previewUrl' => null,
         ]);
     }
 
@@ -134,13 +136,15 @@ class CmsResourceController extends Controller
     public function edit(string $resource, int $id): View
     {
         $config = $this->config($resource);
+        $item = $config['model']::query()->findOrFail($id);
 
         return view('cms.form', [
             'resource' => $resource,
             'config' => Arr::except($config, ['model']),
-            'item' => $config['model']::query()->findOrFail($id),
+            'item' => $item,
             'options' => $this->options($config),
             'defaults' => [],
+            'previewUrl' => $resource === 'posts' ? ArticlePreview::url($item) : null,
         ]);
     }
 
@@ -818,6 +822,7 @@ class CmsResourceController extends Controller
                 'fields' => [
                     ['key' => 'seo_meta_title', 'label' => 'SEO Meta Title', 'type' => 'text'],
                     ['key' => 'seo_meta_description', 'label' => 'SEO Meta Description', 'type' => 'textarea'],
+                    ['key' => 'google_site_verification', 'label' => 'Google Site Verification', 'type' => 'text'],
                     ['key' => 'bing_site_verification', 'label' => 'Bing Site Verification', 'type' => 'text'],
                     ['key' => 'seo_auto_links', 'label' => 'Auto Link SEO', 'type' => 'auto_links'],
                     ['key' => 'seo_auto_links_limit', 'label' => 'Maksimal Auto Link per Halaman', 'type' => 'number', 'placeholder' => '2'],

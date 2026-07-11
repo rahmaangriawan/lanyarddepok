@@ -1,9 +1,13 @@
 ---
 import PublicLayout from '../layouts/PublicLayout.astro';
 import { api, mediaUrl } from '../lib/api';
+import { absoluteUrl, createHomepageSchema, resolveSiteUrl, validExternalUrls } from '../lib/seo';
 import '../styles/home.css';
 
-const { products } = await api.products(4);
+const [{ products }, { settings }] = await Promise.all([
+  api.products(4),
+  api.publicSettings(),
+]);
 const featuredProducts = products;
 
 const partnerLogos = [
@@ -130,6 +134,32 @@ const faqItems = [
   },
 ];
 
+const fallbackTitle = 'Lanyard Depok: Cetak Custom No Worry Ongkir';
+const fallbackDescription = 'Cetak lanyard custom Depok untuk kantor, sekolah, komunitas, dan event dengan proses mudah.';
+const siteUrl = resolveSiteUrl();
+const siteName = settings.site_title?.trim() || 'Lanyard Depok';
+const seoTitle = settings.seo_meta_title?.trim() || fallbackTitle;
+const seoDescription = settings.seo_meta_description?.trim() || settings.site_description?.trim() || fallbackDescription;
+const ogImage = mediaUrl(settings.og_image?.trim() || '/uploads/featured-products-showcase-lanyarddepok-v2.webp');
+const logoUrl = absoluteUrl(mediaUrl(settings.site_logo?.trim() || '/uploads/lanyarddepok-logo.webp'), siteUrl);
+const homepageSchema = createHomepageSchema({
+  siteUrl,
+  siteName,
+  description: seoDescription,
+  logoUrl,
+  imageUrl: absoluteUrl(ogImage, siteUrl),
+  phone: settings.contact_phone?.trim() || '+62 822-1020-0700',
+  whatsapp: settings.contact_whatsapp?.trim() || '6282210200700',
+  email: settings.contact_email?.trim() || 'info@lanyarddepok.com',
+  address: settings.contact_address?.trim(),
+  sameAs: validExternalUrls([
+    settings.social_instagram,
+    settings.social_facebook,
+    settings.social_tiktok,
+  ]),
+  faqs: faqItems,
+});
+
 const stripHtml = (value) => value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
 const truncateText = (value, maxLength = 72) => {
@@ -170,7 +200,14 @@ const showcaseItems = featuredProducts.slice(0, 4).map((product) => ({
 }));
 ---
 
-<PublicLayout>
+<PublicLayout
+  title={seoTitle}
+  description={seoDescription}
+  ogImage={ogImage}
+  ogImageAlt="Lanyard custom berkualitas dari Lanyard Depok"
+  bingSiteVerification={settings.bing_site_verification?.trim()}
+  structuredData={homepageSchema}
+>
   <section id="hero" class="relative w-full overflow-hidden border-b border-[var(--border)] bg-white py-20 text-[var(--foreground)] sm:py-0">
     <div class="mx-auto grid min-h-[calc(100dvh-88px)] max-w-7xl grid-cols-1 items-center gap-12 px-4 sm:-translate-y-[10px] sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10 lg:px-8">
       <div class="flex flex-col items-center text-center lg:items-start lg:text-left">

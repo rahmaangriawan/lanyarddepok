@@ -39,6 +39,8 @@ export type Product = {
   minOrder?: string | null;
   metaTitle?: string | null;
   metaDescription?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
   category?: { id: number; name: string; slug: string } | null;
 };
 
@@ -51,6 +53,7 @@ export type Post = {
   metaTitle?: string | null;
   metaDescription?: string | null;
   createdAt?: string;
+  updatedAt?: string;
   category?: { id: number; name: string; slug: string } | null;
   comments?: Comment[];
 };
@@ -79,6 +82,20 @@ export type CmsPage = {
   content: string;
   metaTitle?: string | null;
   metaDescription?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+};
+
+export type SitemapItem = {
+  slug: string;
+  updatedAt?: string | null;
+};
+
+export type PublicSitemap = {
+  posts: SitemapItem[];
+  products: SitemapItem[];
+  pages: SitemapItem[];
+  cityPages: SitemapItem[];
 };
 
 export type Category = {
@@ -90,6 +107,22 @@ export type Category = {
 export type PublicSettings = {
   seo_auto_links?: string;
   seo_auto_links_limit?: string;
+  site_title?: string;
+  site_description?: string;
+  site_logo?: string;
+  site_favicon?: string;
+  og_image?: string;
+  contact_phone?: string;
+  contact_whatsapp?: string;
+  contact_email?: string;
+  contact_address?: string;
+  seo_meta_title?: string;
+  seo_meta_description?: string;
+  bing_site_verification?: string;
+  google_site_verification?: string;
+  social_instagram?: string;
+  social_facebook?: string;
+  social_tiktok?: string;
 };
 
 async function request<T>(path: string, fallback: T): Promise<T> {
@@ -156,9 +189,13 @@ export const api = {
       posts: [],
     });
   },
-  post: (slug: string, options?: { preview?: string }) => {
-    const params = options?.preview ? `?preview=${options.preview}` : '';
-    return request<{ success: boolean; post: Post | null }>(`/posts/${slug}${params}`, {
+  post: (slug: string, options?: { preview?: string; expires?: string; signature?: string }) => {
+    const params = new URLSearchParams();
+    if (options?.preview) params.set('preview', options.preview);
+    if (options?.expires) params.set('expires', options.expires);
+    if (options?.signature) params.set('signature', options.signature);
+    const query = params.toString();
+    return request<{ success: boolean; post: Post | null }>(`/posts/${slug}${query ? `?${query}` : ''}`, {
       success: false,
       post: null,
     });
@@ -167,6 +204,11 @@ export const api = {
     request<{ success: boolean; settings: PublicSettings }>('/public-settings', {
       success: false,
       settings: {},
+    }),
+  sitemap: () =>
+    request<{ success: boolean; sitemap: PublicSitemap }>('/sitemap', {
+      success: false,
+      sitemap: { posts: [], products: [], pages: [], cityPages: [] },
     }),
   page: (slug: string) =>
     request<{ success: boolean; page: CmsPage | null }>(`/pages/${slug}`, {

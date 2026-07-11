@@ -1,13 +1,16 @@
 ---
 import PublicLayout from '../layouts/PublicLayout.astro';
+import { api } from '../lib/api';
+import { absoluteUrl, createWebPageSchema } from '../lib/seo';
 import '../styles/kontak.css';
 
-export const prerender = true;
+export const prerender = false;
 
-const phoneDisplay = '0822-1020-0700';
-const phoneRaw = '6282210200700';
-const email = 'info@lanyarddepok.com';
-const location = 'Depok, Indonesia';
+const { settings } = await api.publicSettings();
+const phoneRaw = (settings.contact_whatsapp || '6282210200700').replace(/\D/g, '');
+const phoneDisplay = settings.contact_phone || '0822-1020-0700';
+const email = settings.contact_email || 'info@lanyarddepok.com';
+const location = settings.contact_address || 'Depok, Indonesia';
 const whatsappUrl = `https://wa.me/${phoneRaw}?text=Halo%20Lanyard%20Depok%2C%20saya%20ingin%20konsultasi%20lanyard%20custom.`;
 const backendBase = (import.meta.env.PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
 const primaryApiBase = (import.meta.env.PUBLIC_API_BASE_URL || 'http://127.0.0.1:3000/api').replace(/\/$/, '');
@@ -55,11 +58,22 @@ const prepItems = [
   'Logo, desain, atau referensi warna',
   'Pilihan bahan, kait, holder, dan aksesoris',
 ];
+
+const pageTitle = 'Kontak Lanyard Depok';
+const pageDescription = 'Hubungi tim Lanyard Depok untuk konsultasi desain, quotation, bahan, produksi, dan pengiriman lanyard custom.';
+const contactPageSchema = createWebPageSchema({
+  type: 'ContactPage',
+  url: absoluteUrl('/kontak'),
+  name: pageTitle,
+  description: pageDescription,
+});
 ---
 
 <PublicLayout
-  title="Kontak Lanyard Depok"
-  description="Hubungi tim Lanyard Depok untuk konsultasi desain, quotation, bahan, produksi, dan pengiriman lanyard custom."
+  title={pageTitle}
+  description={pageDescription}
+  canonicalPath="/kontak"
+  structuredData={contactPageSchema}
 >
   <section class="border-b border-[var(--border)] bg-[#FEF9F6] py-16 text-[var(--foreground)] sm:py-20" style="background-color: #FEF9F6;">
     <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:px-8">

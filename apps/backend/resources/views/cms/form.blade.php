@@ -643,11 +643,11 @@
                   </label>
 
                   @if(in_array($type, ['text', 'email', 'number', 'datetime'], true))
-                    @if($name === 'slug' && $item)
+                    @if($name === 'slug' && $item && $resource === 'posts' && !empty($previewUrl))
                       <div class="flex items-center gap-2">
                         <input id="{{ $name }}" class="input min-w-0 flex-1 {{ $isTitleField ? 'content-title-input' : '' }}" type="{{ $type === 'datetime' ? 'datetime-local' : $type }}" name="{{ $name }}" value="{{ $value }}" data-field="{{ $name }}" />
                         <a
-                          href="{{ $item->published ? '/blog/' . ($value ?: $item->slug) : '/blog/' . ($value ?: $item->slug) . '/?preview=' . $item->id }}"
+                          href="{{ $previewUrl }}"
                           target="_blank"
                           class="button button--outline button--neutral button--sm inline-flex shrink-0 items-center gap-1"
                         >

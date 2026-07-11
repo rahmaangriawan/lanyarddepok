@@ -1,5 +1,6 @@
 ---
 import PublicLayout from '../layouts/PublicLayout.astro';
+import { absoluteUrl, createWebPageSchema } from '../lib/seo';
 import '../styles/tentang.css';
 
 export const prerender = true;
@@ -60,11 +61,22 @@ const whyItems = [
   'Minimal order fleksibel',
   'Pengiriman cepat ke seluruh Indonesia',
 ];
+
+const pageTitle = 'Tentang Kami Lanyard Depok';
+const pageDescription = 'Kenali Lanyard Depok, penyedia lanyard custom berkualitas untuk brand, perusahaan, sekolah, komunitas, dan event.';
+const aboutPageSchema = createWebPageSchema({
+  type: 'AboutPage',
+  url: absoluteUrl('/tentang'),
+  name: pageTitle,
+  description: pageDescription,
+});
 ---
 
 <PublicLayout
-  title="Tentang Kami Lanyard Depok"
-  description="Kenali Lanyard Depok, penyedia lanyard custom berkualitas untuk brand, perusahaan, sekolah, komunitas, dan event."
+  title={pageTitle}
+  description={pageDescription}
+  canonicalPath="/tentang"
+  structuredData={aboutPageSchema}
 >
   <section class="border-b border-[var(--border)] bg-[#FCF8F5] py-16 text-[var(--foreground)] sm:py-20 lg:py-24">
     <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_0.92fr] lg:gap-14 lg:px-8">
