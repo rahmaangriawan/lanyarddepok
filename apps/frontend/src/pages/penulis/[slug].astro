@@ -49,7 +49,6 @@ const formatDate = (value?: string | null) => value
 >
   <section class="author-hero">
     <div class="author-shell author-hero__inner">
-      <a class="author-breadcrumb" href="/blog">Blog</a>
       <div class="author-identity">
         <div class="author-avatar author-avatar--hero">
           {avatar ? <img src={avatar} alt={`Foto ${author.name}`} fetchpriority="high" decoding="async" /> : author.name.charAt(0)}
@@ -107,9 +106,7 @@ const formatDate = (value?: string | null) => value
 <style>
   .author-shell { margin: 0 auto; max-width: 80rem; padding: 0 1rem; }
   .author-hero { border-bottom: 1px solid var(--border); background: #fff; padding: 4rem 0; }
-  .author-breadcrumb { color: var(--primary); font-size: .9rem; font-weight: 700; text-decoration: none; }
-  .author-breadcrumb::before { content: 'Kembali ke '; color: var(--muted-foreground); font-weight: 500; }
-  .author-identity { align-items: center; display: grid; gap: 1.5rem; grid-template-columns: auto minmax(0, 1fr); margin-top: 2rem; max-width: 52rem; }
+  .author-identity { align-items: center; display: grid; gap: 1.5rem; grid-template-columns: auto minmax(0, 1fr); max-width: 52rem; }
   .author-avatar { align-items: center; background: var(--secondary); border: 1px solid var(--border); border-radius: 50%; color: var(--primary); display: flex; font-size: 2.3rem; font-weight: 700; justify-content: center; overflow: hidden; }
   .author-avatar--hero { height: 7rem; width: 7rem; }
   .author-avatar img { height: 100%; object-fit: cover; width: 100%; }
